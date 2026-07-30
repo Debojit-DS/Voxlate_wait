@@ -32,6 +32,7 @@ export function OurProducts() {
             description="Designed for tourists, classrooms, seminars and face-to-face communication."
             imageSrc="/images/product-physical.png"
             imageAlt="Physical version people meeting"
+            detailsHref="/physical-version"
             onJoinWaitlist={() => openWaitlist("physical-card")}
           />
         </div>

@@ -72,7 +72,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="w-full px-6 py-4">
+      <header className="w-full px-6 py-6">
         <div className="mx-auto max-w-[1200px] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="h-24 w-auto" />

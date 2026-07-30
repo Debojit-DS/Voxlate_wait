@@ -3,10 +3,10 @@
 import { ArrowRight, Gift, Headphones, Globe, AudioLines, Users } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 
 export function PhysicalHero() {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -35,7 +35,7 @@ export function PhysicalHero() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Button variant="primary-orange" onClick={() => openModal("physical-version-hero")} icon={ArrowRight}>
+              <Button variant="primary-orange" onClick={() => openWaitlist("physical-version-hero")} icon={ArrowRight}>
                 Join Waitlist
               </Button>
             </div>

@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { ArrowRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 
 export function Hero() {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section id="home" className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -25,7 +25,7 @@ export function Hero() {
               Real-time AI translation that preserves your original voice, tone and emotion.
             </p>
             <div className="mt-8">
-              <Button variant="primary-orange" onClick={() => openModal("hero")} icon={ArrowRight}>
+              <Button variant="primary-orange" onClick={() => openWaitlist("hero")} icon={ArrowRight}>
                 Join Waitlist
               </Button>
             </div>

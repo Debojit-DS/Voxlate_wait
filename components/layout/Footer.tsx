@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { Logo } from "@/components/ui/Logo";
 
 const COMPANY_LINKS = [
@@ -46,6 +48,21 @@ function FooterLinkColumn({ title, links }: { title: string; links: FooterLink[]
 
 export function Footer() {
   const { openModal } = useWaitlistModal();
+  const { user, isLoading } = useAuth();
+  const { openPrompt } = useAuthPrompt();
+
+  const handleFooterWaitlist = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const input = e.currentTarget.querySelector("input");
+    if (input && input.value.trim()) {
+      if (!isLoading && user) {
+        openModal("footer");
+      } else {
+        openPrompt();
+      }
+      input.value = "";
+    }
+  };
 
   return (
     <footer id="contact" className="bg-footer-bg">
@@ -132,14 +149,7 @@ export function Footer() {
               Join our waitlist and get the latest updates on our progress.
             </p>
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const input = e.currentTarget.querySelector("input");
-                if (input && input.value.trim()) {
-                  openModal("footer");
-                  input.value = "";
-                }
-              }}
+              onSubmit={handleFooterWaitlist}
               className="flex gap-2"
             >
               <input

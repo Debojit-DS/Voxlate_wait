@@ -2,11 +2,11 @@
 
 import { ArrowRight, Play, Gift, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { HeroLaptopMockup } from "./HeroLaptopMockup";
 
 export function HeroDigitalVersion() {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -35,7 +35,7 @@ export function HeroDigitalVersion() {
               <Button
                 variant="primary-orange"
                 icon={ArrowRight}
-                onClick={() => openModal("digital-hero")}
+                onClick={() => openWaitlist("digital-hero")}
               >
                 Join Waitlist
               </Button>

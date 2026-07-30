@@ -1,11 +1,11 @@
 "use client";
 
 import { Monitor, Users } from "lucide-react";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { ProductCard } from "@/components/ui/ProductCard";
 
 export function OurProducts() {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section id="products" className="bg-bg-page py-10 md:py-12">
@@ -23,7 +23,7 @@ export function OurProducts() {
             imageSrc="/images/product-digital.png"
             imageAlt="Digital version laptop mockup"
             detailsHref="/digital-version"
-            onJoinWaitlist={() => openModal("digital-card")}
+            onJoinWaitlist={() => openWaitlist("digital-card")}
           />
           <ProductCard
             eyebrow="Physical Version"
@@ -32,7 +32,7 @@ export function OurProducts() {
             description="Designed for tourists, classrooms, seminars and face-to-face communication."
             imageSrc="/images/product-physical.png"
             imageAlt="Physical version people meeting"
-            onJoinWaitlist={() => openModal("physical-card")}
+            onJoinWaitlist={() => openWaitlist("physical-card")}
           />
         </div>
       </div>

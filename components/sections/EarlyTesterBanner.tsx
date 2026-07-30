@@ -2,7 +2,7 @@
 
 import { Rocket, Gift, Bell, Award, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 
 const PERKS = [
   { icon: Rocket, label: "Early Access" },
@@ -12,7 +12,7 @@ const PERKS = [
 ];
 
 export function EarlyTesterBanner({ source = "tester-banner" }: { source?: string }) {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section className="bg-bg-page pb-10 md:pb-12">
@@ -43,7 +43,7 @@ export function EarlyTesterBanner({ source = "tester-banner" }: { source?: strin
           </div>
 
           <div className="mt-8 flex justify-center">
-            <Button variant="primary-orange" onClick={() => openModal(source)} icon={ArrowRight}>
+            <Button variant="primary-orange" onClick={() => openWaitlist(source)} icon={ArrowRight}>
               Join Waitlist Now
             </Button>
           </div>

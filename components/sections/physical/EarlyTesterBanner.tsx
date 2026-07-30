@@ -2,10 +2,10 @@
 
 import { Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 
 export function EarlyTesterBanner() {
-  const { openModal } = useWaitlistModal();
+  const { openWaitlist } = useGatedWaitlist();
 
   return (
     <section className="bg-bg-page pb-10 md:pb-12">
@@ -24,7 +24,7 @@ export function EarlyTesterBanner() {
               </div>
             </div>
             <div className="md:self-center">
-              <Button variant="primary-orange" onClick={() => openModal("physical-version-banner")} icon={ArrowRight}>
+              <Button variant="primary-orange" onClick={() => openWaitlist("physical-version-banner")} icon={ArrowRight}>
                 Join Waitlist Now
               </Button>
             </div>

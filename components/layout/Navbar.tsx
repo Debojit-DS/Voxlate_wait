@@ -5,9 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { Logo } from "@/components/ui/Logo";
 
 const NAV_LINKS = [
@@ -22,9 +20,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const { openModal } = useWaitlistModal();
-  const { user, isLoading } = useAuth();
-  const { openPrompt } = useAuthPrompt();
+  const { openWaitlist, isAuthenticated } = useGatedWaitlist();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -36,16 +32,8 @@ export function Navbar() {
   const isPhysicalVersionPage = pathname === "/physical-version";
   const isHomePage = pathname === "/";
 
-  const handleJoinWaitlist = () => {
-    if (user) {
-      openModal("navbar");
-    } else {
-      openPrompt();
-    }
-  };
-
   const renderDesktopCta = () => {
-    if (!isLoading && user) {
+    if (isAuthenticated) {
       return (
         <span className="text-sm font-semibold text-text-primary italic">Join our journey</span>
       );
@@ -61,14 +49,14 @@ export function Navbar() {
     }
 
     return (
-      <Button variant="primary-orange" onClick={handleJoinWaitlist}>
+      <Button variant="primary-orange" onClick={() => openWaitlist("navbar")}>
         Join Waitlist
       </Button>
     );
   };
 
   const renderMobileCta = () => {
-    if (!isLoading && user) {
+    if (isAuthenticated) {
       return (
         <div className="pt-2">
           <span className="block text-sm font-semibold text-text-primary italic">Join our journey</span>
@@ -87,7 +75,7 @@ export function Navbar() {
 
     return (
       <div className="pt-2">
-        <Button variant="primary-orange" className="w-full" onClick={() => { handleJoinWaitlist(); setMobileOpen(false); }}>
+        <Button variant="primary-orange" className="w-full" onClick={() => { openWaitlist("navbar"); setMobileOpen(false); }}>
           Join Waitlist
         </Button>
       </div>

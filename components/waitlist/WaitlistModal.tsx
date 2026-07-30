@@ -9,9 +9,11 @@ import { waitlistSchema, type WaitlistFormValues } from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 function WaitlistForm() {
   const { closeModal } = useWaitlistModal();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -23,7 +25,14 @@ function WaitlistForm() {
     formState: { errors },
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistSchema),
-    defaultValues: { name: "", email: "", company: "", type: "individual", product: "digital", source: "" },
+    defaultValues: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+      company: "",
+      type: "individual",
+      product: "digital",
+      source: "",
+    },
     mode: "onBlur",
   });
 

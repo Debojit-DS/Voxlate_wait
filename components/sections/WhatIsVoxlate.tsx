@@ -11,7 +11,7 @@ export function WhatIsVoxlate() {
             </p>
           </div>
           <div className="flex items-center justify-center">
-            <div className="relative w-full max-w-[800px]">
+            <div className="relative w-full max-w-[1000px]">
               <img
                 src="/images/voxlate-brand.png"
                 alt="Voxlate - Breaking Language Barriers"

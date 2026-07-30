@@ -54,7 +54,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Logo className="h-24 w-auto" />
-              <span className="text-4xl font-bold tracking-tight text-text-on-navy">VOXLATE</span>
+              <span className="text-2xl font-bold tracking-tight text-text-on-navy">VOXLATE</span>
             </div>
             <p className="text-sm text-text-on-navy-muted leading-relaxed mb-6">
               Real-time AI translation that preserves your voice, tone and emotion.

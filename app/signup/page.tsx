@@ -13,11 +13,13 @@ import { SocialAuthButton } from "@/components/auth/SocialAuthButton";
 import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -39,6 +41,7 @@ export default function SignupPage() {
     setIsSubmitting(false);
 
     if (result.status === "success") {
+      signup(result.data);
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } else if (result.code === "email_taken") {

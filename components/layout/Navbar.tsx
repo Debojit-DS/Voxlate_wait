@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { Logo } from "@/components/ui/Logo";
 
 const NAV_LINKS = [
@@ -21,6 +23,8 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const { openModal } = useWaitlistModal();
+  const { user, isLoading } = useAuth();
+  const { openPrompt } = useAuthPrompt();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -31,6 +35,64 @@ export function Navbar() {
   const isDigitalVersionPage = pathname === "/digital-version";
   const isPhysicalVersionPage = pathname === "/physical-version";
   const isHomePage = pathname === "/";
+
+  const handleJoinWaitlist = () => {
+    if (user) {
+      openModal("navbar");
+    } else {
+      openPrompt();
+    }
+  };
+
+  const renderDesktopCta = () => {
+    if (!isLoading && user) {
+      return (
+        <span className="text-sm font-semibold text-text-primary italic">Join our journey</span>
+      );
+    }
+
+    if (isHomePage || isDigitalVersionPage || isPhysicalVersionPage) {
+      return (
+        <>
+          <Button variant="outline-navy" href="/login">Log In</Button>
+          <Button variant="primary-navy" href="/signup">Sign Up</Button>
+        </>
+      );
+    }
+
+    return (
+      <Button variant="primary-orange" onClick={handleJoinWaitlist}>
+        Join Waitlist
+      </Button>
+    );
+  };
+
+  const renderMobileCta = () => {
+    if (!isLoading && user) {
+      return (
+        <div className="pt-2">
+          <span className="block text-sm font-semibold text-text-primary italic">Join our journey</span>
+        </div>
+      );
+    }
+
+    if (isHomePage || isDigitalVersionPage || isPhysicalVersionPage) {
+      return (
+        <div className="flex flex-col gap-2 pt-2">
+          <Button variant="outline-navy" className="w-full" href="/login">Log In</Button>
+          <Button variant="primary-navy" className="w-full" href="/signup">Sign Up</Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="pt-2">
+        <Button variant="primary-orange" className="w-full" onClick={() => { handleJoinWaitlist(); setMobileOpen(false); }}>
+          Join Waitlist
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <header className={`sticky top-0 z-40 w-full transition-colors ${isScrolled ? "border-b border-border bg-bg-page" : "bg-bg-page"}`}>
@@ -64,26 +126,7 @@ export function Navbar() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            {isHomePage ? (
-              <>
-                <Button variant="outline-navy" href="/login">Log In</Button>
-                <Button variant="primary-navy" href="/signup">Sign Up</Button>
-              </>
-            ) : isDigitalVersionPage ? (
-              <>
-                <Button variant="outline-navy" href="/login">Log In</Button>
-                <Button variant="primary-navy" href="/signup">Sign Up</Button>
-              </>
-            ) : isPhysicalVersionPage ? (
-              <>
-                <Button variant="outline-navy" href="/login">Log In</Button>
-                <Button variant="primary-navy" href="/signup">Sign Up</Button>
-              </>
-            ) : (
-              <Button variant="primary-orange" onClick={() => openModal("navbar")}>
-                Join Waitlist
-              </Button>
-            )}
+            {renderDesktopCta()}
           </div>
 
           <button
@@ -115,26 +158,7 @@ export function Navbar() {
                 </Link>
               );
             })}
-            {isHomePage ? (
-              <div className="flex flex-col gap-2 pt-2">
-                <Button variant="outline-navy" className="w-full" href="/login">Log In</Button>
-                <Button variant="primary-navy" className="w-full" href="/signup">Sign Up</Button>
-              </div>
-            ) : isDigitalVersionPage ? (
-              <div className="flex flex-col gap-2 pt-2">
-                <Button variant="outline-navy" className="w-full" href="/login">Log In</Button>
-                <Button variant="primary-navy" className="w-full" href="/signup">Sign Up</Button>
-              </div>
-            ) : isPhysicalVersionPage ? (
-              <div className="flex flex-col gap-2 pt-2">
-                <Button variant="outline-navy" className="w-full" href="/login">Log In</Button>
-                <Button variant="primary-navy" className="w-full" href="/signup">Sign Up</Button>
-              </div>
-            ) : (
-              <Button variant="primary-orange" className="w-full" onClick={() => { openModal("navbar"); setMobileOpen(false); }}>
-                Join Waitlist
-              </Button>
-            )}
+            {renderMobileCta()}
           </div>
         </div>
       )}

@@ -20,7 +20,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const { openWaitlist, isAuthenticated } = useGatedWaitlist();
+  const { openWaitlist, isAuthenticated, logout } = useGatedWaitlist();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -35,7 +35,7 @@ export function Navbar() {
   const renderDesktopCta = () => {
     if (isAuthenticated) {
       return (
-        <span className="text-sm font-semibold text-text-primary italic">Join our journey</span>
+        <Button variant="outline-navy" onClick={logout}>Sign Out</Button>
       );
     }
 
@@ -59,7 +59,7 @@ export function Navbar() {
     if (isAuthenticated) {
       return (
         <div className="pt-2">
-          <span className="block text-sm font-semibold text-text-primary italic">Join our journey</span>
+          <Button variant="outline-navy" className="w-full" onClick={logout}>Sign Out</Button>
         </div>
       );
     }

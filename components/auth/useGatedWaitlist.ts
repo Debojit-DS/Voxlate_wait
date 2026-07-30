@@ -5,7 +5,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 
 export function useGatedWaitlist() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const { openModal } = useWaitlistModal();
   const { openPrompt } = useAuthPrompt();
 
@@ -17,5 +17,5 @@ export function useGatedWaitlist() {
     }
   };
 
-  return { openWaitlist, isAuthenticated: !isLoading && !!user };
+  return { openWaitlist, isAuthenticated: !isLoading && !!user, logout };
 }

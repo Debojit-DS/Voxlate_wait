@@ -53,8 +53,8 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr]">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Logo className="h-10 w-auto" />
-              <span className="text-base font-bold tracking-tight text-text-on-navy">VOXLATE</span>
+              <Logo className="h-14 w-auto" />
+              <span className="text-xl font-bold tracking-tight text-text-on-navy">VOXLATE</span>
             </div>
             <p className="text-sm text-text-on-navy-muted leading-relaxed mb-6">
               Real-time AI translation that preserves your voice, tone and emotion.

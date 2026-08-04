@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Play, Gift, Monitor } from "lucide-react";
+import { ArrowRight, Gift, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { HeroLaptopMockup } from "./HeroLaptopMockup";
@@ -38,9 +38,6 @@ export function HeroDigitalVersion() {
                 onClick={() => openWaitlist("digital-hero")}
               >
                 Join Waitlist
-              </Button>
-              <Button variant="outline-navy" icon={Play} onClick={() => {}}>
-                See It In Action
               </Button>
             </div>
             <div className="mt-5 flex items-center gap-2 text-text-muted text-xs">

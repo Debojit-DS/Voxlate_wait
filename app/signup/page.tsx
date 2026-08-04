@@ -78,10 +78,10 @@ export default function SignupPage() {
       <header className="w-full px-6 py-6">
         <div className="mx-auto max-w-[1200px] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo className="h-12 w-auto" />
+            <Logo className="h-16 w-auto" />
             <div className="leading-none">
-              <span className="block text-4xl font-bold tracking-tight text-text-primary">VOXLATE</span>
-              <span className="block text-sm font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>
+              <span className="block text-3xl font-bold tracking-tight text-text-primary">VOXLATE</span>
+              <span className="block text-xs font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>
             </div>
           </div>
           <Link href="/" className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary">

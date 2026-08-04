@@ -85,10 +85,10 @@ export function Navbar() {
   return (
     <header className={`sticky top-0 z-40 w-full transition-colors ${isScrolled ? "border-b border-border bg-bg-page" : "bg-bg-page"}`}>
       <div className="mx-auto max-w-[1200px] px-6 md:px-8">
-        <div className="flex h-[120px] items-center justify-between">
+        <div className="flex h-[72px] items-center justify-between">
           <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-24 w-auto" />
+            <Logo className="h-12 w-auto" />
             <div className="leading-none">
               <span className="block text-4xl font-bold tracking-tight text-text-primary">VOXLATE</span>
               <span className="block text-sm font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>

@@ -32,7 +32,7 @@ function WaitlistForm() {
       type: "individual",
       product: "digital",
       source: "",
-    },
+    } as WaitlistFormValues,
     mode: "onBlur",
   });
 
@@ -181,3 +181,7 @@ export function WaitlistModal() {
     </div>
   );
 }
+
+
+
+

@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/session";
 function toCsvValue(value: string | null | undefined): string {
   const v = value ?? "";
   if (/[",\r\n]/.test(v)) {
-    return `"${v.replace(/"/g, """"")}"`;
+    return `"${v.replace(/"/g, '""')}"`;
   }
   return v;
 }

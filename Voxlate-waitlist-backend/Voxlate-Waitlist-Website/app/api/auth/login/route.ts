@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withCors, withCorrelationId, withSecurityHeaders } from "@/lib/cors";
-import { checkRateLimit, getClientIp, generateCorrelationId } from "@/lib/correlationId";
+import { getClientIp, generateCorrelationId } from "@/lib/correlationId";
 import { checkRateLimit as checkLoginRateLimit } from "@/lib/rateLimiter";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
@@ -94,6 +94,6 @@ export async function POST(req: NextRequest) {
 
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin");
-  const res = NextResponse.text("", { status: 204 });
-  return withSecurityHeaders(withCors(res, origin));
+  const res = new NextResponse(null, { status: 204 });
+  return withSecurityHeaders(withCors(res, origin ?? undefined));
 }

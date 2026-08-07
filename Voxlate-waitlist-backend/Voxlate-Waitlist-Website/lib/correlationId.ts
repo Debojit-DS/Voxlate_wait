@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 let correlationIdCounter = 0;
 
 export function generateCorrelationId(): string {

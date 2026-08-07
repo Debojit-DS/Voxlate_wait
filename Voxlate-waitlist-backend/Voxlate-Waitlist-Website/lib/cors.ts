@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSecurityHeaders } from "./securityHeaders";
 
-const FRONTEND_ORIGIN = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+const ALLOWED_ORIGINS = process.env.NEXT_PUBLIC_FRONTEND_URL
+  ? process.env.NEXT_PUBLIC_FRONTEND_URL.split(",").map((origin) => origin.trim())
+  : ["http://localhost:3000"];
 
 export function corsHeaders(origin?: string) {
-  const allowedOrigin = origin === FRONTEND_ORIGIN ? origin : FRONTEND_ORIGIN;
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",

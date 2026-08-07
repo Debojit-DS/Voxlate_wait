@@ -1,5 +1,8 @@
 import { useEffect, useCallback } from "react";
 
+// 1. Define your backend API base URL for cross-domain requests
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+
 declare global {
   interface Window {
     google?: {
@@ -17,18 +20,23 @@ export function useGoogleSignIn(onSuccess?: () => void) {
   const handleCredential = useCallback(
     async (response: { credential: string }) => {
       try {
-        const res = await fetch("/api/auth/google", {
+        // 2. Updated to use API_BASE and credentials: "include"
+        const res = await fetch(`${API_BASE}/api/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken: response.credential }),
+          credentials: "include", 
         });
 
         if (res.ok) {
           onSuccess?.();
           window.location.reload();
+        } else {
+          const errorData = await res.json().catch(() => null);
+          console.error("Google sign-in backend rejected:", errorData);
         }
       } catch (err) {
-        console.error("Google sign-in error:", err);
+        console.error("Google sign-in network error:", err);
       }
     },
     [onSuccess]
@@ -42,11 +50,6 @@ export function useGoogleSignIn(onSuccess?: () => void) {
       client_id: clientId,
       callback: handleCredential,
     });
-
-    return () => {
-      // Google does not provide an uninitialize method,
-      // but we can avoid re-initializing by guarding with a ref in production.
-    };
   }, [handleCredential]);
 
   const prompt = useCallback(() => {

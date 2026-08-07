@@ -110,6 +110,6 @@ export async function PATCH(req: NextRequest) {
 
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin");
-  const res = NextResponse.text("", { status: 204 });
-  return withSecurityHeaders(withCors(res, origin));
+  const res = new NextResponse(null, { status: 204 });
+  return withSecurityHeaders(withCors(res, origin ?? undefined));
 }

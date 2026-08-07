@@ -55,7 +55,7 @@ const TEAM_GROUPS: TeamGroup[] = [
         role: "Marketing Lead",
         bio: "Leads Voxlate's digital marketing strategy, brand positioning, growth campaigns, and community engagement across digital platforms.",
         image: "/images/team/snehargho.jpeg",
-        linkedin: "",
+        linkedin: "https://www.linkedin.com/in/snehargho-chakraborty-221463334?utm_source=share_via&utm_content=profile&utm_medium=member_android",
       },
       {
         name: "Rajdeep Kumar Debnath",
@@ -217,6 +217,7 @@ export default function AboutPage() {
     </div>
   );
 }
+
 
 
 

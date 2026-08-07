@@ -54,7 +54,7 @@ const TEAM_GROUPS: TeamGroup[] = [
         name: "Snehargha Chakraborty",
         role: "Marketing Lead",
         bio: "Leads Voxlate's digital marketing strategy, brand positioning, growth campaigns, and community engagement across digital platforms.",
-        image: "/images/team/snehargha.jpg",
+        image: "/images/team/snehargho.jpeg",
         linkedin: "",
       },
       {
@@ -217,5 +217,6 @@ export default function AboutPage() {
     </div>
   );
 }
+
 
 

@@ -4,7 +4,7 @@ import type { AuthPayloadLogin, AuthPayloadSignup, AuthResponse } from "./authTy
 // this app's own API routes. Set NEXT_PUBLIC_API_BASE_URL only if the API is
 // deployed separately (e.g. a different domain) — credentials are included
 // either way so the httpOnly session cookie is sent/received.
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+const API_BASE = "https://backend.voxlatesn.in"
 
 export async function loginUser(payload: AuthPayloadLogin): Promise<AuthResponse> {
   try {

@@ -61,7 +61,7 @@ const TEAM_GROUPS: TeamGroup[] = [
         name: "Rajdeep Kumar Debnath",
         role: "Marketing Team Member",
         bio: "Contributes to marketing campaigns, audience outreach, content planning, and brand awareness initiatives, helping expand Voxlate's reach and community.",
-        image: "/images/team/rajdeep.jpg",
+        image: "/images/team/Rajdeep.jpeg",
         linkedin: "https://www.linkedin.com/in/rajdeep-kumar-debnath-87313b384/",
       },
     ],
@@ -217,6 +217,7 @@ export default function AboutPage() {
     </div>
   );
 }
+
 
 
 

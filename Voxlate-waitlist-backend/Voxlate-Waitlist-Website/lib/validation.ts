@@ -6,6 +6,6 @@ export const waitlistSchema = z.object({
   company: z.string().max(200).optional().transform((val) => val === "" ? undefined : val),
   type: z.enum(["individual", "business"]),
   product: z.enum(["digital", "physical", "both"]),
-  source: z.string().optional(),
+  source: z.string().optional().transform((val) => val === "" ? undefined : val),
 });
 export type WaitlistFormValues = z.infer<typeof waitlistSchema>;

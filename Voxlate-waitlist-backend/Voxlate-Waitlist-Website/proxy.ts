@@ -10,8 +10,8 @@ export async function proxy(req: NextRequest) {
 
   // Handle CORS preflight for all API routes
   if (pathname.startsWith("/api") && req.method === "OPTIONS") {
-    const response = NextResponse.text("", { status: 204 });
-    const corsResponse = withCors(response, req.headers.get("origin"));
+    const response = new NextResponse(null, { status: 204 });
+    const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
     return withSecurityHeaders(corsResponse);
   }
 
@@ -21,7 +21,7 @@ export async function proxy(req: NextRequest) {
   if (!isAdminPage && !isAdminApi) {
     const response = NextResponse.next();
     if (pathname.startsWith("/api")) {
-      const corsResponse = withCors(response, req.headers.get("origin"));
+      const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
       return withSecurityHeaders(corsResponse);
     }
     return response;
@@ -36,7 +36,7 @@ export async function proxy(req: NextRequest) {
         { status: "error", message: "Forbidden." },
         { status: 403 }
       );
-      const corsResponse = withCors(response, req.headers.get("origin"));
+      const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
       return withSecurityHeaders(corsResponse);
     }
     const loginUrl = new URL("/admin/login", req.url);
@@ -46,7 +46,7 @@ export async function proxy(req: NextRequest) {
 
   const response = NextResponse.next();
   if (pathname.startsWith("/api")) {
-    const corsResponse = withCors(response, req.headers.get("origin"));
+    const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
     return withSecurityHeaders(corsResponse);
   }
   return response;

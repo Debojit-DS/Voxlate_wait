@@ -45,6 +45,6 @@ export async function GET(req: NextRequest) {
 
 export async function OPTIONS(req: NextRequest) {
   const origin = req.headers.get("origin");
-  const res = NextResponse.text("", { status: 204 });
+  const res = new NextResponse(null, { status: 204 });
   return withSecurityHeaders(withCors(res, origin));
 }

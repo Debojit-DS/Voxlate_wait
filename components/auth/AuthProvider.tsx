@@ -18,38 +18,56 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const AUTH_STORAGE_KEY = "voxlate_auth_user";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) {
-        setUser(JSON.parse(stored));
+    let cancelled = false;
+
+    async function restoreSession() {
+      try {
+        const res = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "success" && data.data) {
+            setUser({
+              id: data.data.id,
+              name: data.data.name,
+              email: data.data.email,
+            });
+          }
+        }
+      } catch {
+        // ignore network errors
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
-    } catch {
-      // ignore parse errors
-    } finally {
-      setIsLoading(false);
     }
+
+    restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userData));
   };
 
   const signup = (userData: User) => {
     setUser(userData);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   return (

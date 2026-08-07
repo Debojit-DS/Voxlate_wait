@@ -6,19 +6,31 @@ export type WaitlistResponse =
   | { status: "error"; code: "validation_error"; message: string; errors?: Record<string, string> }
   | { status: "error"; code: "server_error"; message: string };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+export type WaitlistCheckResponse =
+  | { status: "success"; data: { joined: boolean } }
+  | { status: "error"; code: "server_error"; message: string };
 
 export async function submitToWaitlist(payload: WaitlistFormValues): Promise<WaitlistResponse> {
-  if (!API_BASE) return mockSubmitToWaitlist(payload);
-
-  try {
-    const res = await fetch(`${API_BASE}/api/waitlist`, {
+    try {
+    const res = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10_000),
     });
     return (await res.json()) as WaitlistResponse;
+  } catch {
+    return { status: "error", code: "server_error", message: "Something went wrong." };
+  }
+}
+
+export async function checkWaitlistStatus(email: string): Promise<WaitlistCheckResponse> {
+  try {
+    const res = await fetch(`/api/waitlist?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      signal: AbortSignal.timeout(10_000),
+    });
+    return (await res.json()) as WaitlistCheckResponse;
   } catch {
     return { status: "error", code: "server_error", message: "Something went wrong." };
   }

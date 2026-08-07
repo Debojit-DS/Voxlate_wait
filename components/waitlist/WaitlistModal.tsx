@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, User, Mail, Building2, CheckCircle2 } from "lucide-react";
-import { submitToWaitlist } from "@/lib/waitlistApi";
+import { checkWaitlistStatus, submitToWaitlist } from "@/lib/waitlistApi";
 import { waitlistSchema, type WaitlistFormValues } from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -155,8 +155,77 @@ function WaitlistForm() {
 
 export function WaitlistModal() {
   const { isOpen, closeModal } = useWaitlistModal();
+  const { user } = useAuth();
+  const [isChecking, setIsChecking] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !user?.email) return;
+
+    let cancelled = false;
+    setIsChecking(true);
+    setHasJoined(false);
+
+    checkWaitlistStatus(user.email).then((result) => {
+      if (!cancelled && result.status === "success") {
+        setHasJoined(result.data.joined);
+      }
+      setIsChecking(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, user?.email]);
 
   if (!isOpen) return null;
+
+  if (isChecking) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-navy-cta/50" onClick={closeModal} />
+        <div className="relative z-10 w-full max-w-[480px] rounded-modal bg-accent-blue-light p-8 shadow-lg border border-border">
+          <button
+            type="button"
+            onClick={closeModal}
+            className="absolute top-4 right-4 text-text-muted hover:text-text-primary"
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+          <div className="text-center py-6">
+            <p className="text-text-secondary text-sm">Checking waitlist status...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasJoined) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-navy-cta/50" onClick={closeModal} />
+        <div className="relative z-10 w-full max-w-[480px] rounded-modal bg-accent-blue-light p-8 shadow-lg border border-border">
+          <button
+            type="button"
+            onClick={closeModal}
+            className="absolute top-4 right-4 text-text-muted hover:text-text-primary"
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+          <div className="text-center py-6">
+            <CheckCircle2 className="mx-auto text-success mb-4" size={48} />
+            <h3 className="text-2xl font-bold text-text-primary mb-2">You&apos;re already on the list!</h3>
+            <p className="text-text-secondary text-sm mb-6">We&apos;ll notify you when Voxlate launches.</p>
+            <Button variant="primary-orange" onClick={closeModal} className="w-full">
+              Done
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

@@ -1,11 +1,8 @@
 import type { AuthPayloadLogin, AuthPayloadSignup, AuthResponse } from "./authTypes";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export async function loginUser(payload: AuthPayloadLogin): Promise<AuthResponse> {
-  if (!API_BASE) return mockLogin(payload);
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
+    try {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -18,9 +15,8 @@ export async function loginUser(payload: AuthPayloadLogin): Promise<AuthResponse
 }
 
 export async function signupUser(payload: AuthPayloadSignup): Promise<AuthResponse> {
-  if (!API_BASE) return mockSignup(payload);
-  try {
-    const res = await fetch(`${API_BASE}/api/auth/signup`, {
+    try {
+    const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

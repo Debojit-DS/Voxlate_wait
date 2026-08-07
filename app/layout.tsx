@@ -16,6 +16,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        <script
+          src="https://accounts.google.com/gsi/client"
+          async
+          defer
+        ></script>
         <AuthProvider>
           <AuthPromptProvider>
             <WaitlistModalProvider>

@@ -1,9 +1,9 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
 
 type Props = {
-  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+  onSuccess?: () => void;
 };
 
 const GoogleIcon = () => (
@@ -15,11 +15,13 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export function SocialAuthButton({ onClick }: Props) {
+export function SocialAuthButton({ onSuccess }: Props) {
+  const { prompt } = useGoogleSignIn(onSuccess);
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={prompt}
       className="flex w-full items-center justify-center gap-3 rounded-button border border-border bg-white px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-alt"
     >
       <GoogleIcon />

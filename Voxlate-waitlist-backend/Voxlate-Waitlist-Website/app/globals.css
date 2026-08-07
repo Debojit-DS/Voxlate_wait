@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Backgrounds */
+  --color-bg-page: #E6EDF6;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-surface-alt: #F5F8FC;
+  --color-footer-bg: #0B1B3B;
+  --color-footer-bg-alt: #10254A;
+
+  /* Borders */
+  --color-border: #D7DFEA;
+
+  /* Text */
+  --color-text-primary: #0C1A3C;
+  --color-text-secondary: #5A6478;
+  --color-text-muted: #8A93A6;
+  --color-text-on-navy: #FFFFFF;
+  --color-text-on-navy-muted: #B7C0D1;
+
+  /* Brand accents */
+  --color-gold: #C9A063;
+  --color-gold-light: #F4E7CE;
+
+  /* Primary action color */
+  --color-orange: #EE6E1A;
+  --color-orange-hover: #D45F10;
+  --color-orange-tint: #FDEDE1;
+
+  /* Semantic */
+  --color-success: #1E9E6B;
+  --color-danger: #DC4C4C;
+  --color-navy-cta: #0C1A3C;
+
+  /* Fonts */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius scale */
+  --radius-button: 8px;
+  --radius-card: 16px;
+  --radius-input: 8px;
+  --radius-modal: 20px;
+  --radius-pill: 9999px;
+
+  /* Digital Version page accents */
+  --color-accent-blue: #1E4FD1;
+  --color-accent-blue-light: #EAF0FE;
+
+  /* Physical Version page accents */
+  --color-success-tint: #E3F5EC;
+  --color-headline-accent-blue: #2D5BD1;
+}
+
+body {
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+}

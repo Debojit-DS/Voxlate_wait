@@ -9,7 +9,7 @@ import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { Logo } from "@/components/ui/Logo";
 
 const COMPANY_LINKS = [
-  { label: "About Us", href: "#" },
+  { label: "About Our Team", href: "/about" },
   { label: "Our Mission", href: "#" },
   { label: "Careers", href: "#" },
   { label: "Press Kit", href: "#" },
@@ -21,10 +21,10 @@ const PRODUCT_LINKS = [
   { label: "Blog", href: "#" },
 ];
 const SUPPORT_LINKS = [
-  { label: "Help Center", href: "#" },
+  { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "#" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
+  { label: "Privacy Policy", href: "/terms" },
+  { label: "Terms of Service", href: "/terms" },
 ];
 
 type FooterLink = { label: string; href: string };
@@ -173,3 +173,5 @@ export function Footer() {
     </footer>
   );
 }
+
+

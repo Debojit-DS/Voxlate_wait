@@ -12,8 +12,8 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Digital Version", href: "/digital-version" },
   { label: "Physical Version", href: "/physical-version" },
-  { label: "About Us", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "About Us", href: "/about" },
+  { label: "Careers", href: "/careers" },
 ];
 
 export function Navbar() {
@@ -153,3 +153,5 @@ export function Navbar() {
     </header>
   );
 }
+
+

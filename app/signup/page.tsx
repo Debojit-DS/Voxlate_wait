@@ -145,11 +145,11 @@ export default function SignupPage() {
                 />
                 <label htmlFor="agreedToTerms" className="text-sm text-text-secondary">
                   I agree to the{" "}
-                  <a href="#" className="text-orange hover:underline">
+                  <a href="/terms" className="text-orange hover:underline">
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="#" className="text-orange hover:underline">
+                  <a href="/terms" className="text-orange hover:underline">
                     Privacy Policy
                   </a>
                 </label>
@@ -169,7 +169,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <SocialAuthButton onClick={() => alert("Social login isn't available yet — please use email and password.")} />
+              <SocialAuthButton onSuccess={() => {}} />
 
               <p className="text-center text-sm text-text-secondary mt-6">
                 Already have an account?{" "}
@@ -186,3 +186,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+

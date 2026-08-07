@@ -162,7 +162,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <SocialAuthButton onClick={() => alert("Social login isn't available yet — please use email and password.")} />
+              <SocialAuthButton onSuccess={() => {}} />
 
               <p className="text-center text-sm text-text-secondary mt-6">
                 Don&apos;t have an account?{" "}

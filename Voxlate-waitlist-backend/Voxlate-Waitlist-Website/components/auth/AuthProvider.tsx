@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // instead of trusting anything stored client-side.
   useEffect(() => {
     let cancelled = false;
-    getCurrentUser().then((data:any) => {
+    getCurrentUser().then((data: any) => {
       if (!cancelled) setUser(data);
       if (!cancelled) setIsLoading(false);
     });

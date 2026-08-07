@@ -73,7 +73,7 @@ const TEAM_GROUPS: TeamGroup[] = [
         name: "Sudeshna Sasmal",
         role: "Video Editing & Social Media",
         bio: "Creates engaging visual content, edits promotional videos, and manages Voxlate's social media presence to strengthen the brand and connect with the community.",
-        image: "/images/team/sudeshna.jpg",
+        image: "/images/team/sudeshna.jpeg",
         linkedin: "https://www.linkedin.com/in/sudeshna-sasmal-b9bb62380/",
       },
     ],
@@ -217,4 +217,5 @@ export default function AboutPage() {
     </div>
   );
 }
+
 

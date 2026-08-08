@@ -22,6 +22,7 @@ export function useGoogleSignIn(onSuccess?: () => void) {
 
   const handleCredential = useCallback(
     async (response: { credential: string }) => {
+      console.log("Google callback triggered! Credential received:", response.credential);
       try {
         const res = await fetch(`${API_BASE}/api/auth/google`, {
           method: "POST",

@@ -1,6 +1,5 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 
-// 1. Define your backend API base URL for cross-domain requests
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 declare global {
@@ -17,10 +16,13 @@ declare global {
 }
 
 export function useGoogleSignIn(onSuccess?: () => void) {
+  // Use a ref so changes to onSuccess don't trigger re-initialization loops
+  const onSuccessRef = useRef(onSuccess);
+  onSuccessRef.current = onSuccess;
+
   const handleCredential = useCallback(
     async (response: { credential: string }) => {
       try {
-        // 2. Updated to use API_BASE and credentials: "include"
         const res = await fetch(`${API_BASE}/api/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -29,7 +31,7 @@ export function useGoogleSignIn(onSuccess?: () => void) {
         });
 
         if (res.ok) {
-          onSuccess?.();
+          onSuccessRef.current?.();
           window.location.reload();
         } else {
           const errorData = await res.json().catch(() => null);
@@ -39,13 +41,14 @@ export function useGoogleSignIn(onSuccess?: () => void) {
         console.error("Google sign-in network error:", err);
       }
     },
-    [onSuccess]
+    [] // Stable reference
   );
 
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId || !window.google?.accounts?.id) return;
 
+    // This will now strictly run ONCE on mount
     window.google.accounts.id.initialize({
       client_id: clientId,
       callback: handleCredential,

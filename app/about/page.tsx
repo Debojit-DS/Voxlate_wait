@@ -64,6 +64,13 @@ const TEAM_GROUPS: TeamGroup[] = [
         image: "/images/team/Rajdeep.jpeg",
         linkedin: "https://www.linkedin.com/in/rajdeep-kumar-debnath-87313b384/",
       },
+      {
+        name: "Soumyadeep Gope",
+        role: "Marketing and Sales Team Member",
+        bio: "Focuses on driving sales outreach, converting leads, executing promotional campaigns, and building strategic customer relationships to accelerate Voxlate's market growth.",
+        image: "/images/team/Soumyadeep.png",
+        linkedin: "https://www.linkedin.com/in/soumyadeep-gope/",
+      },
     ],
   },
   {
@@ -217,6 +224,8 @@ export default function AboutPage() {
     </div>
   );
 }
+
+
 
 
 

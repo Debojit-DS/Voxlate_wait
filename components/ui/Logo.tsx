@@ -1,4 +1,4 @@
-export function Logo({ className = "h-10 w-auto" }: { className?: string }) {
+export function Logo({ className = "h-24 w-auto" }: { className?: string }) {
   return (
     <img
       src="/images/logo.webp"
@@ -7,5 +7,7 @@ export function Logo({ className = "h-10 w-auto" }: { className?: string }) {
     />
   );
 }
+
+
 
 

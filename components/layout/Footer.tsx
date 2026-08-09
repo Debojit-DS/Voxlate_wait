@@ -70,8 +70,8 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr]">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Logo className="h-16 w-auto" />
-              <span className="text-xl font-bold tracking-tight text-text-on-navy">VOXLATE</span>
+              <img src="/images/Comapany-logo.png" alt="SN Tech Corporation" className="h-16 w-auto" />
+              <span className="text-lg font-bold tracking-tight text-text-on-navy">Product of SN Tech Corporation</span>
             </div>
             <p className="text-sm text-text-on-navy-muted leading-relaxed mb-6">
               Real-time AI translation that preserves your voice, tone and emotion.
@@ -167,12 +167,14 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-text-on-navy/10 pt-6 text-center">
-          <p className="text-xs text-text-on-navy-muted">© 2026 Voxlate. All rights reserved.</p>
+          <p className="text-xs text-text-on-navy-muted">© 2026 SN Tech Corporation. All rights reserved.</p>
         </div>
       </div>
     </footer>
   );
 }
+
+
 
 
 

@@ -70,7 +70,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr]">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/images/Comapany-logo.png" alt="SN Tech Corporation" className="h-16 w-auto" />
+              <img src="/images/Comapany-logo.png" alt="SN Tech Corporation" className="h-20 w-auto" />
               <span className="text-lg font-bold tracking-tight text-text-on-navy">Product of SN Tech Corporation</span>
             </div>
             <p className="text-sm text-text-on-navy-muted leading-relaxed mb-6">
@@ -172,5 +172,6 @@ export function Footer() {
     </footer>
   );
 }
+
 
 

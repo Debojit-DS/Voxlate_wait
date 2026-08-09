@@ -70,7 +70,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr]">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Logo className="h-24 w-auto" />
+              <Logo className="h-16 w-auto" />
               <span className="text-2xl font-bold tracking-tight text-text-on-navy">VOXLATE</span>
             </div>
             <p className="text-sm text-text-on-navy-muted leading-relaxed mb-6">
@@ -172,3 +172,4 @@ export function Footer() {
     </footer>
   );
 }
+

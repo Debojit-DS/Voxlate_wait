@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, User, Mail, Building2, CheckCircle2, Upload } from "lucide-react";
-import { checkWaitlistStatus, submitToWaitlist } from "@/lib/waitlistApi";
+import { checkWaitlistStatus, submitToWaitlist, syncWaitlistPhoto } from "@/lib/waitlistApi";
 import { uploadPhoto } from "@/lib/uploadApi";
 import { waitlistSchema, type WaitlistFormValues } from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
@@ -255,9 +255,13 @@ export function WaitlistModal() {
     setIsChecking(true);
     setHasJoined(false);
 
-    checkWaitlistStatus(user.email).then((result) => {
-      if (!cancelled && result.status === "success") {
-        setHasJoined(result.data.joined);
+    checkWaitlistStatus(user.email).then(async (result) => {
+      if (cancelled) return;
+      if (result.status === "success" && result.data.joined) {
+        setHasJoined(true);
+        if (user.photoUrl) {
+          await syncWaitlistPhoto(user.email, user.photoUrl);
+        }
       }
       setIsChecking(false);
     });
@@ -265,7 +269,7 @@ export function WaitlistModal() {
     return () => {
       cancelled = true;
     };
-  }, [isOpen, user?.email]);
+  }, [isOpen, user?.email, user?.photoUrl]);
 
   if (!isOpen) return null;
 

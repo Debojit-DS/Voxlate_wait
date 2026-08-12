@@ -90,6 +90,20 @@ export async function checkWaitlistStatus(email: string): Promise<WaitlistCheckR
   }
 }
 
+export async function syncWaitlistPhoto(email: string, photo: string): Promise<void> {
+  try {
+    await fetch("/api/waitlist/sync-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, photo }),
+      credentials: "include",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    // ignore
+  }
+}
+
 async function mockSubmitToWaitlist(payload: WaitlistFormValues): Promise<WaitlistResponse> {
   await new Promise((r) => setTimeout(r, 800));
   if (payload.email === "test@voxlate.com") {

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Mail, ArrowLeft } from "lucide-react";
 import { signupUser } from "@/lib/authApi";
+import { uploadPhoto } from "@/lib/uploadApi";
 import { signupSchema, type SignupFormValues } from "@/lib/authValidation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -23,25 +24,71 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "", agreedToTerms: false },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "", agreedToTerms: false, photo: "" },
     mode: "onBlur",
   });
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setFormError("Please select an image file.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setFormError("Image must be less than 10MB.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setPhotoPreview(result);
+      setValue("photo", result);
+      setFormError(null);
+    };
+    reader.readAsDataURL(file);
+  };
 
   async function onSubmit(values: SignupFormValues) {
     setIsSubmitting(true);
     setFormError(null);
-    const result = await signupUser(values);
+
+    let photoUrl = values.photo || "";
+    if (photoUrl && photoUrl.startsWith("data:image/")) {
+      const uploaded = await uploadPhoto(photoUrl);
+      if (!uploaded) {
+        setFormError("Failed to upload photo. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+      photoUrl = uploaded.url;
+    }
+
+    const result = await signupUser({ ...values, photo: photoUrl });
     setIsSubmitting(false);
 
     if (result.status === "success") {
-      signup(result.data);
+      signup({ ...result.data, photoUrl: result.data.photoUrl });
       setSuccess(true);
       setTimeout(() => router.push("/"), 1500);
     } else if (result.code === "email_taken") {
@@ -119,6 +166,30 @@ export default function SignupPage() {
                 error={errors.email?.message}
                 icon={Mail}
               />
+
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-2">Hiding that cute smile should be illegal 😌 Come on, let the world see it—add a profile photo! 👀✨</label>
+                <div className="flex items-center gap-4">
+                  <div className="h-16 w-16 shrink-0 rounded-full border border-border bg-bg-surface-alt overflow-hidden flex items-center justify-center">
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="text-text-muted" size={24} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      id="photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      className="block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-input file:border-0 file:text-sm file:font-medium file:bg-bg-surface-alt file:text-text-primary hover:file:bg-border"
+                    />
+                    {errors.photo && <p className="text-danger mt-1 text-sm">{errors.photo.message}</p>}
+                    <p className="text-xs text-text-muted mt-1">Max 10MB. JPG, PNG, or WebP.</p>
+                  </div>
+                </div>
+              </div>
 
               <PasswordInput
                 id="password"

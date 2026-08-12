@@ -43,6 +43,7 @@ export function Hero() {
               width={600}
               height={400}
               className="w-full max-w-[600px] h-auto object-contain"
+              loading="eager"
             />
           </div>
         </div>

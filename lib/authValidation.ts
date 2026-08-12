@@ -15,9 +15,19 @@ export const signupSchema = z
     agreedToTerms: z.boolean().refine((val) => val === true, {
       message: "You must agree to the Terms of Service and Privacy Policy",
     }),
+    photo: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+  })
+  .refine((data) => {
+    if (data.photo && !data.photo.startsWith("data:image/") && !data.photo.startsWith("http")) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "Invalid photo format",
+    path: ["photo"],
   });
 export type SignupFormValues = z.infer<typeof signupSchema>;

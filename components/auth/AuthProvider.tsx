@@ -6,6 +6,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  photoUrl?: string;
 };
 
 type AuthContextValue = {
@@ -14,6 +15,7 @@ type AuthContextValue = {
   login: (user: User) => void;
   signup: (user: User) => void;
   logout: () => void;
+  updatePhoto: (photoUrl: string) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: data.data.id,
               name: data.data.name,
               email: data.data.email,
+              ...(data.data.photoUrl ? { photoUrl: data.data.photoUrl } : {}),
             });
           }
         }
@@ -70,8 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updatePhoto = (photoUrl: string) => {
+    setUser((prev) => (prev ? { ...prev, photoUrl } : prev));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updatePhoto }}>
       {children}
     </AuthContext.Provider>
   );

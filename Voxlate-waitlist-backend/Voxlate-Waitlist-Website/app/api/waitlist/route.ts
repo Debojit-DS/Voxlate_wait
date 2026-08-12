@@ -8,22 +8,52 @@ import { waitlistSchema } from "@/lib/validation";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email");
-  if (!email) {
-    const res = NextResponse.json(
-      { status: "error", message: "Email is required." },
-      { status: 400 }
-    );
+
+  if (email) {
+    const normalizedEmail = email.toLowerCase().trim();
+    const entry = await prisma.waitlistEntry.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    const res = NextResponse.json({
+      status: "success",
+      data: { joined: !!entry },
+    });
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   }
 
-  const normalizedEmail = email.toLowerCase().trim();
-  const entry = await prisma.waitlistEntry.findUnique({
-    where: { email: normalizedEmail },
-  });
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
+  const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get("pageSize") ?? "20", 10) || 20));
+  const skip = (page - 1) * pageSize;
+
+  const [entries, total] = await Promise.all([
+    prisma.waitlistEntry.findMany({
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        organization: true,
+        photoUrl: true,
+        createdAt: true,
+        type: true,
+        product: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: pageSize,
+    }),
+    prisma.waitlistEntry.count(),
+  ]);
 
   const res = NextResponse.json({
     status: "success",
-    data: { joined: !!entry },
+    data: entries,
+    pagination: {
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    },
   });
   return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
 }
@@ -58,7 +88,7 @@ export async function POST(req: NextRequest) {
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   }
 
-  const { name, email, company, type, product, source } = parsed.data;
+  const { name, email, company, type, product, source, role, organization, photo } = parsed.data;
   const normalizedEmail = email.toLowerCase().trim();
 
   try {
@@ -70,6 +100,9 @@ export async function POST(req: NextRequest) {
         type,
         product,
         source: source || null,
+        role: role || null,
+        organization: organization || null,
+        photoUrl: photo || null,
       },
     });
 

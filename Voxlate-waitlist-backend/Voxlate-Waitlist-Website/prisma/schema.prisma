@@ -29,6 +29,7 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(USER)
+  photoUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -36,14 +37,17 @@ model User {
 }
 
 model WaitlistEntry {
-  id        String           @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String           @unique
-  company   String?
-  type      WaitlistType
-  product   WaitlistProduct
-  source    String?
-  createdAt DateTime         @default(now())
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String           @unique
+  company      String?
+  type         WaitlistType
+  product      WaitlistProduct
+  source       String?
+  role         String?
+  organization String?
+  photoUrl     String?
+  createdAt    DateTime         @default(now())
 
   @@index([createdAt])
   @@map("waitlist_entries")

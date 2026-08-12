@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, User, Mail, Building2, CheckCircle2 } from "lucide-react";
+import { X, User, Mail, Building2, CheckCircle2, Briefcase, Upload } from "lucide-react";
 import { submitToWaitlist } from "@/lib/waitlistApi";
 import { waitlistSchema, type WaitlistFormValues } from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
@@ -18,10 +18,14 @@ function WaitlistForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistSchema),
@@ -32,9 +36,45 @@ function WaitlistForm() {
       type: "individual",
       product: "digital",
       source: "",
+      role: "",
+      organization: "",
+      photo: "",
     } as WaitlistFormValues,
     mode: "onBlur",
   });
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setPhotoError(null);
+
+    if (!file) {
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Please select a valid image file.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setPhotoError("Image must be less than 10MB.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setPhotoPreview(result);
+      setValue("photo", result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   async function onSubmit(values: WaitlistFormValues) {
     setIsSubmitting(true);
@@ -103,19 +143,65 @@ function WaitlistForm() {
         icon={Building2}
       />
 
+      <Input
+        id="role"
+        label="Your Role / Title (optional)"
+        placeholder="Your Role / Title (optional)"
+        registration={register("role")}
+        error={errors.role?.message}
+        icon={Briefcase}
+      />
+
+      <Input
+        id="organization"
+        label="Organization / Institution (optional)"
+        placeholder="Organization / Institution (optional)"
+        registration={register("organization")}
+        error={errors.organization?.message}
+        icon={Building2}
+      />
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">Profile Photo (optional)</label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          className="hidden"
+        />
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className={`border rounded-input cursor-pointer flex items-center justify-center gap-3 h-32 bg-bg-surface-alt transition-colors ${
+            photoError ? "border-danger" : "border-border hover:border-orange"
+          }`}
+        >
+          {photoPreview ? (
+            <img src={photoPreview} alt="Preview" className="h-full w-full object-cover rounded-input" />
+          ) : (
+            <>
+              <Upload className="text-text-muted" size={24} />
+              <span className="text-sm text-text-secondary">Click to upload a photo (max 2MB)</span>
+            </>
+          )}
+        </div>
+        {photoError && <p className="text-danger mt-1 text-sm">{photoError}</p>}
+        {errors.photo && <p className="text-danger mt-1 text-sm">{errors.photo.message}</p>}
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-text-primary mb-2">I&apos;m signing up as</label>
         <div className="grid grid-cols-2 gap-3">
           <label className="cursor-pointer">
             <input type="radio" value="individual" {...register("type")} className="sr-only peer" />
-          <div className="rounded-input border border-border px-4 py-2.5 text-center text-sm font-bold text-text-primary peer-checked:border-orange peer-checked:bg-orange peer-checked:text-white transition-colors">
-                Individual
-              </div>
-            </label>
-            <label className="cursor-pointer">
-              <input type="radio" value="business" {...register("type")} className="sr-only peer" />
-              <div className="rounded-input border border-border px-4 py-2.5 text-center text-sm font-bold text-text-primary peer-checked:border-orange peer-checked:bg-orange peer-checked:text-white transition-colors">
-                Business
+            <div className="rounded-input border border-border px-4 py-2.5 text-center text-sm font-bold text-text-primary peer-checked:border-orange peer-checked:bg-orange peer-checked:text-white transition-colors">
+              Individual
+            </div>
+          </label>
+          <label className="cursor-pointer">
+            <input type="radio" value="business" {...register("type")} className="sr-only peer" />
+            <div className="rounded-input border border-border px-4 py-2.5 text-center text-sm font-bold text-text-primary peer-checked:border-orange peer-checked:bg-orange peer-checked:text-white transition-colors">
+              Business
             </div>
           </label>
         </div>

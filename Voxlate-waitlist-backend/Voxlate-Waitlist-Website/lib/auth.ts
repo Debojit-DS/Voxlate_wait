@@ -10,6 +10,7 @@ export type SessionUser = {
   email: string;
   name: string;
   role: "USER" | "ADMIN";
+  photoUrl?: string;
 };
 
 export type SessionPayload = {

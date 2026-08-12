@@ -14,6 +14,15 @@ const signupSchema = z.object({
   agreedToTerms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the Terms of Service and Privacy Policy",
   }),
+  photo: z.string().optional(),
+}).refine((data) => {
+  if (data.photo && !data.photo.startsWith("data:image/") && !data.photo.startsWith("http")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Invalid photo format",
+  path: ["photo"],
 });
 
 export async function POST(req: NextRequest) {
@@ -46,7 +55,7 @@ export async function POST(req: NextRequest) {
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   }
 
-  const { name, email, password, agreedToTerms } = parsed.data;
+  const { name, email, password, agreedToTerms, photo } = parsed.data;
   const ip = getClientIp(req);
   const rateLimitKey = `signup:${ip}`;
   if (!checkSignupRateLimit(rateLimitKey, 3, 60_000)) {
@@ -62,14 +71,14 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hashPassword(password);
 
     const user = await prisma.user.create({
-      data: { name, email: normalizedEmail, password: passwordHash },
+      data: { name, email: normalizedEmail, password: passwordHash, photoUrl: photo || null },
     });
 
     const res = NextResponse.json(
       {
         status: "success",
         message: "Account created.",
-        data: { id: user.id, name: user.name, email: user.email },
+        data: { id: user.id, name: user.name, email: user.email, photoUrl: user.photoUrl },
       },
       { status: 201 }
     );

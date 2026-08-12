@@ -35,7 +35,7 @@ export function ProductCard({ eyebrow, eyebrowIcon: EyebrowIcon, title, descript
         </div>
         <div className="flex items-center justify-center">
           <div className="relative w-full aspect-[4/3] max-h-[320px] rounded-xl overflow-hidden">
-            <Image src={imageSrc} alt={imageAlt} fill className="object-cover" />
+            <Image src={imageSrc} alt={imageAlt} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px" className="object-cover" />
           </div>
         </div>
       </div>

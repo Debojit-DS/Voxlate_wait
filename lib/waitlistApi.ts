@@ -10,6 +10,60 @@ export type WaitlistCheckResponse =
   | { status: "success"; data: { joined: boolean } }
   | { status: "error"; code: "server_error"; message: string };
 
+export type PublicWaitlistEntry = {
+  id: string;
+  name: string;
+  role: string | null;
+  organization: string | null;
+  photoUrl: string | null;
+  createdAt: string;
+};
+
+export type PublicWaitlistResponse = {
+  status: "success";
+  data: PublicWaitlistEntry[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export async function getPublicWaitlist(page = 1, pageSize = 20): Promise<PublicWaitlistResponse> {
+  try {
+    const res = await fetch(`/api/waitlist?page=${page}&pageSize=${pageSize}`, {
+      method: "GET",
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      return {
+        status: "success",
+        data: [],
+        pagination: { page, pageSize, total: 0, totalPages: 0 },
+      };
+    }
+
+    const json = (await res.json()) as Partial<PublicWaitlistResponse>;
+    if (json.status !== "success" || !json.pagination) {
+      return {
+        status: "success",
+        data: [],
+        pagination: { page, pageSize, total: 0, totalPages: 0 },
+      };
+    }
+
+    return json as PublicWaitlistResponse;
+  } catch {
+    return {
+      status: "success",
+      data: [],
+      pagination: { page, pageSize, total: 0, totalPages: 0 },
+    };
+  }
+}
+
 export async function submitToWaitlist(payload: WaitlistFormValues): Promise<WaitlistResponse> {
     try {
     const res = await fetch("/api/waitlist", {

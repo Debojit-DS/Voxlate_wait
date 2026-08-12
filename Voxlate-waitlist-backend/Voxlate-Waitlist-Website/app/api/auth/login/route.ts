@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({
       status: "success",
       message: "Signed in.",
-      data: { id: user.id, name: user.name, email: user.email },
+      data: { id: user.id, name: user.name, email: user.email, photoUrl: user.photoUrl },
     });
 
     await attachSessionCookie(res, {

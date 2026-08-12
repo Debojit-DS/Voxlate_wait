@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, User, Mail, Building2, CheckCircle2 } from "lucide-react";
+import { X, User, Mail, Building2, CheckCircle2, Upload } from "lucide-react";
 import { checkWaitlistStatus, submitToWaitlist } from "@/lib/waitlistApi";
+import { uploadPhoto } from "@/lib/uploadApi";
 import { waitlistSchema, type WaitlistFormValues } from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -18,28 +19,81 @@ function WaitlistForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const hasExistingPhoto = !!user?.photoUrl;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<WaitlistFormValues>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
       name: user?.name ?? "",
       email: user?.email ?? "",
       company: "",
+      role: "",
+      organization: "",
       type: "individual",
       product: "digital",
       source: "",
+      photo: user?.photoUrl ?? "",
     },
     mode: "onBlur",
   });
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setPhotoError(null);
+
+    if (!file) {
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Please select an image file.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setPhotoError("Image must be less than 10MB.");
+      setPhotoPreview(null);
+      setValue("photo", "");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setPhotoPreview(result);
+      setValue("photo", result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function onSubmit(values: WaitlistFormValues) {
     setIsSubmitting(true);
     setFormError(null);
-    const result = await submitToWaitlist(values);
+
+    let photoUrl = values.photo || "";
+    if (photoUrl && photoUrl.startsWith("data:image/")) {
+      const uploaded = await uploadPhoto(photoUrl);
+      if (!uploaded) {
+        setFormError("Failed to upload photo. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+      photoUrl = uploaded.url;
+    }
+
+    const result = await submitToWaitlist({ ...values, photo: photoUrl });
     setIsSubmitting(false);
 
     if (result.status === "success") {
@@ -96,12 +150,47 @@ function WaitlistForm() {
 
       <Input
         id="company"
-        label="Company Name (optional)"
-        placeholder="Company Name (optional)"
+        label="Organization Name (optional)"
+        placeholder="Organization Name (optional)"
         registration={register("company")}
         error={errors.company?.message}
         icon={Building2}
       />
+
+      <Input
+        id="role"
+        label="Enter your profession (optional)"
+        placeholder="Enter your profession (optional) [eg:student, professor,etc]"
+        registration={register("role")}
+        error={errors.role?.message}
+      />
+
+      {!hasExistingPhoto && (
+        <div>
+          <label className="block text-sm font-medium text-text-primary mb-2">Hiding that cute smile should be illegal 😌 Come on, let the world see it—add a profile photo! 👀✨</label>
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 shrink-0 rounded-full border border-border bg-bg-surface-alt overflow-hidden flex items-center justify-center">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
+              ) : (
+                <User className="text-text-muted" size={24} />
+              )}
+            </div>
+            <div className="flex-1">
+              <input
+                id="photo"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-input file:border-0 file:text-sm file:font-medium file:bg-bg-surface-alt file:text-text-primary hover:file:bg-border"
+              />
+              {photoError && <p className="text-danger mt-1 text-sm">{photoError}</p>}
+              {errors.photo && <p className="text-danger mt-1 text-sm">{errors.photo.message}</p>}
+              <p className="text-xs text-text-muted mt-1">Max 10MB. JPG, PNG, or WebP.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-text-primary mb-2">I&apos;m signing up as</label>

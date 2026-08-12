@@ -1,5 +1,5 @@
 export type AuthPayloadLogin = { email: string; password: string };
-export type AuthPayloadSignup = { name: string; email: string; password: string };
+export type AuthPayloadSignup = { name: string; email: string; password: string; photo?: string };
 
 export type AuthResponse =
   | { status: "success"; message: string; data: { id: string; name: string; email: string; photoUrl?: string } }

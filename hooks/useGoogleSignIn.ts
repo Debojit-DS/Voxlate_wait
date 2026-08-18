@@ -7,7 +7,7 @@ declare global {
     google?: {
       accounts: {
         id: {
-          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
+          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void; use_fedcm_for_prompt?: boolean; }) => void;
           prompt: (moment?: { promptMoment: () => void }) => void;
         };
       };
@@ -53,6 +53,7 @@ export function useGoogleSignIn(onSuccess?: () => void) {
     window.google.accounts.id.initialize({
       client_id: clientId,
       callback: handleCredential,
+      use_fedcm_for_prompt: false,
     });
   }, [handleCredential]);
 

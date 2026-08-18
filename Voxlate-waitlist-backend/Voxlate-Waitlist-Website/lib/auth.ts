@@ -77,14 +77,18 @@ export async function verifySession(
 ): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
-    if (!payload.sub || !payload.email || !payload.role) return null;
+    if (!payload.sub || !payload.email) {
+      console.error("verifySession: Missing sub or email in JWT payload");
+      return null;
+    }
     return {
       sub: payload.sub as string,
       email: payload.email as string,
-      name: payload.name as string,
-      role: payload.role as "USER" | "ADMIN",
+      name: (payload.name as string) || "",
+      role: (payload.role as "USER" | "ADMIN") || "USER", 
     };
-  } catch {
+  } catch (error) {
+    console.error("verifySession error:", error); 
     return null;
   }
 }

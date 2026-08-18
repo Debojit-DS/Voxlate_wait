@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
         data: {
           name: payload.name,
           email: normalizedEmail,
+          role: "USER",
           password: await (await import("@/lib/auth")).hashPassword(Math.random().toString(36)),
         },
       });
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.role || "USER",
     });
 
     return res;

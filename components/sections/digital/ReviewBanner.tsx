@@ -64,6 +64,13 @@ export function ReviewBanner() {
   const [rating, setRating] = useState(0);
   const { user, isLoading: isAuthLoading } = useAuth();
 
+  const sortReviews = useCallback((items: Review[]) => {
+    return [...items].sort((a, b) => {
+      if (b.rating !== a.rating) return b.rating - a.rating;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, []);
+
   const fetchReviews = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -74,7 +81,7 @@ export function ReviewBanner() {
       }
       const data = await res.json();
       if (data.status === "success") {
-        setReviews(data.reviews);
+        setReviews(sortReviews(data.reviews));
       }
     } catch (err) {
       console.error("fetch reviews error", err);
@@ -82,7 +89,7 @@ export function ReviewBanner() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [sortReviews]);
 
   useEffect(() => {
     if (isReviewSectionOpen) {
@@ -128,7 +135,7 @@ export function ReviewBanner() {
 
       const data = await res.json();
       if (data.status === "success" && data.review) {
-        setReviews((prev) => [data.review, ...prev]);
+        setReviews((prev) => sortReviews([data.review, ...prev]));
         setReviewText("");
         setRating(0);
       }

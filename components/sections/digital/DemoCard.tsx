@@ -8,13 +8,15 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { Button } from "@/components/ui/Button";
 
-const LANGUAGES = ["English", "Spanish", "French", "German", "Hindi", "Japanese", "Chinese", "Arabic"];
+const LANGUAGES = ["English", "Spanish", "French", "German", "Bengali", "Tamil", "Hindi", "Japanese", "Chinese", "Arabic"];
 
 const LANGUAGE_MAP: Record<string, string> = {
   "English": "en",
   "Spanish": "es",
   "French": "fr",
   "German": "de",
+  "Bengali": "bn",
+  "Tamil": "ta",
   "Hindi": "hi",
   "Japanese": "ja",
   "Chinese": "zh",

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { usePageTransition } from "@/components/transitions/PageTransitionProvider";
 import { Menu, X, User, Camera } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
@@ -14,6 +15,7 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Digital Version", href: "/digital-version" },
   { label: "Physical Version", href: "/physical-version" },
+  { label: "View our demo", href: "/demo" },
   { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
   { label: "Careers", href: "/careers" },
@@ -24,9 +26,13 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { openWaitlist, isAuthenticated, logout } = useGatedWaitlist();
   const { user, updatePhoto } = useAuth();
+  const { startTransition, isTransitioning } = usePageTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isDemoPage = pathname === "/demo";
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -49,6 +55,10 @@ export function Navbar() {
   const isDigitalVersionPage = pathname === "/digital-version";
   const isPhysicalVersionPage = pathname === "/physical-version";
   const isHomePage = pathname === "/";
+
+  const headerClass = isDemoPage
+    ? `sticky top-0 z-40 w-full transition-colors ${isScrolled ? "bg-bg-base/80 backdrop-blur-md border-b border-border-subtle" : "bg-transparent"}`
+    : `sticky top-0 z-40 w-full transition-colors ${isScrolled ? "border-b border-border bg-bg-page" : "bg-bg-page"}`;
 
   const renderDesktopCta = () => {
     if (isAuthenticated && user) {
@@ -197,10 +207,9 @@ export function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 z-40 w-full transition-colors ${isScrolled ? "border-b border-border bg-bg-page" : "bg-bg-page"}`}>
+      <header className={headerClass}>
         <div className="mx-auto max-w-[1200px] px-6 md:px-8">
           <div className="flex h-[80px] items-center justify-between">
-            <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
               <Logo className="h-16 w-auto" />
               <div className="leading-none">
@@ -208,16 +217,39 @@ export function Navbar() {
                 <span className="block text-xs font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>
               </div>
             </Link>
-            </div>
 
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-6 flex-shrink-0">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                const isDemoLink = link.href === "/demo";
+
+                if (isDemoLink) {
+                  return (
+                    <button
+                      key={link.label}
+                      type="button"
+                      onClick={() => {
+                        if (pathname === "/demo" || isTransitioning) return;
+                        startTransition();
+                        setTimeout(() => {
+                          router.push("/demo");
+                        }, 1200);
+                      }}
+                      disabled={isTransitioning}
+                      className={`whitespace-nowrap text-[13px] font-medium transition-colors ${
+                        isActive ? "text-orange border-b-2 border-orange" : "text-text-primary hover:text-orange"
+                      }`}
+                    >
+                      {link.label}
+                    </button>
+                  );
+                }
+
                 return (
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`text-sm font-medium transition-colors ${
+                    className={`whitespace-nowrap text-[13px] font-medium transition-colors ${
                       isActive ? "text-orange border-b-2 border-orange" : "text-text-primary hover:text-orange"
                     }`}
                   >
@@ -243,16 +275,41 @@ export function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="border-t border-border bg-bg-page md:hidden">
+          <div className={`border-t ${isDemoPage ? "border-border-subtle bg-bg-base" : "border-border bg-bg-page"} md:hidden`}>
             <div className="mx-auto max-w-[1200px] px-6 py-4 space-y-3">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                const isDemoLink = link.href === "/demo";
+
+                if (isDemoLink) {
+                  return (
+                    <button
+                      key={link.label}
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        if (pathname === "/demo" || isTransitioning) return;
+                        startTransition();
+                        setTimeout(() => {
+                          router.push("/demo");
+                        }, 1200);
+                      }}
+                      disabled={isTransitioning}
+                      className={`block text-[13px] font-medium transition-colors ${
+                        isActive ? "text-orange" : "text-text-primary hover:text-orange"
+                      }`}
+                    >
+                      {link.label}
+                    </button>
+                  );
+                }
+
                 return (
                   <Link
                     key={link.label}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`block text-sm font-medium transition-colors ${
+                    className={`block text-[13px] font-medium transition-colors ${
                       isActive ? "text-orange" : "text-text-primary hover:text-orange"
                     }`}
                   >

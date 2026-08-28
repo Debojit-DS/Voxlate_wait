@@ -52,3 +52,16 @@ model WaitlistEntry {
   @@index([createdAt])
   @@map("waitlist_entries")
 }
+
+model Review {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  authorName     String
+  authorPhotoUrl String?
+  userEmail      String?
+  text           String
+  rating         Int
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("reviews")
+}

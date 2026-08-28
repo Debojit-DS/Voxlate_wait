@@ -3,6 +3,7 @@
 import { Rocket, Gift, Bell, Award, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
+import { useDemoTransition } from "@/components/transitions/useDemoTransition";
 
 const PERKS = [
   { icon: Rocket, label: "Early Access" },
@@ -13,6 +14,7 @@ const PERKS = [
 
 export function EarlyTesterBanner({ source = "tester-banner" }: { source?: string }) {
   const { openWaitlist } = useGatedWaitlist();
+  const { goToDemo } = useDemoTransition();
 
   return (
     <section className="bg-bg-page pb-10 md:pb-12">
@@ -42,9 +44,12 @@ export function EarlyTesterBanner({ source = "tester-banner" }: { source?: strin
             </div>
           </div>
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button variant="primary-orange" onClick={() => openWaitlist(source)} icon={ArrowRight}>
               Join Waitlist Now
+            </Button>
+            <Button variant="primary-demo" onClick={goToDemo}>
+              View Our Demo
             </Button>
           </div>
         </div>

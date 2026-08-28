@@ -99,9 +99,11 @@ function WaitlistForm() {
     if (result.status === "success") {
       setSuccess(true);
       setResultMessage(result.message);
+      window.dispatchEvent(new Event("waitlist:joined"));
     } else if (result.code === "duplicate_email") {
       setSuccess(true);
       setResultMessage("Looks like you're already on the waitlist with this email!");
+      window.dispatchEvent(new Event("waitlist:joined"));
     } else if (result.code === "validation_error") {
       setFormError(result.message || "Please check your inputs and try again.");
     } else {

@@ -9,10 +9,11 @@ type ProductCardProps = {
   imageSrc: string;
   imageAlt: string;
   onJoinWaitlist?: () => void;
+  onViewDemo?: () => void;
   detailsHref?: string;
 };
 
-export function ProductCard({ eyebrow, eyebrowIcon: EyebrowIcon, title, description, imageSrc, imageAlt, onJoinWaitlist, detailsHref }: ProductCardProps) {
+export function ProductCard({ eyebrow, eyebrowIcon: EyebrowIcon, title, description, imageSrc, imageAlt, onJoinWaitlist, onViewDemo, detailsHref }: ProductCardProps) {
   return (
     <div className="rounded-card bg-surface p-6 md:p-8 border border-border">
       <div className="flex items-center gap-2 mb-5">
@@ -30,7 +31,8 @@ export function ProductCard({ eyebrow, eyebrowIcon: EyebrowIcon, title, descript
           <p className="text-text-secondary text-sm leading-relaxed mb-6">{description}</p>
           <div className="mt-auto flex flex-wrap items-center gap-3">
             <Button variant="outline-navy" href={detailsHref}>See Details</Button>
-            <Button variant="primary-orange" onClick={onJoinWaitlist}>Join Waitlist</Button>
+            {onJoinWaitlist && <Button variant="primary-orange" onClick={onJoinWaitlist}>Join Waitlist</Button>}
+            {onViewDemo && <Button variant="primary-demo" onClick={onViewDemo}>View Our Demo</Button>}
           </div>
         </div>
         <div className="flex items-center justify-center">

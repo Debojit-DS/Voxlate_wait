@@ -3,10 +3,12 @@
 import { ArrowRight, Gift, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
+import { useDemoTransition } from "@/components/transitions/useDemoTransition";
 import { HeroLaptopMockup } from "./HeroLaptopMockup";
 
 export function HeroDigitalVersion() {
   const { openWaitlist } = useGatedWaitlist();
+  const { goToDemo } = useDemoTransition();
 
   return (
     <section className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -38,6 +40,9 @@ export function HeroDigitalVersion() {
                 onClick={() => openWaitlist("digital-hero")}
               >
                 Join Waitlist
+              </Button>
+              <Button variant="primary-demo" onClick={goToDemo}>
+                View Our Demo
               </Button>
             </div>
             <div className="mt-5 flex items-center gap-2 text-text-muted text-xs">

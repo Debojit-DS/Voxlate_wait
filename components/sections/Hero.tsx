@@ -4,9 +4,11 @@ import Image from "next/image";
 import { ArrowRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
+import { useDemoTransition } from "@/components/transitions/useDemoTransition";
 
 export function Hero() {
   const { openWaitlist } = useGatedWaitlist();
+  const { goToDemo } = useDemoTransition();
 
   return (
     <section id="home" className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -24,9 +26,12 @@ export function Hero() {
             <p className="mt-4 text-base text-text-secondary md:text-lg">
               Real-time AI translation that preserves your original voice, tone and emotion.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button variant="primary-orange" onClick={() => openWaitlist("hero")} icon={ArrowRight}>
                 Join Waitlist
+              </Button>
+              <Button variant="primary-demo" onClick={goToDemo}>
+                View Our Demo
               </Button>
             </div>
             <div className="mt-4 flex items-center gap-2 text-text-muted">

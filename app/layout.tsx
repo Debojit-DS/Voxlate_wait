@@ -4,6 +4,8 @@ import { WaitlistModal } from "@/components/waitlist/WaitlistModal";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthPromptProvider } from "@/components/auth/AuthPromptProvider";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
+import { PageTransitionProvider } from "@/components/transitions/PageTransitionProvider";
+import { FadeOverlay } from "@/components/transitions/FadeOverlay";
 import "./globals.css";
 
 const inter = Inter({
@@ -41,11 +43,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ></script>
         <AuthProvider>
           <AuthPromptProvider>
-            <WaitlistModalProvider>
-              {children}
-              <WaitlistModal />
-              <AuthPromptModal />
-            </WaitlistModalProvider>
+            <PageTransitionProvider>
+              <WaitlistModalProvider>
+                {children}
+                <WaitlistModal />
+                <AuthPromptModal />
+                <FadeOverlay />
+              </WaitlistModalProvider>
+            </PageTransitionProvider>
           </AuthPromptProvider>
         </AuthProvider>
       </body>

@@ -2,7 +2,7 @@ import { type ComponentType } from "react";
 import Link from "next/link";
 
 type ButtonProps = {
-  variant: "primary-orange" | "primary-navy" | "outline-navy" | "outline-on-navy";
+  variant: "primary-orange" | "primary-navy" | "outline-navy" | "outline-on-navy" | "primary-demo";
   children: React.ReactNode;
   icon?: ComponentType<{ size?: number }>;
   onClick?: () => void;
@@ -20,6 +20,7 @@ export function Button({ variant, children, icon: Icon, onClick, type = "button"
     "primary-navy": "bg-navy-cta text-white hover:bg-navy-cta/90",
     "outline-navy": "border border-border text-text-primary bg-transparent hover:bg-bg-surface-alt",
     "outline-on-navy": "border border-text-on-navy/30 text-text-on-navy bg-transparent hover:bg-white/10",
+    "primary-demo": "bg-gradient-to-r from-[#2b73e6] to-[#22baeb] text-white hover:opacity-90",
   };
 
   if (href) {

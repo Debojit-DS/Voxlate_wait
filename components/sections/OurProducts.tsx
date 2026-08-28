@@ -2,10 +2,12 @@
 
 import { Monitor, Users } from "lucide-react";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
+import { useDemoTransition } from "@/components/transitions/useDemoTransition";
 import { ProductCard } from "@/components/ui/ProductCard";
 
 export function OurProducts() {
   const { openWaitlist } = useGatedWaitlist();
+  const { goToDemo } = useDemoTransition();
 
   return (
     <section id="products" className="bg-bg-page py-10 md:py-12">
@@ -24,6 +26,7 @@ export function OurProducts() {
             imageAlt="Digital version laptop mockup"
             detailsHref="/digital-version"
             onJoinWaitlist={() => openWaitlist("digital-card")}
+            onViewDemo={goToDemo}
           />
           <ProductCard
             eyebrow="Physical Version"

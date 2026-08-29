@@ -325,7 +325,7 @@ export function WaitlistModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-navy-cta/50" onClick={closeModal} />
-      <div className="relative z-10 w-full max-w-[480px] rounded-modal bg-accent-blue-light p-8 shadow-lg border border-border">
+      <div className="relative z-10 w-full max-w-[480px] max-h-[90dvh] overflow-y-auto rounded-modal bg-accent-blue-light p-8 shadow-lg border border-border">
         <button
           type="button"
           onClick={closeModal}

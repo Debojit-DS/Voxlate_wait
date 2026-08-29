@@ -16,6 +16,11 @@ load_dotenv()
 
 app = FastAPI()
 
+#CronJob ping
+@app.get("/ping")
+async def ping():
+    return {"message": "Server is awake"}
+
 # MongoDB Configuration
 MONGO_URI = os.getenv("DATABASE_URL")
 mongo_client = AsyncIOMotorClient(MONGO_URI)

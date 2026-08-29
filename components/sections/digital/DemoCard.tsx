@@ -120,7 +120,7 @@ export function DemoCard() {
           ws.send(buffer);
           ws.send(`lang: ${LANGUAGE_MAP[language]}`);
         } else if (event.data === "denied") {
-          alert("Demo limit exceeded (Max 3 requests).");
+          alert("Demo limit exceeded (Max 5 requests).");
           setMicState("idle");
           ws.close();
         } else if (event.data === "error") {

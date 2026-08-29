@@ -56,7 +56,7 @@ async def websocket_endpoint(ws: WebSocket):
             user = await users_collection.find_one({"email": email})
 
             if user:
-                if user.get("count", 0) >= 3:
+                if user.get("count", 0) >= 5:
                     await ws.send_text("denied")
                 else:
                     await ws.send_text("permitted")

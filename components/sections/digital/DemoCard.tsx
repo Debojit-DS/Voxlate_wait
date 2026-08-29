@@ -200,7 +200,7 @@ export function DemoCard() {
               <div className="text-center px-6">
                 <p className="text-3xl font-bold text-white mb-2">VIP Treatment Only 👀</p>
                 <p className="text-xl text-[#94A3B8] mb-4">
-                  Waitlist join karo → Demo unlocked 🔓 Aap cute ho isliye free, baakiyon se paise lenge! 😭❤️
+                  Join the waitlist → Demo unlocked 🔓 Free for you 'cause you're cute, charging everyone else though! 🤫❤️
                 </p>
                 <Button variant="primary-demo" onClick={() => {
                   if (!user) {

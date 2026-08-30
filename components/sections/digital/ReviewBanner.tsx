@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Star, ChevronDown, BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Review = {
   id: string;
@@ -15,18 +13,11 @@ type Review = {
   createdAt: string;
 };
 
-function StarRating({ rating, onRatingChange, interactive = false }: { rating: number; onRatingChange?: (r: number) => void; interactive?: boolean }) {
+function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-2">
       {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => interactive && onRatingChange?.(star)}
-          disabled={!interactive}
-          className={`${interactive ? "cursor-pointer hover:scale-110 transition-transform" : "cursor-default"}`}
-          aria-label={`${star} star${star > 1 ? "s" : ""}`}
-        >
+        <button key={star} type="button" disabled className="cursor-default" aria-label={`${star} star${star > 1 ? "s" : ""}`}>
           <Star
             size={24}
             className={
@@ -55,14 +46,9 @@ function timeAgo(timestamp: string): string {
 }
 
 export function ReviewBanner() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reviewText, setReviewText] = useState("");
-  const [rating, setRating] = useState(0);
-  const { user, isLoading: isAuthLoading } = useAuth();
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -101,12 +87,6 @@ export function ReviewBanner() {
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
-
-  useEffect(() => {
-    const handler = () => setIsFormOpen(true);
-    window.addEventListener("review:open-form", handler);
-    return () => window.removeEventListener("review:open-form", handler);
-  }, []);
 
   useEffect(() => {
     if (!isPaused && reviews.length > 1) {
@@ -175,140 +155,10 @@ export function ReviewBanner() {
     setCurrentIndex((prev) => (prev + 1) % reviews.length);
   };
 
-  const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reviewText.trim() || rating === 0) return;
-
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const payload: {
-        text: string;
-        rating: number;
-        authorName?: string;
-        authorPhotoUrl?: string | null;
-        userEmail?: string;
-      } = {
-        text: reviewText.trim(),
-        rating,
-      };
-
-      if (user) {
-        payload.authorName = user.name;
-        payload.authorPhotoUrl = user.photoUrl ?? null;
-        payload.userEmail = user.email;
-      }
-
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to submit review");
-      }
-
-      const data = await res.json();
-      if (data.status === "success" && data.review) {
-        setReviews((prev) => sortReviews([data.review, ...prev]));
-        setReviewText("");
-        setRating(0);
-        setIsFormOpen(false);
-      }
-    } catch (err) {
-      console.error("submit review error", err);
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isVerifiedUser = !!user;
-  const displayName = user?.name || "";
-
   return (
     <section className="px-6 md:px-8 mt-12">
       <div className="mx-auto max-w-[1200px]">
         <div className="rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#6366F1]/60 bg-[#6366F1]/10">
-                <Star className="h-6 w-6 text-[#6366F1]" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Enjoying the demo?</h3>
-                <p className="mt-1 text-sm text-[#94A3B8]">
-                  Get early access to Voxlate Digital and experience seamless real-time conversations in any language.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {isFormOpen && (
-          <div id="review-form-section" className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
-            <h4 className="text-lg font-semibold text-white mb-6">Leave a Review</h4>
-
-            <form onSubmit={handleSubmitReview} className="space-y-4 mb-8">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">
-                    Your Name
-                    {isVerifiedUser && (
-                      <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[#6366F1]/60 bg-[#6366F1]/10 px-2 py-0.5 text-[10px] font-semibold text-[#6366F1]">
-                        <BadgeCheck size={12} />
-                        Verified Waitlist User
-                      </span>
-                    )}
-                  </label>
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => !isVerifiedUser && setReviewText(e.target.value)}
-                    readOnly={isVerifiedUser}
-                    placeholder="Enter your name"
-                    className="w-full rounded-lg border border-white/20 bg-[rgba(2,6,23,0.6)] px-4 py-2.5 text-sm text-white placeholder:text-[#64748B] outline-none transition-colors focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 disabled:opacity-70"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Rating</label>
-                  <div className="flex items-center gap-2">
-                    <StarRating rating={rating} onRatingChange={setRating} interactive />
-                    <span className="text-xs text-[#94A3B8]">
-                      {rating > 0 ? `${rating}/5` : "Select rating"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Your Review</label>
-                <textarea
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  placeholder="Share your thoughts about the demo..."
-                  rows={4}
-                    className="w-full rounded-lg border border-white/20 bg-[rgba(2,6,23,0.6)] px-4 py-2.5 text-sm text-white placeholder:text-[#64748B] outline-none transition-colors focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 resize-none"
-                />
-              </div>
-
-              {error && <p className="text-sm text-red-400">{error}</p>}
-
-              <Button
-                type="submit"
-                variant="primary-navy"
-                disabled={!reviewText.trim() || rating === 0 || isSubmitting || isAuthLoading}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Review"}
-              </Button>
-            </form>
-          </div>
-        )}
-
-        <div className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
           <h5 className="text-sm font-semibold text-white mb-4">
             {isLoading ? "Loading reviews..." : `${reviews.length} Review${reviews.length !== 1 ? "s" : ""}`}
           </h5>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { ChevronDown, Play, Pause, Star } from "lucide-react";
+import { ChevronDown, Play, Pause } from "lucide-react";
 import { useDemoGate } from "@/components/auth/useDemoGate";
 import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -366,35 +366,6 @@ export function DemoCard() {
                   ))}
                 </div>
                 <span className="text-xs text-[#64748B] font-mono w-10 text-right">{duration}</span>
-              </div>
-
-              <div className="border-t border-white/10 pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#6366F1]/60 bg-[#6366F1]/10">
-                      <Star className="h-5 w-5 text-[#6366F1]" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold text-white">Enjoying the demo?</h3>
-                      <p className="mt-1 text-xs text-[#94A3B8]">
-                        Get early access to Voxlate Digital and experience seamless real-time conversations in any language.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="primary-demo"
-                    onClick={() => {
-                      window.dispatchEvent(new Event("review:open-form"));
-                      const el = document.getElementById("review-form-section");
-                      if (el) {
-                        el.scrollIntoView({ behavior: "smooth", block: "center" });
-                      }
-                    }}
-                    className="font-bold"
-                  >
-                    Leave a Review
-                  </Button>
-                </div>
               </div>
             </div>
           </div>

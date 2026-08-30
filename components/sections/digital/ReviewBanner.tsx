@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Star, ChevronDown, ChevronUp, BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronDown, BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -101,6 +101,12 @@ export function ReviewBanner() {
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  useEffect(() => {
+    const handler = () => setIsFormOpen(true);
+    window.addEventListener("review:open-form", handler);
+    return () => window.removeEventListener("review:open-form", handler);
+  }, []);
 
   useEffect(() => {
     if (!isPaused && reviews.length > 1) {
@@ -239,31 +245,11 @@ export function ReviewBanner() {
                 </p>
               </div>
             </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                variant="primary-demo"
-                onClick={() => setIsFormOpen(!isFormOpen)}
-                className="font-bold"
-              >
-                {isFormOpen ? (
-                  <>
-                    Close Review Form
-                    <ChevronUp size={16} />
-                  </>
-                ) : (
-                  <>
-                    Leave a Review
-                    <ChevronDown size={16} />
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
         </div>
 
         {isFormOpen && (
-          <div className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
+          <div id="review-form-section" className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
             <h4 className="text-lg font-semibold text-white mb-6">Leave a Review</h4>
 
             <form onSubmit={handleSubmitReview} className="space-y-4 mb-8">

@@ -110,10 +110,16 @@ export function ReviewBanner() {
         if (!card) return;
         const cardWidth = card.getBoundingClientRect().width;
         const gap = 16;
-        carouselRef.current.scrollBy({
-          left: cardWidth + gap,
-          behavior: "smooth",
-        });
+        const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
+
+        if (carouselRef.current.scrollLeft >= maxScroll - 10) {
+          carouselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          carouselRef.current.scrollBy({
+            left: cardWidth + gap,
+            behavior: "smooth",
+          });
+        }
       }, 2000);
       return () => clearInterval(interval);
     }

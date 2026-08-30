@@ -209,7 +209,7 @@ export function Navbar() {
   return (
     <>
       <header className={headerClass}>
-        <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
+        <div className="mx-auto max-w-screen-2xl px-2 md:px-6">
           <div className="flex h-20 items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Logo className="h-16 w-auto" />
@@ -277,7 +277,7 @@ export function Navbar() {
 
         {mobileOpen && (
           <div className={`border-t ${isDemoPage ? "border-border-subtle bg-bg-base" : "border-border bg-bg-page"} md:hidden`}>
-            <div className="mx-auto max-w-screen-2xl px-4 md:px-8 py-4 space-y-3">
+            <div className="mx-auto max-w-screen-2xl px-2 md:px-6 py-4 space-y-3">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 const isDemoLink = link.href === "/demo";

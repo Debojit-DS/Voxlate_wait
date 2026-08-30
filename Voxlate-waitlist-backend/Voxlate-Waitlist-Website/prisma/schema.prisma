@@ -65,3 +65,26 @@ model Review {
   @@index([createdAt])
   @@map("reviews")
 }
+
+model JobApplication {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName         String
+  email            String
+  contactNumber    String
+  college          String
+  currentYear      String
+  roleAppliedFor   String
+  strongestSkills  String
+  motivation       String
+  projectDetails   String?
+  proposedIdea     String
+  uniqueEdge       String
+  portfolioLinks   String?
+  resumeUrl        String
+
+  status           String   @default("Pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("job_applications")
+}

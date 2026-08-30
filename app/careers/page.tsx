@@ -41,6 +41,8 @@ const YEARS = [
 
 export default function CareersPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>({
     fullName: "",
     email: "",
@@ -62,26 +64,88 @@ export default function CareersPage() {
     if (field === "resume" && target.files?.[0]) {
       const file = target.files[0];
       if (file.type !== "application/pdf") {
-        alert("Please upload a PDF file only.");
+        setError("Please upload a PDF file only.");
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        alert("File size must be less than 10MB.");
+        setError("File size must be less than 10MB.");
         return;
       }
+      setError(null);
       setForm((prev) => ({ ...prev, resume: file }));
       return;
     }
     setForm((prev) => ({ ...prev, [field]: target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     if (!form.resume) {
-      alert("Please upload your resume in PDF format.");
+      setError("Please upload your resume in PDF format.");
       return;
     }
-    setSubmitted(true);
+
+    setIsSubmitting(true);
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append("resume", form.resume);
+
+      const uploadRes = await fetch("/api/upload/resume", {
+        method: "POST",
+        body: uploadFormData,
+        signal: AbortSignal.timeout(30_000),
+      });
+
+      if (!uploadRes.ok) {
+        const uploadData = await uploadRes.json().catch(() => ({}));
+        throw new Error(uploadData.message || "Failed to upload resume.");
+      }
+
+      const uploadData = await uploadRes.json();
+      const resumeUrl = uploadData.data?.url;
+
+      if (!resumeUrl) {
+        throw new Error("Resume URL not returned from upload.");
+      }
+
+      const payload = {
+        fullName: form.fullName,
+        email: form.email,
+        contactNumber: form.phone,
+        college: form.college,
+        currentYear: form.year,
+        roleAppliedFor: form.role,
+        strongestSkills: form.skills,
+        motivation: form.motivation,
+        projectDetails: form.project || null,
+        proposedIdea: form.ideas,
+        uniqueEdge: form.differentiator,
+        portfolioLinks: form.links || null,
+        resumeUrl,
+      };
+
+      const submitRes = await fetch("/api/careers/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(30_000),
+      });
+
+      if (!submitRes.ok) {
+        const submitData = await submitRes.json().catch(() => ({}));
+        throw new Error(submitData.message || "Failed to submit application.");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Application submission error", err);
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -305,12 +369,19 @@ export default function CareersPage() {
             </div>
           </div>
 
+          {error && (
+            <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="flex justify-end">
             <button
               type="submit"
+              disabled={isSubmitting}
               className="h-12 min-w-[240px] rounded-md bg-[#001b44] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002966] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Submit Application →
+              {isSubmitting ? "Submitting your application..." : "Submit Application →"}
             </button>
           </div>
         </form>

@@ -137,8 +137,8 @@ export function Navbar() {
     if (isHomePage || isDigitalVersionPage || isPhysicalVersionPage) {
       return (
         <>
-          <Button variant="outline-navy" href="/login">Log In</Button>
-          <Button variant="primary-navy" href="/signup">Sign Up</Button>
+          <Button variant="outline-navy" href="/login" className="whitespace-nowrap">Log In</Button>
+          <Button variant="primary-navy" href="/signup" className="whitespace-nowrap">Sign Up</Button>
         </>
       );
     }
@@ -191,8 +191,8 @@ export function Navbar() {
     if (isHomePage || isDigitalVersionPage || isPhysicalVersionPage) {
       return (
         <div className="flex flex-col gap-2 pt-2">
-          <Button variant="outline-navy" className="w-full" href="/login">Log In</Button>
-          <Button variant="primary-navy" className="w-full" href="/signup">Sign Up</Button>
+          <Button variant="outline-navy" className="w-full whitespace-nowrap" href="/login">Log In</Button>
+          <Button variant="primary-navy" className="w-full whitespace-nowrap" href="/signup">Sign Up</Button>
         </div>
       );
     }

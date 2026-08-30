@@ -209,8 +209,8 @@ export function Navbar() {
   return (
     <>
       <header className={headerClass}>
-        <div className="mx-auto max-w-[1200px] px-6 md:px-8">
-          <div className="flex h-[80px] items-center justify-between">
+        <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
+          <div className="flex h-20 items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Logo className="h-16 w-auto" />
               <div className="leading-none">
@@ -219,7 +219,7 @@ export function Navbar() {
               </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 flex-shrink-0">
+            <nav className="hidden md:flex items-center gap-4 lg:gap-6 flex-shrink-0">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 const isDemoLink = link.href === "/demo";
@@ -237,7 +237,7 @@ export function Navbar() {
                         }, 1200);
                       }}
                       disabled={isTransitioning}
-                      className={`whitespace-nowrap text-[13px] font-medium transition-colors ${
+                      className={`whitespace-nowrap text-sm font-medium transition-colors ${
                         isActive ? "text-orange border-b-2 border-orange" : "text-text-primary hover:text-orange"
                       }`}
                     >
@@ -250,7 +250,7 @@ export function Navbar() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`whitespace-nowrap text-[13px] font-medium transition-colors ${
+                    className={`whitespace-nowrap text-sm font-medium transition-colors ${
                       isActive ? "text-orange border-b-2 border-orange" : "text-text-primary hover:text-orange"
                     }`}
                   >
@@ -277,7 +277,7 @@ export function Navbar() {
 
         {mobileOpen && (
           <div className={`border-t ${isDemoPage ? "border-border-subtle bg-bg-base" : "border-border bg-bg-page"} md:hidden`}>
-            <div className="mx-auto max-w-[1200px] px-6 py-4 space-y-3">
+            <div className="mx-auto max-w-screen-2xl px-4 md:px-8 py-4 space-y-3">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 const isDemoLink = link.href === "/demo";
@@ -296,7 +296,7 @@ export function Navbar() {
                         }, 1200);
                       }}
                       disabled={isTransitioning}
-                      className={`block text-[13px] font-medium transition-colors ${
+                      className={`block text-sm font-medium transition-colors whitespace-nowrap ${
                         isActive ? "text-orange" : "text-text-primary hover:text-orange"
                       }`}
                     >
@@ -310,7 +310,7 @@ export function Navbar() {
                     key={link.label}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`block text-[13px] font-medium transition-colors ${
+                    className={`block text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive ? "text-orange" : "text-text-primary hover:text-orange"
                     }`}
                   >

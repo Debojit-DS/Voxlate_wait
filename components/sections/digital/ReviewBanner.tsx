@@ -232,22 +232,6 @@ export function ReviewBanner() {
   return (
     <section className="px-6 md:px-8 mt-12">
       <div className="mx-auto max-w-[1200px]">
-        <div className="rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#6366F1]/60 bg-[#6366F1]/10">
-                <Star className="h-6 w-6 text-[#6366F1]" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Enjoying the demo?</h3>
-                <p className="mt-1 text-sm text-[#94A3B8]">
-                  Get early access to Voxlate Digital and experience seamless real-time conversations in any language.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {isFormOpen && (
           <div id="review-form-section" className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
             <h4 className="text-lg font-semibold text-white mb-6">Leave a Review</h4>

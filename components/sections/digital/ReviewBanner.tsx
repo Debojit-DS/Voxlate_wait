@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Star, ChevronDown, ChevronUp, BadgeCheck } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Star, ChevronDown, ChevronUp, BadgeCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -64,6 +64,13 @@ export function ReviewBanner() {
   const [rating, setRating] = useState(0);
   const { user, isLoading: isAuthLoading } = useAuth();
 
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
+
   const sortReviews = useCallback((items: Review[]) => {
     return [...items].sort((a, b) => {
       if (b.rating !== a.rating) return b.rating - a.rating;
@@ -96,6 +103,72 @@ export function ReviewBanner() {
       fetchReviews();
     }
   }, [isReviewSectionOpen, fetchReviews]);
+
+  useEffect(() => {
+    if (isReviewSectionOpen) {
+      setCurrentIndex(0);
+    }
+  }, [isReviewSectionOpen]);
+
+  useEffect(() => {
+    if (!isPaused && reviews.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % reviews.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [isPaused, reviews.length]);
+
+  useEffect(() => {
+    if (carouselRef.current && carouselRef.current.children[currentIndex]) {
+      const card = carouselRef.current.children[currentIndex] as HTMLElement;
+      card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    }
+  }, [currentIndex]);
+
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const card = container.firstElementChild as HTMLElement | null;
+      if (!card) return;
+      const cardWidth = card.getBoundingClientRect().width;
+      const gap = 16;
+      const index = Math.round(container.scrollLeft / (cardWidth + gap));
+      setCurrentIndex(Math.min(index, reviews.length - 1));
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [reviews.length]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    dragStartX.current = e.pageX - carouselRef.current.offsetLeft;
+    dragScrollLeft.current = carouselRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - dragStartX.current) * 2;
+    carouselRef.current.scrollLeft = dragScrollLeft.current - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % reviews.length);
+  };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,34 +330,79 @@ export function ReviewBanner() {
                 </div>
               ) : reviews.length === 0 ? (
                 <p className="text-sm text-[#94A3B8] text-center py-8">No reviews yet. Be the first to share your thoughts!</p>
-              ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {reviews.map((review) => (
+                ) : (
+                  <div className="relative group">
                     <div
-                      key={review.id}
-                      className="rounded-xl border border-white/20 bg-[rgba(30,41,59,0.5)] p-4"
+                      ref={carouselRef}
+                      className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                      onMouseEnter={() => setIsPaused(true)}
+                      onMouseLeave={() => {
+                        setIsPaused(false);
+                        setIsDragging(false);
+                      }}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
                     >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3B82F6] to-[#7C3AED] text-white text-xs font-bold">
-                          {review.authorPhotoUrl ? (
-                            <img src={review.authorPhotoUrl} alt={review.authorName} className="h-full w-full rounded-full object-cover" />
-                          ) : (
-                            review.authorName.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{review.authorName}</p>
-                          <div className="flex items-center gap-2">
-                            <StarRating rating={review.rating} />
-                            <span className="text-[10px] text-[#64748B]">{timeAgo(review.createdAt)}</span>
+                      {reviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="flex-shrink-0 snap-start w-[85%] md:w-[44%] lg:w-[30%] rounded-xl border border-white/20 bg-[rgba(30,41,59,0.5)] p-4"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3B82F6] to-[#7C3AED] text-white text-xs font-bold">
+                              {review.authorPhotoUrl ? (
+                                <img src={review.authorPhotoUrl} alt={review.authorName} className="h-full w-full rounded-full object-cover" />
+                              ) : (
+                                review.authorName.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-white truncate">{review.authorName}</p>
+                              <div className="flex items-center gap-2">
+                                <StarRating rating={review.rating} />
+                                <span className="text-[10px] text-[#64748B]">{timeAgo(review.createdAt)}</span>
+                              </div>
+                            </div>
                           </div>
+                          <p className="text-sm text-[#94A3B8] leading-relaxed">{review.text}</p>
                         </div>
-                      </div>
-                      <p className="text-sm text-[#94A3B8] leading-relaxed">{review.text}</p>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {reviews.length > 1 && (
+                      <>
+                        <button
+                          onClick={goToPrev}
+                          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
+                          aria-label="Previous review"
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          onClick={goToNext}
+                          className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
+                          aria-label="Next review"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </>
+                    )}
+
+                    <div className="flex justify-center gap-2 mt-4">
+                      {reviews.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentIndex(index)}
+                          className={`h-2 rounded-full transition-all ${
+                            index === currentIndex ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                          }`}
+                          aria-label={`Go to review ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
         )}

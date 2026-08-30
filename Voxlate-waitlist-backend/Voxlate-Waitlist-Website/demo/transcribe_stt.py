@@ -16,6 +16,7 @@ def transcribe_audio_groq(audio_file_path, api_key=None):
             response = client.audio.transcriptions.create(
                 file=(os.path.basename(audio_file_path), audio_file.read()),
                 model="whisper-large-v3-turbo", 
+                temperature=0.0,
                 response_format="verbose_json"  # Required to get the detected language back
             )
             

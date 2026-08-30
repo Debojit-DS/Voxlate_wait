@@ -80,7 +80,7 @@ async def websocket_endpoint(ws: WebSocket):
             
             # UNIQUE ID: Ensures no two files ever share the same name, preventing collisions
             session_id = str(uuid.uuid4())
-            filename = f"{email}_{session_id}.wav"
+            filename = f"{email}_{session_id}.webm"
             output_filename = f"{email}_{session_id}.output.wav"
 
             def save_audio(name, data):

@@ -55,7 +55,7 @@ function timeAgo(timestamp: string): string {
 }
 
 export function ReviewBanner() {
-  const [isReviewSectionOpen, setIsReviewSectionOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,16 +99,8 @@ export function ReviewBanner() {
   }, [sortReviews]);
 
   useEffect(() => {
-    if (isReviewSectionOpen) {
-      fetchReviews();
-    }
-  }, [isReviewSectionOpen, fetchReviews]);
-
-  useEffect(() => {
-    if (isReviewSectionOpen) {
-      setCurrentIndex(0);
-    }
-  }, [isReviewSectionOpen]);
+    fetchReviews();
+  }, [fetchReviews]);
 
   useEffect(() => {
     if (!isPaused && reviews.length > 1) {
@@ -126,13 +118,6 @@ export function ReviewBanner() {
       return () => clearInterval(interval);
     }
   }, [isPaused, reviews.length]);
-
-  useEffect(() => {
-    if (carouselRef.current && carouselRef.current.children[currentIndex]) {
-      const card = carouselRef.current.children[currentIndex] as HTMLElement;
-      card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-    }
-  }, [currentIndex]);
 
   useEffect(() => {
     const container = carouselRef.current;
@@ -219,6 +204,7 @@ export function ReviewBanner() {
         setReviews((prev) => sortReviews([data.review, ...prev]));
         setReviewText("");
         setRating(0);
+        setIsFormOpen(false);
       }
     } catch (err) {
       console.error("submit review error", err);
@@ -250,12 +236,13 @@ export function ReviewBanner() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Button
-                variant="outline-on-navy"
-                onClick={() => setIsReviewSectionOpen(!isReviewSectionOpen)}
+                variant="primary-demo"
+                onClick={() => setIsFormOpen(!isFormOpen)}
+                className="font-bold"
               >
-                {isReviewSectionOpen ? (
+                {isFormOpen ? (
                   <>
-                    Close Reviews
+                    Close Review Form
                     <ChevronUp size={16} />
                   </>
                 ) : (
@@ -269,7 +256,7 @@ export function ReviewBanner() {
           </div>
         </div>
 
-        {isReviewSectionOpen && (
+        {isFormOpen && (
           <div className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
             <h4 className="text-lg font-semibold text-white mb-6">Leave a Review</h4>
 
@@ -326,94 +313,94 @@ export function ReviewBanner() {
                 {isSubmitting ? "Submitting..." : "Submit Review"}
               </Button>
             </form>
-
-            <div className="border-t border-white/20 pt-6">
-              <h5 className="text-sm font-semibold text-white mb-4">
-                {isLoading ? "Loading reviews..." : `${reviews.length} Review${reviews.length !== 1 ? "s" : ""}`}
-              </h5>
-
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                </div>
-              ) : reviews.length === 0 ? (
-                <p className="text-sm text-[#94A3B8] text-center py-8">No reviews yet. Be the first to share your thoughts!</p>
-                ) : (
-                  <div className="relative group">
-                    <div
-                      ref={carouselRef}
-                      className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                      onMouseEnter={() => setIsPaused(true)}
-                      onMouseLeave={() => {
-                        setIsPaused(false);
-                        setIsDragging(false);
-                      }}
-                      onMouseDown={handleMouseDown}
-                      onMouseMove={handleMouseMove}
-                      onMouseUp={handleMouseUp}
-                    >
-                      {reviews.map((review) => (
-                        <div
-                          key={review.id}
-                          className="flex-shrink-0 snap-start w-[85%] md:w-[44%] lg:w-[30%] rounded-xl border border-white/20 bg-[rgba(30,41,59,0.5)] p-4"
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3B82F6] to-[#7C3AED] text-white text-xs font-bold">
-                              {review.authorPhotoUrl ? (
-                                <img src={review.authorPhotoUrl} alt={review.authorName} className="h-full w-full rounded-full object-cover" />
-                              ) : (
-                                review.authorName.charAt(0).toUpperCase()
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-white truncate">{review.authorName}</p>
-                              <div className="flex items-center gap-2">
-                                <StarRating rating={review.rating} />
-                                <span className="text-[10px] text-[#64748B]">{timeAgo(review.createdAt)}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-sm text-[#94A3B8] leading-relaxed">{review.text}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {reviews.length > 1 && (
-                      <>
-                        <button
-                          onClick={goToPrev}
-                          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
-                          aria-label="Previous review"
-                        >
-                          <ChevronLeft size={18} />
-                        </button>
-                        <button
-                          onClick={goToNext}
-                          className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
-                          aria-label="Next review"
-                        >
-                          <ChevronRight size={18} />
-                        </button>
-                      </>
-                    )}
-
-                    <div className="flex justify-center gap-2 mt-4">
-                      {reviews.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentIndex(index)}
-                          className={`h-2 rounded-full transition-all ${
-                            index === currentIndex ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
-                          }`}
-                          aria-label={`Go to review ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
           </div>
         )}
+
+        <div className="mt-6 rounded-2xl border border-white/20 bg-[rgba(15,23,42,0.4)] backdrop-blur-xl p-6 md:p-8 shadow-[0_0_30px_rgba(59,130,246,0.25)]">
+          <h5 className="text-sm font-semibold text-white mb-4">
+            {isLoading ? "Loading reviews..." : `${reviews.length} Review${reviews.length !== 1 ? "s" : ""}`}
+          </h5>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            </div>
+          ) : reviews.length === 0 ? (
+            <p className="text-sm text-[#94A3B8] text-center py-8">No reviews yet. Be the first to share your thoughts!</p>
+          ) : (
+            <div className="relative group">
+              <div
+                ref={carouselRef}
+                className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => {
+                  setIsPaused(false);
+                  setIsDragging(false);
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+              >
+                {reviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="flex-shrink-0 snap-start w-[85%] md:w-[44%] lg:w-[30%] rounded-xl border border-white/20 bg-[rgba(30,41,59,0.5)] p-4"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3B82F6] to-[#7C3AED] text-white text-xs font-bold">
+                        {review.authorPhotoUrl ? (
+                          <img src={review.authorPhotoUrl} alt={review.authorName} className="h-full w-full rounded-full object-cover" />
+                        ) : (
+                          review.authorName.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{review.authorName}</p>
+                        <div className="flex items-center gap-2">
+                          <StarRating rating={review.rating} />
+                          <span className="text-[10px] text-[#64748B]">{timeAgo(review.createdAt)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#94A3B8] leading-relaxed">{review.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              {reviews.length > 1 && (
+                <>
+                  <button
+                    onClick={goToPrev}
+                    className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
+                    aria-label="Previous review"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    onClick={goToNext}
+                    className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 hover:bg-black/70"
+                    aria-label="Next review"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </>
+              )}
+
+              <div className="flex justify-center gap-2 mt-4">
+                {reviews.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentIndex ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                    }`}
+                    aria-label={`Go to review ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

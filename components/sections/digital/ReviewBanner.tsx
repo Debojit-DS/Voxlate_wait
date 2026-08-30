@@ -113,7 +113,15 @@ export function ReviewBanner() {
   useEffect(() => {
     if (!isPaused && reviews.length > 1) {
       const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % reviews.length);
+        if (!carouselRef.current) return;
+        const card = carouselRef.current.firstElementChild as HTMLElement | null;
+        if (!card) return;
+        const cardWidth = card.getBoundingClientRect().width;
+        const gap = 16;
+        carouselRef.current.scrollBy({
+          left: cardWidth + gap,
+          behavior: "smooth",
+        });
       }, 2000);
       return () => clearInterval(interval);
     }

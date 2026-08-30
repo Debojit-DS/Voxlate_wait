@@ -7,6 +7,7 @@ type Stats = {
   totalWaitlist: number;
   totalUsers: number;
   newLast7Days: number;
+  totalApplications: number;
   byProduct: { product: string; count: number }[];
   byType: { type: string; count: number }[];
 };
@@ -30,12 +31,32 @@ type AdminUser = {
   createdAt: string;
 };
 
-type Tab = "overview" | "waitlist" | "users";
+type JobApplication = {
+  id: string;
+  fullName: string;
+  email: string;
+  contactNumber: string;
+  college: string;
+  currentYear: string;
+  roleAppliedFor: string;
+  strongestSkills: string;
+  motivation: string;
+  projectDetails: string | null;
+  proposedIdea: string;
+  uniqueEdge: string;
+  portfolioLinks: string | null;
+  resumeUrl: string;
+  status: string;
+  createdAt: string;
+};
+
+type Tab = "overview" | "waitlist" | "users" | "applications";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "waitlist", label: "Waitlist" },
   { id: "users", label: "Users" },
+  { id: "applications", label: "Applications" },
 ];
 
 export function AdminDashboard({ adminName }: { adminName: string }) {
@@ -86,6 +107,7 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
       {tab === "overview" && <OverviewTab />}
       {tab === "waitlist" && <WaitlistTab />}
       {tab === "users" && <UsersTab />}
+      {tab === "applications" && <ApplicationsTab />}
     </div>
   );
 }
@@ -109,6 +131,7 @@ function OverviewTab() {
   const cards = [
     { label: "Total waitlist signups", value: stats.totalWaitlist },
     { label: "Registered users", value: stats.totalUsers },
+    { label: "Job applications", value: stats.totalApplications },
     { label: "New signups (7 days)", value: stats.newLast7Days },
   ];
 
@@ -401,6 +424,123 @@ function UsersTab() {
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
                   No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </div>
+  );
+}
+
+// ---------------- Applications ----------------
+
+function ApplicationsTab() {
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const load = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setLoading(true);
+    const params = new URLSearchParams({ page: String(page), pageSize: "25" });
+    if (search) params.set("search", search);
+    fetch(`/api/admin/applications?${params}`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((json) => {
+        setApplications(json.data ?? []);
+        setTotalPages(json.pagination?.totalPages ?? 1);
+      })
+      .finally(() => setLoading(false));
+  }, [page, search]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [load]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return (
+    <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] p-4">
+        <input
+          type="text"
+          placeholder="Search name, email, college…"
+          value={search}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
+          className="w-64 rounded-[var(--radius-input)] border border-[var(--color-border)] px-3 py-1.5 text-sm outline-none focus:border-[var(--color-orange)]"
+        />
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-[var(--color-border)] text-[var(--color-text-secondary)]">
+              <th className="px-4 py-2 font-medium">Name</th>
+              <th className="px-4 py-2 font-medium">Email</th>
+              <th className="px-4 py-2 font-medium">Contact</th>
+              <th className="px-4 py-2 font-medium">College</th>
+              <th className="px-4 py-2 font-medium">Year</th>
+              <th className="px-4 py-2 font-medium">Role</th>
+              <th className="px-4 py-2 font-medium">Status</th>
+              <th className="px-4 py-2 font-medium">Applied</th>
+              <th className="px-4 py-2" />
+            </tr>
+          </thead>
+          <tbody>
+            {applications.map((app) => (
+              <tr key={app.id} className="border-b border-[var(--color-border)] last:border-0">
+                <td className="px-4 py-2 text-[var(--color-text-primary)]">{app.fullName}</td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">{app.email}</td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">{app.contactNumber}</td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">{app.college}</td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">{app.currentYear}</td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">{app.roleAppliedFor}</td>
+                <td className="px-4 py-2">
+                  <span className="rounded-[var(--radius-pill)] bg-[var(--color-bg-surface-alt)] px-2 py-0.5 text-xs font-medium text-[var(--color-text-secondary)]">
+                    {app.status}
+                  </span>
+                </td>
+                <td className="px-4 py-2 text-[var(--color-text-secondary)]">
+                  {new Date(app.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2 text-right">
+                  <a
+                    href={app.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[var(--color-accent-blue)] hover:underline"
+                  >
+                    Resume
+                  </a>
+                </td>
+              </tr>
+            ))}
+            {!loading && applications.length === 0 && (
+              <tr>
+                <td colSpan={9} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
+                  No applications found.
                 </td>
               </tr>
             )}

@@ -14,12 +14,13 @@ export async function GET(req: NextRequest) {
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   }
 
-  const [totalWaitlist, totalUsers, newLast7Days, byProduct, byType] = await Promise.all([
+  const [totalWaitlist, totalUsers, newLast7Days, totalApplications, byProduct, byType] = await Promise.all([
     prisma.waitlistEntry.count(),
     prisma.user.count(),
     prisma.user.count({
       where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
     }),
+    prisma.jobApplication.count(),
     prisma.waitlistEntry.groupBy({
       by: ["product"],
       _count: { product: true },
@@ -36,6 +37,7 @@ export async function GET(req: NextRequest) {
       totalWaitlist,
       totalUsers,
       newLast7Days,
+      totalApplications,
       byProduct: byProduct.map((item) => ({ product: item.product, count: item._count.product })),
       byType: byType.map((item) => ({ type: item.type, count: item._count.type })),
     },

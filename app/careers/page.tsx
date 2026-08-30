@@ -1,122 +1,303 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Logo } from "@/components/ui/Logo";
+import { useState } from "react";
+import { CheckCircle2 } from "lucide-react";
+
+type FormData = {
+  fullName: string;
+  email: string;
+  phone: string;
+  college: string;
+  year: string;
+  role: string;
+  skills: string;
+  motivation: string;
+  project: string;
+  ideas: string;
+  differentiator: string;
+  resume: string;
+  links: string;
+};
+
+const ROLES = [
+  "Tech (Full-Stack / Backend / Frontend)",
+  "AI / ML (Speech, LLMs, Computer Vision)",
+  "Cybersecurity",
+  "Hardware & Embedded Systems",
+  "Marketing & Growth",
+  "Sales & Business Development",
+  "UI / UX Design",
+  "Other",
+];
+
+const YEARS = [
+  "1st Year",
+  "2nd Year",
+  "3rd Year",
+  "4th Year",
+  "Postgraduate / Alum",
+  "Other",
+];
 
 export default function CareersPage() {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <header className="w-full px-6 py-6">
-        <div className="mx-auto max-w-[1200px] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Logo className="h-16 w-auto" />
-            <div className="leading-none">
-              <span className="block text-3xl font-bold tracking-tight text-text-primary">VOXLATE</span>
-              <span className="block text-xs font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState<FormData>({
+    fullName: "",
+    email: "",
+    phone: "",
+    college: "",
+    year: "",
+    role: "",
+    skills: "",
+    motivation: "",
+    project: "",
+    ideas: "",
+    differentiator: "",
+    resume: "",
+    links: "",
+  });
+
+  const update = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-[#f6faff] flex items-center justify-center px-6">
+        <div className="max-w-[860px] w-full">
+          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-8 md:p-12 text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#d8e2ff]">
+              <CheckCircle2 className="h-8 w-8 text-[#001b44]" />
             </div>
+            <h2 className="text-2xl font-bold text-[#001b44] mb-2">Application Received!</h2>
+            <p className="text-[#44474f]">
+              Thanks for applying to join the Voxlate team. We will review your profile and reach out via email/phone shortly.
+            </p>
           </div>
-          <Link href="/" className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary">
-            <ArrowLeft size={16} />
-            Back to Home
-          </Link>
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      <main className="flex-1 px-6 py-8">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-card bg-surface p-8 shadow-sm border border-border">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-text-primary mb-4">Careers at Voxlate</h1>
-              <p className="text-xl font-semibold text-text-primary mb-4">Build the Future of Human Communication</p>
-              <p className="text-text-secondary leading-relaxed">
-                At Voxlate, we're building the next generation of AI-powered real-time voice translation technology. If you're passionate about innovation and want to solve real-world communication challenges, we'd love to hear from you.
-              </p>
-            </div>
+  return (
+    <div className="min-h-screen bg-[#f6faff]" style={{ backgroundImage: "radial-gradient(circle at top, rgba(0,89,187,0.04), transparent 40%)" }}>
+      <div className="mx-auto max-w-[860px] px-6 py-10 md:py-14">
+        <div className="text-center mb-10">
+          <span className="inline-block rounded-full bg-[#001b44] px-4 py-1.5 text-xs font-semibold text-white mb-4">
+            🚀 We&apos;re Hiring
+          </span>
+          <h1 className="text-[32px] font-bold text-[#001b44] leading-[40px] tracking-tight mb-3">
+            🚀 Voxlate — Careers Application
+          </h1>
+          <p className="text-[15px] text-[#44474f] leading-relaxed max-w-2xl mx-auto">
+            Join our core team shaping the future of real-time voice intelligence and wearable tech. Fill out the application below to get started.
+          </p>
+        </div>
 
-            <div className="space-y-12">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Candidate Profile & Academic Background</h2>
+            <div className="space-y-5">
               <div>
-                <h2 className="text-2xl font-bold text-text-primary mb-6 pb-2 border-b border-border">Open Positions</h2>
-                
-                <div className="space-y-8">
-                  <div className="p-6 rounded-lg bg-bg-page border border-border">
-                    <h3 className="text-xl font-semibold text-text-primary mb-2">Hardware & Embedded Systems Engineer</h3>
-                    <p className="text-text-secondary mb-4">Help us build the future of Voxlate's hardware device.</p>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-lg font-semibold text-text-primary mb-2">Responsibilities</h4>
-                        <ul className="list-disc pl-6 space-y-1 text-text-secondary">
-                          <li>Design and develop embedded hardware systems.</li>
-                          <li>Work with microcontrollers, processors, sensors, microphones, speakers, and wireless communication modules.</li>
-                          <li>Collaborate with software and AI teams to integrate hardware and software seamlessly.</li>
-                          <li>Assist in PCB design, circuit testing, hardware debugging, and prototype development.</li>
-                          <li>Optimize hardware for performance, battery life, reliability, and real-world usability.</li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="text-lg font-semibold text-text-primary mb-2">Preferred Skills</h4>
-                        <ul className="list-disc pl-6 space-y-1 text-text-secondary">
-                          <li>Embedded Systems</li>
-                          <li>PCB Design</li>
-                          <li>Circuit Design & Debugging</li>
-                          <li>Microcontrollers (STM32, ESP32, ARM, etc.)</li>
-                          <li>Bluetooth, Wi-Fi & Low-Power Electronics</li>
-                          <li>Hardware Prototyping</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={form.fullName}
+                  onChange={update("fullName")}
+                  placeholder="e.g., Jane Doe"
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                />
+              </div>
 
-                  <div className="p-6 rounded-lg bg-bg-page border border-border">
-                    <h3 className="text-xl font-semibold text-text-primary mb-2">Sales & Business Development Executive</h3>
-                    <p className="text-text-secondary mb-4">Help bring Voxlate to businesses, educational institutions, and users around the world.</p>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-lg font-semibold text-text-primary mb-2">Responsibilities</h4>
-                        <ul className="list-disc pl-6 space-y-1 text-text-secondary">
-                          <li>Identify and connect with potential customers and enterprise clients.</li>
-                          <li>Present and demonstrate Voxlate's products and services.</li>
-                          <li>Build long-term relationships with partners and customers.</li>
-                          <li>Generate leads and support business growth.</li>
-                          <li>Work closely with the marketing team to expand Voxlate's reach.</li>
-                          <li>Gather customer feedback and communicate market insights to the product team.</li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="text-lg font-semibold text-text-primary mb-2">Preferred Skills</h4>
-                        <ul className="list-disc pl-6 space-y-1 text-text-secondary">
-                          <li>Strong communication and presentation skills.</li>
-                          <li>Sales or business development experience is a plus.</li>
-                          <li>Confidence in networking and relationship building.</li>
-                          <li>Passion for technology and startups.</li>
-                          <li>Self-motivated with a growth mindset.</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={update("email")}
+                    placeholder="jane@example.com"
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Contact Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={form.phone}
+                    onChange={update("phone")}
+                    placeholder="+91 98765 43210"
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  />
                 </div>
               </div>
 
-              <div>
-                <h2 className="text-2xl font-bold text-text-primary mb-6 pb-2 border-b border-border">Why Join Voxlate?</h2>
-                <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                  <li>Work on cutting-edge AI and hardware technology.</li>
-                  <li>Build products with real-world impact.</li>
-                  <li>Collaborate with a passionate and ambitious team.</li>
-                  <li>Learn, innovate, and grow in a fast-moving startup environment.</li>
-                  <li>Help shape the future of global communication.</li>
-                </ul>
+              <div className="grid gap-5 md:grid-cols-3">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">College / University *</label>
+                  <input
+                    type="text"
+                    required
+                    value={form.college}
+                    onChange={update("college")}
+                    placeholder="e.g., IIT Madras / Heritage Institute of Technology"
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Current Year *</label>
+                  <select
+                    required
+                    value={form.year}
+                    onChange={update("year")}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  >
+                    <option value="">Select year</option>
+                    {YEARS.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
+
+          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Role Selection & Core Capabilities</h2>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Which Role are you applying for? *</label>
+                <select
+                  required
+                  value={form.role}
+                  onChange={update("role")}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                >
+                  <option value="">Select a role</option>
+                  {ROLES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What are your strongest skills? *</label>
+                <p className="text-xs text-[#44474f] mb-1.5">Technical, creative, communication, marketing, leadership, etc.</p>
+                <textarea
+                  required
+                  value={form.skills}
+                  onChange={update("skills")}
+                  placeholder="e.g., Python, Next.js, Fast-API, Hardware Prototyping, Growth Strategy, Pitch Presentations..."
+                  rows={4}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Motivation, Vision & Track Record</h2>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Why do you want to join Voxlate, and what interests you about this role? *</label>
+                <textarea
+                  required
+                  value={form.motivation}
+                  onChange={update("motivation")}
+                  placeholder="Tell us what excites you about building wearable real-time voice translation and how you see yourself contributing..."
+                  rows={4}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">
+                  Tell us about one project, achievement, experience, or initiative you&apos;re proud of.
+                </label>
+                <p className="text-xs text-[#44474f] mb-1.5">Optional, but highly recommended. Include technical depth, links, metrics, or personal impact.</p>
+                <textarea
+                  value={form.project}
+                  onChange={update("project")}
+                  placeholder="Describe the problem, your solution, technologies/strategies used, and the measurable outcome..."
+                  rows={4}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">If you joined Voxlate, what is one idea or improvement you would bring to the company? *</label>
+                <textarea
+                  required
+                  value={form.ideas}
+                  onChange={update("ideas")}
+                  placeholder="A product feature, technical optimization, marketing strategy, or internal workflow improvement..."
+                  rows={3}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What makes you different from other candidates, and why should we choose you? *</label>
+                <textarea
+                  required
+                  value={form.differentiator}
+                  onChange={update("differentiator")}
+                  placeholder="Highlight your unique edge, grit, fast-learning ability, or domain expertise..."
+                  rows={3}
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Portfolios & Links</h2>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Resume/CV Link or Cloud URL *</label>
+                <input
+                  type="url"
+                  required
+                  value={form.resume}
+                  onChange={update("resume")}
+                  placeholder="https://drive.google.com/..."
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                />
+                <p className="text-xs text-[#44474f] mt-1">Ensure your Google Drive/Dropbox links have public view permissions enabled.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Portfolio / GitHub / LinkedIn URLs *</label>
+                <input
+                  type="text"
+                  required
+                  value={form.links}
+                  onChange={update("links")}
+                  placeholder="https://github.com/... | https://linkedin.com/in/..."
+                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="h-12 min-w-[240px] rounded-md bg-[#001b44] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002966] disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Submit Application →
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
-
-

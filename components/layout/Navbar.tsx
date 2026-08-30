@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
   { label: "Careers", href: "/careers" },
+  { label: "Join the Team", href: "/careers" },
 ];
 
 export function Navbar() {

@@ -114,7 +114,7 @@ export function ReviewBanner() {
     if (!isPaused && reviews.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % reviews.length);
-      }, 4000);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [isPaused, reviews.length]);

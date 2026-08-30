@@ -15,7 +15,7 @@ type FormData = {
   project: string;
   ideas: string;
   differentiator: string;
-  resume: string;
+  resume: File | null;
   links: string;
 };
 
@@ -53,16 +53,34 @@ export default function CareersPage() {
     project: "",
     ideas: "",
     differentiator: "",
-    resume: "",
+    resume: null,
     links: "",
   });
 
   const update = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    const target = e.target as HTMLInputElement;
+    if (field === "resume" && target.files?.[0]) {
+      const file = target.files[0];
+      if (file.type !== "application/pdf") {
+        alert("Please upload a PDF file only.");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size must be less than 10MB.");
+        return;
+      }
+      setForm((prev) => ({ ...prev, resume: file }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [field]: target.value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.resume) {
+      alert("Please upload your resume in PDF format.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -134,7 +152,7 @@ export default function CareersPage() {
                     required
                     value={form.phone}
                     onChange={update("phone")}
-                    placeholder="+91 98765 43210"
+                    placeholder="Enter your contact number"
                     className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
                   />
                 </div>
@@ -148,7 +166,7 @@ export default function CareersPage() {
                     required
                     value={form.college}
                     onChange={update("college")}
-                    placeholder="e.g., IIT Madras / Heritage Institute of Technology"
+                    placeholder="Enter your institution"
                     className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
                   />
                 </div>
@@ -262,16 +280,15 @@ export default function CareersPage() {
             <h2 className="text-lg font-semibold text-[#001b44] mb-6">Portfolios & Links</h2>
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Resume/CV Link or Cloud URL *</label>
+                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Resume/CV (PDF) *</label>
                 <input
-                  type="url"
+                  type="file"
+                  accept="application/pdf"
                   required
-                  value={form.resume}
                   onChange={update("resume")}
-                  placeholder="https://drive.google.com/..."
                   className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
                 />
-                <p className="text-xs text-[#44474f] mt-1">Ensure your Google Drive/Dropbox links have public view permissions enabled.</p>
+                <p className="text-xs text-[#44474f] mt-1">Upload your resume in PDF format. Max size: 10MB.</p>
               </div>
 
               <div>

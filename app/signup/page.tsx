@@ -27,16 +27,16 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const getRedirectTarget = useCallback(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const urlRedirect = params.get("redirectTo");
-      const storedRedirect = sessionStorage.getItem("redirectTo");
-      return urlRedirect || storedRedirect || "/";
-    } catch {
-      return "/";
-    }
-  }, []);
+  // const getRedirectTarget = useCallback(() => {
+  //   try {
+  //     const params = new URLSearchParams(window.location.search);
+  //     const urlRedirect = params.get("redirectTo");
+  //     const storedRedirect = sessionStorage.getItem("redirectTo");
+  //     return urlRedirect || storedRedirect || "/";
+  //   } catch {
+  //     return "/";
+  //   }
+  // }, []);
 
   const {
     register,
@@ -102,9 +102,7 @@ export default function SignupPage() {
     if (result.status === "success") {
       signup({ ...result.data, photoUrl: result.data.photoUrl });
       setSuccess(true);
-      const redirectTo = getRedirectTarget();
-      sessionStorage.removeItem("redirectTo");
-      sessionStorage.removeItem("autoOpen");
+      const redirectTo = searchParams.get("redirectTo") || "/";
       setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "email_taken") {
       setFormError("An account with this email already exists.");

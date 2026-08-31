@@ -24,16 +24,16 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const getRedirectTarget = useCallback(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const urlRedirect = params.get("redirectTo");
-      const storedRedirect = sessionStorage.getItem("redirectTo");
-      return urlRedirect || storedRedirect || "/";
-    } catch {
-      return "/";
-    }
-  }, []);
+  // const getRedirectTarget = useCallback(() => {
+  //   try {
+  //     const params = new URLSearchParams(window.location.search);
+  //     const urlRedirect = params.get("redirectTo");
+  //     const storedRedirect = sessionStorage.getItem("redirectTo");
+  //     return urlRedirect || storedRedirect || "/";
+  //   } catch {
+  //     return "/";
+  //   }
+  // }, []);
 
   const {
     register,
@@ -54,9 +54,7 @@ export default function LoginPage() {
     if (result.status === "success") {
       login(result.data);
       setSuccess(true);
-      const redirectTo = getRedirectTarget();
-      sessionStorage.removeItem("redirectTo");
-      sessionStorage.removeItem("autoOpen");
+      const redirectTo = searchParams.get("redirectTo") || "/";
       setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "invalid_credentials") {
       setFormError("That email or password doesn't look right. Please try again.");

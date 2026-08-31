@@ -4,6 +4,8 @@ import ResetPasswordForm from "./ResetPasswordForm";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 
+export const dynamic = "force-dynamic";
+
 export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen flex-col">

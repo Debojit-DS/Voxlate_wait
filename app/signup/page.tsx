@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Mail, ArrowLeft } from "lucide-react";
@@ -25,13 +25,16 @@ export default function SignupPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [redirectTo, setRedirectTo] = useState("/");
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlRedirect = params.get("redirectTo");
-    const storedRedirect = sessionStorage.getItem("redirectTo");
-    setRedirectTo(urlRedirect || storedRedirect || "/");
+  const getRedirectTarget = useCallback(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlRedirect = params.get("redirectTo");
+      const storedRedirect = sessionStorage.getItem("redirectTo");
+      return urlRedirect || storedRedirect || "/";
+    } catch {
+      return "/";
+    }
   }, []);
 
   const {
@@ -98,6 +101,7 @@ export default function SignupPage() {
     if (result.status === "success") {
       signup({ ...result.data, photoUrl: result.data.photoUrl });
       setSuccess(true);
+      const redirectTo = getRedirectTarget();
       sessionStorage.removeItem("redirectTo");
       sessionStorage.removeItem("autoOpen");
       setTimeout(() => router.push(redirectTo), 1500);
@@ -122,7 +126,7 @@ export default function SignupPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-text-primary">Account created</h2>
-            <p className="mt-2 text-text-secondary text-sm">Redirecting you to the homepage...</p>
+            <p className="mt-2 text-text-secondary text-sm">Redirecting you...</p>
           </div>
         </div>
         <Footer />
@@ -267,7 +271,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-
-
-

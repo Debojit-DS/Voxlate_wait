@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
   const [password, setPassword] = useState("");
@@ -142,5 +142,13 @@ export default function ResetPasswordPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

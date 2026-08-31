@@ -7,7 +7,6 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { loginUser } from "@/lib/authApi";
 import { loginSchema, type LoginFormValues } from "@/lib/authValidation";
 import { Button } from "@/components/ui/Button";
-import { SocialAuthButton } from "@/components/auth/SocialAuthButton";
 import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
@@ -165,17 +164,6 @@ export default function LoginPage() {
               <Button variant="primary-navy" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Logging in..." : "Log In"}
               </Button>
-
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-surface px-4 text-text-muted">OR</span>
-                </div>
-              </div>
-
-              <SocialAuthButton onSuccess={() => {}} />
 
               <p className="text-center text-sm text-text-secondary mt-6">
                 Don&apos;t have an account?{" "}

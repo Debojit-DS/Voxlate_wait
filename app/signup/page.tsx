@@ -10,7 +10,6 @@ import { signupSchema, type SignupFormValues } from "@/lib/authValidation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import { SocialAuthButton } from "@/components/auth/SocialAuthButton";
 import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
@@ -243,17 +242,6 @@ export default function SignupPage() {
               <Button variant="primary-navy" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Creating account..." : "Create Account"}
               </Button>
-
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-surface px-4 text-text-muted">OR</span>
-                </div>
-              </div>
-
-              <SocialAuthButton onSuccess={() => {}} />
 
               <p className="text-center text-sm text-text-secondary mt-6">
                   Already have an account?{" "}

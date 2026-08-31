@@ -12,16 +12,20 @@ const AuthPromptContext = createContext<AuthPromptContextValue | null>(null);
 
 export function AuthPromptProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [redirectTo, setRedirectTo] = useState("/");
-  const [autoOpen, setAutoOpen] = useState("");
 
   return (
     <AuthPromptContext.Provider
       value={{
         isOpen,
         openPrompt: (options) => {
-          setRedirectTo(options?.redirectTo || "/");
-          setAutoOpen(options?.autoOpen || "");
+          const redirectTo = options?.redirectTo || "/";
+          const autoOpen = options?.autoOpen || "";
+          if (redirectTo && redirectTo !== "/") {
+            sessionStorage.setItem("redirectTo", redirectTo);
+          }
+          if (autoOpen) {
+            sessionStorage.setItem("autoOpen", autoOpen);
+          }
           setIsOpen(true);
         },
         closePrompt: () => setIsOpen(false),

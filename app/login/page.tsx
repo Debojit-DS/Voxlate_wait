@@ -12,18 +12,24 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/";
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [redirectTo, setRedirectTo] = useState("/");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlRedirect = params.get("redirectTo");
+    const storedRedirect = sessionStorage.getItem("redirectTo");
+    setRedirectTo(urlRedirect || storedRedirect || "/");
+  }, []);
 
   const {
     register,
@@ -44,6 +50,8 @@ export default function LoginPage() {
     if (result.status === "success") {
       login(result.data);
       setSuccess(true);
+      sessionStorage.removeItem("redirectTo");
+      sessionStorage.removeItem("autoOpen");
       setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "invalid_credentials") {
       setFormError("That email or password doesn't look right. Please try again.");

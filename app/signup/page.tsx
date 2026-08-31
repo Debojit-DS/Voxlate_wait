@@ -15,18 +15,24 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/";
   const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [redirectTo, setRedirectTo] = useState("/");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlRedirect = params.get("redirectTo");
+    const storedRedirect = sessionStorage.getItem("redirectTo");
+    setRedirectTo(urlRedirect || storedRedirect || "/");
+  }, []);
 
   const {
     register,
@@ -92,6 +98,8 @@ export default function SignupPage() {
     if (result.status === "success") {
       signup({ ...result.data, photoUrl: result.data.photoUrl });
       setSuccess(true);
+      sessionStorage.removeItem("redirectTo");
+      sessionStorage.removeItem("autoOpen");
       setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "email_taken") {
       setFormError("An account with this email already exists.");

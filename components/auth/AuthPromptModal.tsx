@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { useAuthPrompt } from "./AuthPromptProvider";
 
 export function AuthPromptModal() {
-  const { isOpen, closePrompt, redirectTo, autoOpen } = useAuthPrompt();
+  const { isOpen, closePrompt } = useAuthPrompt();
 
   if (!isOpen) return null;
 
   const buildHref = (path: string) => {
     const params = new URLSearchParams();
+    const redirectTo = sessionStorage.getItem("redirectTo") || "/";
+    const autoOpen = sessionStorage.getItem("autoOpen") || "";
     params.set("redirectTo", redirectTo);
     if (autoOpen) params.set("autoOpen", autoOpen);
     return `${path}?${params.toString()}`;

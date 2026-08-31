@@ -4,7 +4,7 @@ import { generateCorrelationId } from "@/lib/correlationId";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { waitlistSchema } from "@/lib/validation";
-import { resend, RESEND_AUDIENCE_ID } from "@/lib/resend";
+import { resend } from "@/lib/resend";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -107,13 +107,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (RESEND_AUDIENCE_ID) {
+    if (process.env.RESEND_API_KEY) {
       const firstName = name.trim().split(" ")[0] || name.trim();
       try {
         await resend.contacts.create({
           email: normalizedEmail,
           firstName,
-          audienceId: RESEND_AUDIENCE_ID,
         });
       } catch (err) {
         console.error("Resend contact sync failed", err);

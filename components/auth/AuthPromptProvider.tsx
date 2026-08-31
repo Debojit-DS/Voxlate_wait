@@ -2,9 +2,10 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+
 type AuthPromptContextValue = {
   isOpen: boolean;
-  openPrompt: (options?: { redirectTo?: string; autoOpen?: string }) => void;
+  openPrompt: () => void; 
   closePrompt: () => void;
 };
 
@@ -17,17 +18,8 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     <AuthPromptContext.Provider
       value={{
         isOpen,
-        openPrompt: (options) => {
-          const redirectTo = options?.redirectTo || "/";
-          const autoOpen = options?.autoOpen || "";
-          if (redirectTo && redirectTo !== "/") {
-            sessionStorage.setItem("redirectTo", redirectTo);
-          }
-          if (autoOpen) {
-            sessionStorage.setItem("autoOpen", autoOpen);
-          }
-          setIsOpen(true);
-        },
+        // 2. Simplify openPrompt to just update the state
+        openPrompt: () => setIsOpen(true),
         closePrompt: () => setIsOpen(false),
       }}
     >

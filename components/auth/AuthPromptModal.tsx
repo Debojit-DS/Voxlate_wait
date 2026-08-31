@@ -2,20 +2,20 @@
 
 import { X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { useAuthPrompt } from "./AuthPromptProvider";
 
 export function AuthPromptModal() {
   const { isOpen, closePrompt } = useAuthPrompt();
+  const pathname = usePathname();
 
   if (!isOpen) return null;
 
   const buildHref = (path: string) => {
     const params = new URLSearchParams();
-    const redirectTo = sessionStorage.getItem("redirectTo") || "/";
-    const autoOpen = sessionStorage.getItem("autoOpen") || "";
-    params.set("redirectTo", redirectTo);
-    if (autoOpen) params.set("autoOpen", autoOpen);
+    params.set("redirectTo", pathname || "/");
+    params.set("autoOpen", "waitlist");
     return `${path}?${params.toString()}`;
   };
 

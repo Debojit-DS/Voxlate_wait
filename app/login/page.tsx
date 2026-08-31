@@ -12,11 +12,12 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -180,9 +181,12 @@ export default function LoginPage() {
 
               <p className="text-center text-sm text-text-secondary mt-6">
                 Don&apos;t have an account?{" "}
-                <Link href="/signup" className="text-orange font-semibold hover:underline">
-                  Sign up
-                </Link>
+                <Link 
+                  href={`/signup${searchParams.toString() ? `?${searchParams.toString()}` : ""}`} 
+                  className="text-orange font-semibold hover:underline"
+               >
+                Sign up
+              </Link>
               </p>
             </form>
           </div>

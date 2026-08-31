@@ -54,9 +54,7 @@ export function DemoCard() {
     if (user) {
       openModal("demo-gate");
     } else {
-      openPrompt({ redirectTo: "/demo", autoOpen: "waitlist" });
-      sessionStorage.setItem("redirectTo", "/demo");
-      sessionStorage.setItem("autoOpen", "waitlist");
+      openPrompt();
     }
     const url = new URL(window.location.href);
     url.searchParams.delete("autoOpen");
@@ -70,9 +68,7 @@ export function DemoCard() {
 
   const startRecording = async () => {
     if (!user) {
-      sessionStorage.setItem("redirectTo", "/demo");
-      sessionStorage.setItem("autoOpen", "waitlist");
-      openPrompt({ redirectTo: "/demo", autoOpen: "waitlist" });
+      openPrompt();
       return;
     }
     if (!isAllowed) {
@@ -226,9 +222,7 @@ export function DemoCard() {
                 </p>
                 <Button variant="primary-demo" onClick={() => {
                   if (!user) {
-                    sessionStorage.setItem("redirectTo", "/demo");
-                    sessionStorage.setItem("autoOpen", "waitlist");
-                    openPrompt({ redirectTo: "/demo", autoOpen: "waitlist" });
+                    openPrompt();
                   } else {
                     openModal("demo-gate");
                   }

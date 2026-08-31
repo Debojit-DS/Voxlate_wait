@@ -7,6 +7,7 @@ import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { Button } from "@/components/ui/Button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const LANGUAGES = ["English", "Spanish", "French", "German", "Bengali", "Tamil", "Hindi", "Japanese", "Chinese", "Arabic"];
 
@@ -39,9 +40,26 @@ export function DemoCard() {
   useEffect(() => setMounted(true), []);
 
   const { status, isAllowed, isLoading, promptJoinWaitlist } = useDemoGate();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { openPrompt } = useAuthPrompt();
   const { openModal } = useWaitlistModal();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const autoOpen = searchParams.get("autoOpen");
+    if (autoOpen !== "waitlist") return;
+    if (isAuthLoading) return;
+
+    if (user) {
+      openModal("demo-gate");
+    } else {
+      openPrompt();
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete("autoOpen");
+    router.replace(url.pathname + url.search);
+  }, [searchParams, user, isAuthLoading, openModal, openPrompt, router]);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
@@ -50,7 +68,7 @@ export function DemoCard() {
 
   const startRecording = async () => {
     if (!user) {
-      openPrompt();
+      openPrompt({ redirectTo: "/demo", autoOpen: "waitlist" });
       return;
     }
     if (!isAllowed) {
@@ -204,7 +222,7 @@ export function DemoCard() {
                 </p>
                 <Button variant="primary-demo" onClick={() => {
                   if (!user) {
-                    openPrompt();
+                    openPrompt({ redirectTo: "/demo", autoOpen: "waitlist" });
                   } else {
                     openModal("demo-gate");
                   }

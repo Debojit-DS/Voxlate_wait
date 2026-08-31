@@ -45,9 +45,9 @@ export function useDemoGate() {
     return () => window.removeEventListener("waitlist:joined", handler);
   }, [checkStatus]);
 
-  const promptJoinWaitlist = useCallback(() => {
+  const promptJoinWaitlist = useCallback((options?: { redirectTo?: string; autoOpen?: string }) => {
     if (!user) {
-      openPrompt();
+      openPrompt(options);
     } else {
       openModal("demo-gate");
     }

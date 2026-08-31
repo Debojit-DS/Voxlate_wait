@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/Button";
 import { useAuthPrompt } from "./AuthPromptProvider";
 
 export function AuthPromptModal() {
-  const { isOpen, closePrompt } = useAuthPrompt();
+  const { isOpen, closePrompt, redirectTo, autoOpen } = useAuthPrompt();
 
   if (!isOpen) return null;
+
+  const buildHref = (path: string) => {
+    const params = new URLSearchParams();
+    params.set("redirectTo", redirectTo);
+    if (autoOpen) params.set("autoOpen", autoOpen);
+    return `${path}?${params.toString()}`;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -29,10 +36,10 @@ export function AuthPromptModal() {
         </div>
 
         <div className="space-y-3">
-          <Link href="/signup" onClick={closePrompt}>
+          <Link href={buildHref("/signup")} onClick={closePrompt}>
             <Button variant="primary-navy" className="w-full">Create Account</Button>
           </Link>
-          <Link href="/login" onClick={closePrompt}>
+          <Link href={buildHref("/login")} onClick={closePrompt}>
             <Button variant="outline-navy" className="w-full">Log In</Button>
           </Link>
         </div>

@@ -15,11 +15,13 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/";
   const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -90,7 +92,7 @@ export default function SignupPage() {
     if (result.status === "success") {
       signup({ ...result.data, photoUrl: result.data.photoUrl });
       setSuccess(true);
-      setTimeout(() => router.push("/"), 1500);
+      setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "email_taken") {
       setFormError("An account with this email already exists.");
     } else if (result.code === "server_error") {

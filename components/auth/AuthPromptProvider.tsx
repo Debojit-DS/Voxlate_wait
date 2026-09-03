@@ -4,6 +4,8 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 type AuthPromptContextValue = {
   isOpen: boolean;
+  redirectTo: string;
+  autoOpen: string;
   openPrompt: (options?: { redirectTo?: string; autoOpen?: string }) => void;
   closePrompt: () => void;
 };
@@ -19,6 +21,8 @@ export function AuthPromptProvider({ children }: { children: ReactNode }) {
     <AuthPromptContext.Provider
       value={{
         isOpen,
+        redirectTo,
+        autoOpen,
         openPrompt: (options) => {
           setRedirectTo(options?.redirectTo || "/");
           setAutoOpen(options?.autoOpen || "");

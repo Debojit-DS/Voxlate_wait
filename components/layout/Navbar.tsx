@@ -218,7 +218,7 @@ export function Navbar() {
               </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-4 lg:gap-6 flex-shrink-0">
+            <nav className="hidden md:flex items-center gap-4 lg:gap-6 flex-shrink-0" suppressHydrationWarning>
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 const isDemoLink = link.href === "/demo";
@@ -268,6 +268,7 @@ export function Navbar() {
               onClick={() => setMobileOpen(!mobileOpen)}
               className="md:hidden p-2 text-text-primary"
               aria-label="Toggle menu"
+              suppressHydrationWarning
             >
               {mobileOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -275,7 +276,7 @@ export function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className={`border-t ${isDemoPage ? "border-border-subtle bg-bg-base" : "border-border bg-bg-page"} md:hidden`}>
+          <div className={`border-t ${isDemoPage ? "border-border-subtle bg-bg-base" : "border-border bg-bg-page"} md:hidden`} suppressHydrationWarning>
             <div className="mx-auto max-w-screen-2xl px-2 md:px-6 py-4 space-y-3">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));

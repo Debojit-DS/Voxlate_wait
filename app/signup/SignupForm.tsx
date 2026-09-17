@@ -14,22 +14,20 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-type SignupFormClientProps = {
-  redirectTo: string;
-};
-
-export default function SignupForm({ redirectTo }: SignupFormClientProps) {
+export default function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const queryString = redirectTo !== "/" ? `redirectTo=${encodeURIComponent(redirectTo)}` : "";
+  const redirectTo = searchParams.get("redirectTo") || "/";
+  const queryString = searchParams.toString();
 
   const {
     register,

@@ -11,22 +11,20 @@ import { AuthFormError } from "@/components/auth/AuthFormError";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-type LoginFormClientProps = {
-  redirectTo: string;
-};
-
-export default function LoginForm({ redirectTo }: LoginFormClientProps) {
+export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const queryString = redirectTo !== "/" ? `redirectTo=${encodeURIComponent(redirectTo)}` : "";
+  const redirectTo = searchParams.get("redirectTo") || "/";
+  const queryString = searchParams.toString();
 
   const {
     register,

@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Menu, X, FlaskRound, Shield, Zap, Lock, Globe, MessageCircle, ChevronDown, Play, Pause, Check, Loader2, Info } from "lucide-react";
+import { Menu, X, User, FlaskRound, Shield, Zap, Lock, Globe, MessageCircle, ChevronDown, Play, Pause, Check, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { Logo } from "@/components/ui/Logo";
 import { WaveBackground } from "./WaveBackground";
 
@@ -19,6 +21,8 @@ const PROCESSING_STEPS = [
 
 export function DemoHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
+  const { isAuthenticated, logout } = useGatedWaitlist();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -55,15 +59,37 @@ export function DemoHeader() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-              Log In
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#3B82F6] to-[#06B6D4] px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-            >
-              Sign Up
-            </Link>
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 shrink-0 rounded-full border border-white/20 bg-white/10 overflow-hidden flex items-center justify-center">
+                  {user.photoUrl ? (
+                    <img src={user.photoUrl} alt={user.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <User size={18} className="text-gray-300" />
+                  )}
+                </div>
+                <span className="text-sm font-medium text-gray-300">{user.name}</span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link href="/login?redirectTo=/demo" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                  Log In
+                </Link>
+                <Link
+                  href="/signup?redirectTo=/demo"
+                  className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#3B82F6] to-[#06B6D4] px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           <button

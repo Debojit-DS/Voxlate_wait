@@ -18,7 +18,6 @@ const NAV_LINKS = [
   { label: "View our demo", href: "/demo" },
   { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
-  { label: "Careers", href: "/careers" },
   { label: "Join the Team", href: "/careers" },
 ];
 

@@ -15,10 +15,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 type LoginFormClientProps = {
-  searchParams: URLSearchParams;
+  redirectTo: string;
 };
 
-export default function LoginForm({ searchParams }: LoginFormClientProps) {
+export default function LoginForm({ redirectTo }: LoginFormClientProps) {
   const router = useRouter();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,8 +26,7 @@ export default function LoginForm({ searchParams }: LoginFormClientProps) {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const redirectTo = searchParams.get("redirectTo") || "/";
-  const queryString = searchParams.toString();
+  const queryString = redirectTo !== "/" ? `redirectTo=${encodeURIComponent(redirectTo)}` : "";
 
   const {
     register,

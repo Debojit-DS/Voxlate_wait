@@ -18,10 +18,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 type SignupFormClientProps = {
-  searchParams: URLSearchParams;
+  redirectTo: string;
 };
 
-export default function SignupForm({ searchParams }: SignupFormClientProps) {
+export default function SignupForm({ redirectTo }: SignupFormClientProps) {
   const router = useRouter();
   const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,8 +29,7 @@ export default function SignupForm({ searchParams }: SignupFormClientProps) {
   const [success, setSuccess] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const redirectTo = searchParams.get("redirectTo") || "/";
-  const queryString = searchParams.toString();
+  const queryString = redirectTo !== "/" ? `redirectTo=${encodeURIComponent(redirectTo)}` : "";
 
   const {
     register,

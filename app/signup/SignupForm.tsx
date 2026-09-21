@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Mail, ArrowLeft } from "lucide-react";
 import { signupUser } from "@/lib/authApi";
 import { uploadPhoto } from "@/lib/uploadApi";
+import { submitToWaitlist } from "@/lib/waitlistApi";
 import { signupSchema, type SignupFormValues } from "@/lib/authValidation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -34,9 +35,9 @@ export default function SignupForm() {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<SignupFormValues>({
+  } = useForm<SignupFormValues & { joinWaitlist?: boolean }>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "", agreedToTerms: false, photo: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "", agreedToTerms: false, joinWaitlist: false, photo: "" },
     mode: "onBlur",
   });
 
@@ -92,6 +93,23 @@ export default function SignupForm() {
 
     if (result.status === "success") {
       signup({ ...result.data, photoUrl: result.data.photoUrl });
+
+      if (values.joinWaitlist) {
+        const waitlistPayload = {
+          name: values.name,
+          email: values.email,
+          company: "",
+          role: "",
+          organization: "",
+          type: "individual" as const,
+          product: "digital" as const,
+          source: "signup",
+          photo: photoUrl || result.data.photoUrl || "",
+        };
+
+        await submitToWaitlist(waitlistPayload);
+      }
+
       setSuccess(true);
       setTimeout(() => router.push(redirectTo), 1500);
     } else if (result.code === "email_taken") {
@@ -229,6 +247,18 @@ export default function SignupForm() {
                 </label>
               </div>
               {errors.agreedToTerms && <p className="text-danger text-sm">{errors.agreedToTerms.message}</p>}
+
+              <div className="flex items-center gap-3">
+                <input
+                  id="joinWaitlist"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-border text-orange focus:ring-orange"
+                  {...register("joinWaitlist")}
+                />
+                <label htmlFor="joinWaitlist" className="text-sm text-text-secondary">
+                  I want to join the waitlist and get early access updates
+                </label>
+              </div>
 
               <Button variant="primary-navy" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Creating account..." : "Create Account"}

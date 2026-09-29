@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, Users, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { useDemoTransition } from "@/components/transitions/useDemoTransition";
+import { TutorialModal } from "@/components/waitlist/TutorialModal";
 
 export function Hero() {
   const { openWaitlist } = useGatedWaitlist();
   const { goToDemo } = useDemoTransition();
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   return (
     <section id="home" className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
@@ -33,6 +36,9 @@ export function Hero() {
               <Button variant="primary-demo" onClick={goToDemo}>
                 View Our Demo
               </Button>
+              <Button variant="outline-navy" onClick={() => setIsTutorialOpen(true)} icon={Play}>
+                Watch Tutorial
+              </Button>
             </div>
             <div className="mt-4 flex items-center gap-2 text-text-muted">
               <Users size={16} />
@@ -53,6 +59,7 @@ export function Hero() {
           </div>
         </div>
       </div>
+      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
     </section>
   );
 }

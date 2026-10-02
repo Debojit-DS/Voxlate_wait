@@ -68,7 +68,7 @@ const TEAM_GROUPS: TeamGroup[] = [
           name: "Saloni Gupta",
           role: "Research and Development Hardware Engineer",
           bio: "Works on circuit design, component selection, and physical prototyping to test and iterate on the wearable device's internal architecture.",
-          image: "/images/team/saloni.png",
+          image: "/images/team/saloni.jpeg",
           linkedin: "https://www.linkedin.com/in/saloni-gupta-0820783aa/",
         },
       ],

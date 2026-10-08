@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withCors, withCorrelationId, withSecurityHeaders } from "@/lib/cors";
-import { generateCorrelationId } from "@/lib/correlationId";
+import { getClientIp, generateCorrelationId } from "@/lib/correlationId";
 import { verifySession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { logAuth } from "@/lib/logger";
 
 const updatePhotoSchema = z.object({
   photo: z.string().optional(),
@@ -22,11 +23,22 @@ export async function GET(req: NextRequest) {
   const session = token ? await verifySession(token) : null;
 
   if (!session) {
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       { status: "error", code: "unauthorized", message: "Not signed in." },
       { status: 401 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.failed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 401,
+      code: "unauthorized",
+      ip: getClientIp ? getClientIp(req) : null,
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 
   const user = await prisma.user.findUnique({
@@ -34,6 +46,7 @@ export async function GET(req: NextRequest) {
     select: { photoUrl: true },
   });
 
+  const correlationId = generateCorrelationId();
   const res = NextResponse.json({
     status: "success",
     data: {
@@ -44,7 +57,18 @@ export async function GET(req: NextRequest) {
       ...(user?.photoUrl ? { photoUrl: user.photoUrl } : {}),
     },
   });
-  return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+  await logAuth({
+    event: "auth.me.completed",
+    method: req.method,
+    route: "/api/auth/me",
+    status: 200,
+    ip: getClientIp ? getClientIp(req) : null,
+    userAgent: req.headers.get("user-agent") ?? null,
+    correlationId,
+    email: session.email,
+    userId: session.sub,
+  });
+  return withCorrelationId(withSecurityHeaders(res), correlationId);
 }
 
 export async function OPTIONS(req: NextRequest) {
@@ -58,26 +82,49 @@ export async function PATCH(req: NextRequest) {
   const session = token ? await verifySession(token) : null;
 
   if (!session) {
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       { status: "error", code: "unauthorized", message: "Not signed in." },
       { status: 401 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.update_photo.failed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 401,
+      code: "unauthorized",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       { status: "error", code: "validation_error", message: "Invalid request body." },
       { status: 400 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.update_photo.failed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 400,
+      code: "validation_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 
   const parsed = updatePhotoSchema.safeParse(body);
   if (!parsed.success) {
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       {
         status: "error",
@@ -86,7 +133,19 @@ export async function PATCH(req: NextRequest) {
       },
       { status: 400 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.update_photo.failed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 400,
+      code: "validation_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: session.email,
+      userId: session.sub,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 
   const { photo } = parsed.data;
@@ -98,6 +157,7 @@ export async function PATCH(req: NextRequest) {
       select: { id: true, name: true, email: true, photoUrl: true },
     });
 
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json({
       status: "success",
       message: "Profile photo updated.",
@@ -108,13 +168,38 @@ export async function PATCH(req: NextRequest) {
         ...(updatedUser.photoUrl ? { photoUrl: updatedUser.photoUrl } : {}),
       },
     });
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.update_photo.completed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 200,
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: session.email,
+      userId: session.sub,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   } catch (err) {
+    const correlationId = generateCorrelationId();
     console.error("update photo error", err);
     const res = NextResponse.json(
       { status: "error", code: "server_error", message: "Something went wrong." },
       { status: 500 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.me.update_photo.failed",
+      method: req.method,
+      route: "/api/auth/me",
+      status: 500,
+      code: "server_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: session.email,
+      userId: session.sub,
+      errorMessage: err instanceof Error ? err.message : "unknown",
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 }

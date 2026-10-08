@@ -5,6 +5,7 @@ import { checkRateLimit as checkLoginRateLimit } from "@/lib/rateLimiter";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { attachSessionCookie, verifyPassword } from "@/lib/auth";
+import { logAuth } from "@/lib/logger";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
     for (const issue of parsed.error.issues) {
       errors[issue.path.join(".")] = issue.message;
     }
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       {
         status: "error",
@@ -38,18 +40,40 @@ export async function POST(req: NextRequest) {
       },
       { status: 400 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.login.failed",
+      method: req.method,
+      route: "/api/auth/login",
+      status: 400,
+      code: "validation_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      errors,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 
   const { email, password } = parsed.data;
   const ip = getClientIp(req);
   const rateLimitKey = `login:${ip}`;
   if (!checkLoginRateLimit(rateLimitKey, 5, 60_000)) {
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json(
       { status: "error", code: "rate_limit", message: "Too many login attempts. Please try again later." },
       { status: 429 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.login.failed",
+      method: req.method,
+      route: "/api/auth/login",
+      status: 429,
+      code: "rate_limit",
+      ip,
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
   const normalizedEmail = email.toLowerCase().trim();
 
@@ -57,6 +81,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user || !(await verifyPassword(password, user.password))) {
+      const correlationId = generateCorrelationId();
       const res = NextResponse.json(
         {
           status: "error",
@@ -65,7 +90,18 @@ export async function POST(req: NextRequest) {
         },
         { status: 401 }
       );
-      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+      await logAuth({
+        event: "auth.login.failed",
+        method: req.method,
+        route: "/api/auth/login",
+        status: 401,
+        code: "invalid_credentials",
+        ip,
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+        email: normalizedEmail,
+      });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
     }
 
     const res = NextResponse.json({
@@ -81,14 +117,41 @@ export async function POST(req: NextRequest) {
       role: user.role,
     });
 
-    return withCorrelationId(withSecurityHeaders(res), generateCorrelationId());
+    const correlationId = generateCorrelationId();
+    await logAuth({
+      event: "auth.login.completed",
+      method: req.method,
+      route: "/api/auth/login",
+      status: 200,
+      ip,
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: normalizedEmail,
+      userId: user.id,
+      authMethod: "password",
+    });
+
+    return withCorrelationId(withSecurityHeaders(res), correlationId);
   } catch (err) {
-    console.error("login error");
+    const correlationId = generateCorrelationId();
+    console.error("login error", err);
     const res = NextResponse.json(
       { status: "error", code: "server_error", message: "Something went wrong." },
       { status: 500 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.login.failed",
+      method: req.method,
+      route: "/api/auth/login",
+      status: 500,
+      code: "server_error",
+      ip,
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: normalizedEmail,
+      errorMessage: err instanceof Error ? err.message : "unknown",
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 }
 

@@ -5,6 +5,7 @@ import { checkRateLimit as checkGoogleRateLimit } from "@/lib/rateLimiter";
 import { prisma } from "@/lib/db";
 import { attachSessionCookie } from "@/lib/auth";
 import { OAuth2Client } from "google-auth-library";
+import { logAuth } from "@/lib/logger";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -12,22 +13,44 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { idToken } = body;
-  const ip = getClientIp(req);
-  const rateLimitKey = `google:${ip}`;
-  if (!checkGoogleRateLimit(rateLimitKey, 5, 60_000)) {
-    const res = NextResponse.json(
-      { status: "error", code: "rate_limit", message: "Too many Google sign-in attempts. Please try again later." },
-      { status: 429 }
-    );
-    return withCorrelationId(withCors(res), "");
-  }
+    const ip = getClientIp(req);
+    const rateLimitKey = `google:${ip}`;
+    if (!checkGoogleRateLimit(rateLimitKey, 5, 60_000)) {
+      const correlationId = generateCorrelationId();
+      const res = NextResponse.json(
+        { status: "error", code: "rate_limit", message: "Too many Google sign-in attempts. Please try again later." },
+        { status: 429 }
+      );
+      await logAuth({
+        event: "auth.google.failed",
+        method: req.method,
+        route: "/api/auth/google",
+        status: 429,
+        code: "rate_limit",
+        ip,
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+      });
+      return withCorrelationId(withCors(res), correlationId);
+    }
 
     if (!idToken) {
+      const correlationId = generateCorrelationId();
       const res = NextResponse.json(
         { status: "error", code: "validation_error", message: "Google ID token is required." },
         { status: 400 }
       );
-      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+      await logAuth({
+        event: "auth.google.failed",
+        method: req.method,
+        route: "/api/auth/google",
+        status: 400,
+        code: "validation_error",
+        ip,
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+      });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
     }
 
     const ticket = await client.verifyIdToken({
@@ -37,11 +60,22 @@ export async function POST(req: NextRequest) {
 
     const payload = ticket.getPayload();
     if (!payload?.email || !payload?.name) {
+      const correlationId = generateCorrelationId();
       const res = NextResponse.json(
         { status: "error", code: "invalid_token", message: "Invalid Google token." },
         { status: 401 }
       );
-      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+      await logAuth({
+        event: "auth.google.failed",
+        method: req.method,
+        route: "/api/auth/google",
+        status: 401,
+        code: "invalid_token",
+        ip,
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+      });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
     }
 
     const normalizedEmail = payload.email.toLowerCase().trim();
@@ -72,14 +106,41 @@ export async function POST(req: NextRequest) {
       role: user.role || "USER",
     });
 
-    return res;
+    const correlationId = generateCorrelationId();
+    await logAuth({
+      event: "auth.google.completed",
+      method: req.method,
+      route: "/api/auth/google",
+      status: 200,
+      ip,
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: normalizedEmail,
+      userId: user.id,
+      authMethod: "google",
+      isNewUser: !(await prisma.user.count({ where: { email: normalizedEmail } }) > 0),
+    });
+
+    return withCorrelationId(withSecurityHeaders(res), correlationId);
   } catch (err) {
-    console.error("google auth error");
+    const correlationId = generateCorrelationId();
+    console.error("google auth error", err);
     const res = NextResponse.json(
       { status: "error", code: "server_error", message: "Something went wrong." },
       { status: 500 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.google.failed",
+      method: req.method,
+      route: "/api/auth/google",
+      status: 500,
+      code: "server_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      errorMessage: err instanceof Error ? err.message : "unknown",
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 }
 

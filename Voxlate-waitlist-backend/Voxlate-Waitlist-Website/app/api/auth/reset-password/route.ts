@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withCors, withCorrelationId, withSecurityHeaders } from "@/lib/cors";
-import { generateCorrelationId } from "@/lib/correlationId";
+import { getClientIp, generateCorrelationId } from "@/lib/correlationId";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
+import { logAuth } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,21 +12,44 @@ export async function POST(req: NextRequest) {
     const newPassword = typeof body.newPassword === "string" ? body.newPassword : "";
 
     if (!token || !newPassword) {
+      const correlationId = generateCorrelationId();
       const res = NextResponse.json(
         { status: "error", code: "validation_error", message: "Token and new password are required." },
         { status: 400 }
       );
-      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+      await logAuth({
+        event: "auth.reset_password.failed",
+        method: req.method,
+        route: "/api/auth/reset-password",
+        status: 400,
+        code: "validation_error",
+        ip: getClientIp(req),
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+      });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
     }
 
     const resetEntry = await prisma.passwordResetToken.findUnique({ where: { token } });
 
     if (!resetEntry || resetEntry.usedAt || resetEntry.expiresAt < new Date()) {
+      const correlationId = generateCorrelationId();
       const res = NextResponse.json(
         { status: "error", code: "invalid_token", message: "Invalid or expired password reset token." },
         { status: 400 }
       );
-      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+      await logAuth({
+        event: "auth.reset_password.failed",
+        method: req.method,
+        route: "/api/auth/reset-password",
+        status: 400,
+        code: "invalid_token",
+        ip: getClientIp(req),
+        userAgent: req.headers.get("user-agent") ?? null,
+        correlationId,
+        email: resetEntry?.email ?? null,
+      });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
     }
 
     const hashedPassword = await hashPassword(newPassword);
@@ -41,18 +65,41 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
+    const correlationId = generateCorrelationId();
     const res = NextResponse.json({
       status: "success",
       message: "Password has been reset successfully.",
     });
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.reset_password.completed",
+      method: req.method,
+      route: "/api/auth/reset-password",
+      status: 200,
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      email: resetEntry.email,
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   } catch (err) {
+    const correlationId = generateCorrelationId();
     console.error("reset password error", err);
     const res = NextResponse.json(
       { status: "error", code: "server_error", message: "Something went wrong." },
       { status: 500 }
     );
-    return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    await logAuth({
+      event: "auth.reset_password.failed",
+      method: req.method,
+      route: "/api/auth/reset-password",
+      status: 500,
+      code: "server_error",
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? null,
+      correlationId,
+      errorMessage: err instanceof Error ? err.message : "unknown",
+    });
+    return withCorrelationId(withSecurityHeaders(withCors(res)), correlationId);
   }
 }
 

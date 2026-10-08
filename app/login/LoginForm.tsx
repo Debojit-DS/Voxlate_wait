@@ -142,16 +142,6 @@ export default function LoginForm() {
                 {errors.password && <p className="text-danger mt-1 text-sm">{errors.password.message}</p>}
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="h-4 w-4 rounded border-border text-orange focus:ring-orange" />
-                  <span className="text-sm text-text-secondary">Remember me</span>
-                </label>
-                <Link href="/forgot-password" className="text-sm text-orange hover:underline">
-                  Forgot Password?
-                </Link>
-              </div>
-
               <Button variant="primary-navy" type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Logging in..." : "Log In"}
               </Button>

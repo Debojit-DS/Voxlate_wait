@@ -26,15 +26,15 @@ const TEAM_GROUPS: TeamGroup[] = [
     members: [
       {
         name: "Debojit Deb Sarkar",
-        role: "Full-Stack & AI/ML Developer",
-        bio: "Plays a key role in building Voxlate's software platform by developing scalable software systems and integrating AI-powered technologies. Passionate about creating reliable, high-performance solutions that drive the future of real-time voice translation.",
+        role: "Software Tech Lead",
+        bio: "Leads the technical execution of the software team, supervises development activities, and contributes to building and improving Voxlate's core platform.",
         image: "/images/team/debojit.png",
         linkedin: "https://www.linkedin.com/in/debojit-deb-sarkar",
       },
       {
         name: "Saptarshi Kar",
-        role: "Software Tech Lead",
-        bio: "Leads the technical execution of the software team, supervises development activities, and contributes to building and improving Voxlate's core platform.",
+        role: "Full-Stack & AI/ML Developer",
+        bio: "Plays a key role in building Voxlate's software platform by developing scalable software systems and integrating AI-powered technologies. Passionate about creating reliable, high-performance solutions that drive the future of real-time voice translation.",
         image: "/images/team/saptarshi.jpg",
         linkedin: "https://www.linkedin.com/in/saptarshi-kar/",
       },
@@ -106,8 +106,8 @@ const TEAM_GROUPS: TeamGroup[] = [
         },
         {
           name: "Sk.Shamim Raihan",
-          role: "Marketing and Sales Team Member",
-          bio: "Contributes to promotional planning, supports campaign execution, and helps build strategic connections to expand Voxlate's market reach.",
+          role: "Marketing Team Lead",
+          bio: "Leads promotional planning, oversees campaign execution, and builds strategic connections to expand Voxlate's market reach.",
           image: "/images/team/shamim.jpeg",
           linkedin: "https://www.linkedin.com/in/sk-shamim-raihan-130779241/",
         },

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { CareersGate } from "@/components/auth/CareersGate";
 
 type FormData = {
   fullName: string;
@@ -150,36 +151,39 @@ export default function CareersPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#f6faff] flex items-center justify-center px-6">
-        <div className="max-w-[860px] w-full">
-          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-8 md:p-12 text-center">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#d8e2ff]">
-              <CheckCircle2 className="h-8 w-8 text-[#001b44]" />
+      <CareersGate>
+        <div className="min-h-screen bg-[#f6faff] flex items-center justify-center px-6">
+          <div className="max-w-[860px] w-full">
+            <div className="rounded-2xl border border-[#c5c6d0] bg-white p-8 md:p-12 text-center">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#d8e2ff]">
+                <CheckCircle2 className="h-8 w-8 text-[#001b44]" />
+              </div>
+              <h2 className="text-2xl font-bold text-[#001b44] mb-2">Application Received!</h2>
+              <p className="text-[#44474f]">
+                Thanks for applying to join the Voxlate team. We will review your profile and reach out via email/phone shortly.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-[#001b44] mb-2">Application Received!</h2>
-            <p className="text-[#44474f]">
-              Thanks for applying to join the Voxlate team. We will review your profile and reach out via email/phone shortly.
-            </p>
           </div>
         </div>
-      </div>
+      </CareersGate>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f6faff]" style={{ backgroundImage: "radial-gradient(circle at top, rgba(0,89,187,0.04), transparent 40%)" }}>
-      <div className="mx-auto max-w-[860px] px-6 py-10 md:py-14">
-        <div className="text-center mb-10">
-          <span className="inline-block rounded-full bg-[#001b44] px-4 py-1.5 text-xs font-semibold text-white mb-4">
-            🚀 We&apos;re Hiring
-          </span>
-          <h1 className="text-[32px] font-bold text-[#001b44] leading-[40px] tracking-tight mb-3">
-            🚀 Voxlate — Careers Application
-          </h1>
-          <p className="text-[15px] text-[#44474f] leading-relaxed max-w-2xl mx-auto">
-            Join our core team shaping the future of real-time voice intelligence and wearable tech. Fill out the application below to get started.
-          </p>
-        </div>
+    <CareersGate>
+      <div className="min-h-screen bg-[#f6faff]" style={{ backgroundImage: "radial-gradient(circle at top, rgba(0,89,187,0.04), transparent 40%)" }}>
+        <div className="mx-auto max-w-[860px] px-6 py-10 md:py-14">
+          <div className="text-center mb-10">
+            <span className="inline-block rounded-full bg-[#001b44] px-4 py-1.5 text-xs font-semibold text-white mb-4">
+              🚀 We&apos;re Hiring
+            </span>
+            <h1 className="text-[32px] font-bold text-[#001b44] leading-[40px] tracking-tight mb-3">
+              🚀 Voxlate — Careers Application
+            </h1>
+            <p className="text-[15px] text-[#44474f] leading-relaxed max-w-2xl mx-auto">
+              Join our core team shaping the future of real-time voice intelligence and wearable tech. Fill out the application below to get started.
+            </p>
+          </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
@@ -387,5 +391,6 @@ export default function CareersPage() {
         </form>
       </div>
     </div>
+  </CareersGate>
   );
 }

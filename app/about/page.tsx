@@ -132,14 +132,14 @@ const TEAM_GROUPS: TeamGroup[] = [
       },
       {
         name: "Subinita Ghosh",
-        role: "Content and Creative Director",
+        role: "Content and Creative Specialist",
         bio: "Responsible for content strategy, creative storytelling, poetry, artistic expression, and the conceptualization and production of advertising campaigns for Voxlate.",
         image: "/images/team/subinita.jpeg",
         linkedin: "https://www.linkedin.com/in/subinita-ghosh-bbb74b370/",
       },
       {
         name: "Raktim Chakraborty",
-        role: "Visual Content & Design Lead",
+        role: "Visual Content & Design Specialist",
         bio: "Responsible for VFX, video editing, graphic design, poster creation, and developing creative visual content for Voxlate's branding, marketing, and promotional campaigns.",
         image: "/images/team/raktim.png",
         linkedin: "https://www.linkedin.com/in/raktimchx/",

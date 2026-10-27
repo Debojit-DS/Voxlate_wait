@@ -47,12 +47,12 @@ export function WorksOnPlatforms() {
       <div className="mx-auto max-w-[1200px] px-6 md:px-8">
         <h2
           id="platforms-heading"
-          className="text-center text-lg md:text-xl font-bold uppercase tracking-[0.06em] text-ink"
+          className="text-center font-display text-[34px] sm:text-[42px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight"
         >
-          WORKS ON ALL MAJOR PLATFORMS
+          Works on All Major Platforms
         </h2>
 
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <div className="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
           {PLATFORMS.map((platform) => (
             <div
               key={platform.name}
@@ -99,7 +99,7 @@ export function WorksOnPlatforms() {
           </div>
         </div>
 
-        <p className="mt-7 text-center text-[14px] md:text-[15px] text-slate">
+        <p className="mt-8 text-center text-[18px] sm:text-[19px] md:text-[20px] leading-[1.7] text-slate max-w-[64ch] mx-auto">
           Seamless integration. No bots. No extra links. Just install and start your meeting.
         </p>
       </div>

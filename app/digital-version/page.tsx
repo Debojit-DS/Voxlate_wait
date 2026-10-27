@@ -6,6 +6,7 @@ import { DesktopPreview } from "@/components/sections/DesktopPreview";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { UnderlineLink } from "@/components/ui/UnderlineLink";
 import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
+import { WorksOnPlatforms } from "@/components/sections/digital/WorksOnPlatforms";
 
 export const metadata = {
   title: "Digital Version — Voxlate | Breaking Language Barriers",
@@ -60,12 +61,6 @@ const FEATURES = [
   { label: "Secure & Private", status: "Design goal" },
   { label: "Lightweight & Easy to Use", status: "Design goal" },
   { label: "Works in Background", status: "Planned — runs from the system tray with pause, mute and quit" },
-];
-
-const MEETING_APPS = [
-  { name: "Zoom", src: "/images/platforms/zoom.svg", width: 1000, height: 225, className: "w-[76px]" },
-  { name: "Google Meet", src: "/images/platforms/google-meet-icon.png", width: 623, height: 514, className: "w-[52px]" },
-  { name: "Microsoft Teams", src: "/images/platforms/microsoft-teams.webp", width: 1280, height: 1352, className: "w-[46px]" },
 ];
 
 const PRIVACY_POINTS = [
@@ -171,6 +166,9 @@ export default function DigitalVersionPage() {
           </div>
         </section>
 
+        {/* Works on all major platforms */}
+        <WorksOnPlatforms />
+
         {/* Built for every professional need */}
         <section id="features" aria-labelledby="features-title" className="border-t border-line py-16 md:py-24">
           <div className="page-container grid gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16">
@@ -186,41 +184,6 @@ export default function DigitalVersionPage() {
                 </div>
               ))}
             </dl>
-          </div>
-        </section>
-
-        {/* Platforms — Granola-style compatibility panel */}
-        <section id="meeting-apps" aria-labelledby="apps-title" className="py-16 md:py-24">
-          <div className="page-container">
-            <div className="grid gap-5 border-t border-line pt-6 md:grid-cols-2 md:gap-12">
-              <h2 id="apps-title" className="display-section">Your meeting apps. Our next step.</h2>
-              <p className="max-w-[46ch] text-[18px] leading-relaxed text-ink md:pt-2">
-                We&apos;re developing Voxlate for use alongside Zoom, Google Meet and Microsoft Teams through virtual
-                audio devices.
-              </p>
-            </div>
-
-            <div className="relative mt-12 overflow-hidden rounded-[8px] border border-line bg-mist md:aspect-[2.4/1]">
-
-              <div className="relative flex h-full flex-col items-center justify-center gap-8 px-6 py-12">
-                <ul className="grid w-full max-w-[640px] grid-cols-1 gap-4 min-[420px]:grid-cols-3 md:gap-8">
-                  {MEETING_APPS.map((app) => (
-                    <li key={app.name} className="flex flex-col items-center gap-3">
-                      <span className="flex aspect-square w-full max-w-[148px] items-center justify-center rounded-[8px] border border-line bg-surface max-[419px]:max-w-[120px]">
-                        <Image src={app.src} alt="" width={app.width} height={app.height} className={`h-auto ${app.className}`} />
-                      </span>
-                      <span className="text-center">
-                        <span className="block text-[15px] font-semibold text-ink">{app.name}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <p className="mt-6 max-w-[70ch] text-[15px] leading-relaxed text-slate">
-              Webex and GoTo Meeting are also part of our development roadmap. No bots. No extra links. Once the app is available,
-              you&apos;ll install it and choose Voxlate&apos;s audio devices in your meeting app.
-            </p>
           </div>
         </section>
 

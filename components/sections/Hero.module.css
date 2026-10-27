@@ -2,8 +2,8 @@
   --hero-gap: clamp(12px, 2svh, 20px);
   display: flex;
   flex-direction: column;
-  min-block-size: clamp(600px, calc(100svh - 76px), 980px);
-  padding-block-start: clamp(20px, 3svh, 40px);
+  padding-block-start: clamp(36px, 6svh, 64px);
+  padding-block-end: clamp(48px, 8svh, 88px);
   overflow-x: clip;
 }
 
@@ -16,7 +16,7 @@
 .title {
   max-inline-size: 100%;
   margin: var(--hero-gap) auto 0;
-  font-size: clamp(44px, min(6.5vw, 8.5svh), 92px);
+  font-size: clamp(2.75rem, 6.25vw, 5.625rem);
   line-height: 1.04;
   letter-spacing: -0.02em;
   overflow-wrap: normal;

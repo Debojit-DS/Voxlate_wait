@@ -545,7 +545,7 @@ export function TestimonialsSection() {
       <div className="flex justify-center">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="h-12 px-7 rounded-full bg-primary text-white hover:bg-primary-hover font-semibold text-[15px] transition-all duration-200 shadow-xs hover:-translate-y-0.5 cursor-pointer"
+          className="h-14 px-9 sm:px-10 rounded-full bg-primary text-white hover:bg-primary-hover font-semibold text-[16px] sm:text-[17px] tracking-wide transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer flex items-center justify-center"
         >
           Share Your Experience
         </button>
@@ -578,7 +578,7 @@ export function TestimonialsSection() {
                 </p>
               </div>
 
-              <div className="overflow-y-auto flex-1 pr-1 space-y-4">
+              <div className="overflow-y-auto flex-1 px-3 py-2 space-y-4">
                 {statusMessage && (
                   <div
                     className={`p-4 rounded-xl border ${
@@ -592,7 +592,7 @@ export function TestimonialsSection() {
                 )}
 
                 {!statusMessage && (
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4 p-1">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-ink">
                         Overall Rating <span className="text-primary">*</span>
@@ -738,7 +738,7 @@ export function TestimonialsSection() {
                         }
                         readOnly={!!user?.name}
                         required
-                        className="w-full px-3 py-2 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus:border-primary text-sm read-only:bg-mist/60"
+                        className="w-full px-3.5 py-2.5 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm read-only:bg-mist/60 transition-all box-border"
                       />
                     </div>
 
@@ -758,7 +758,7 @@ export function TestimonialsSection() {
                             occupation: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary text-sm"
+                        className="w-full px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm transition-all box-border"
                       >
                         <option value="">Select your occupation</option>
                         <option value="Working Professional">Working Professional</option>
@@ -787,7 +787,7 @@ export function TestimonialsSection() {
                         }
                         required
                         rows={3}
-                        className="w-full px-3 py-2 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus:border-primary text-sm resize-none"
+                        className="w-full px-3.5 py-2.5 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus-visible:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm resize-none transition-all box-border"
                       />
                     </div>
 

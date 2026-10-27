@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { proxyApiRequest } from "@/lib/server/apiProxy";
 import { getDb } from "@/lib/server/mongodb";
 import { waitlistSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
+    return proxyApiRequest(req);
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
@@ -81,6 +86,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
+    return proxyApiRequest(req);
+  }
+
   let body: unknown;
   try {
     body = await req.json();

@@ -2,6 +2,7 @@
 
 import { apiRequest } from "@/lib/apiClient";
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 
 export type User = {
   id: string;
@@ -26,6 +27,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const version = useRef(0);
+  const { data: sessionData, status: sessionStatus } = useSession();
+
+  // Sync NextAuth session when available
+  useEffect(() => {
+    if (sessionData?.user) {
+      setUser({
+        id: ((sessionData.user as Record<string, unknown>).id as string) || sessionData.user.email || "",
+        name: sessionData.user.name || "User",
+        email: sessionData.user.email || "",
+        role: ((sessionData.user as Record<string, unknown>).role as string) || "regular",
+        photoUrl: sessionData.user.image || undefined,
+      });
+      setIsLoading(false);
+    }
+  }, [sessionData]);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // ignore network errors
       } finally {
-        if (!cancelled) {
+        if (!cancelled && sessionStatus !== "loading") {
           setIsLoading(false);
         }
       }
@@ -64,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [sessionStatus]);
 
   const login = (userData: User) => {
     ++version.current;
@@ -78,12 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      await nextAuthSignOut({ redirect: false });
       const response = await apiRequest("/api/auth/logout", { method: "POST" });
-      if (!response.ok) return false;
+      ++version.current;
+      setUser(null);
+      return response.ok;
+    } catch {
       ++version.current;
       setUser(null);
       return true;
-    } catch { return false; }
+    }
   };
 
   const updatePhoto = (photoUrl: string) => {

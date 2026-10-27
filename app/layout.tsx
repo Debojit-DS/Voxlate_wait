@@ -13,6 +13,7 @@ import { WaitlistModal } from "@/components/waitlist/WaitlistModal";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthPromptProvider } from "@/components/auth/AuthPromptProvider";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
+import { NextAuthProvider } from "@/components/auth/NextAuthProvider";
 import "./globals.css";
 
 const dmSans = localFont({
@@ -65,16 +66,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={fontVariables}>
       <body>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <AuthProvider>
-          <AuthPromptProvider>
-            <WaitlistModalProvider>
-              {children}
-              <WaitlistModal />
-              <AuthPromptModal />
-            </WaitlistModalProvider>
-          </AuthPromptProvider>
-        </AuthProvider>
+        <NextAuthProvider>
+          <AuthProvider>
+            <AuthPromptProvider>
+              <WaitlistModalProvider>
+                {children}
+                <WaitlistModal />
+                <AuthPromptModal />
+              </WaitlistModalProvider>
+            </AuthPromptProvider>
+          </AuthProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

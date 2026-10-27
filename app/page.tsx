@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { DesktopPreview } from "@/components/sections/DesktopPreview";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { UnderlineLink } from "@/components/ui/UnderlineLink";
@@ -18,15 +17,6 @@ export const metadata = {
   },
 };
 
-// TrustStrip topics, kept as goals (REDESIGN_CONTENT_MAP.md C4–C6).
-const GOALS = [
-  { label: "Real-Time Translation" },
-  { label: "Original Voice Preserved", note: "in development" },
-  { label: "Secure & Private", note: "a design goal" },
-  { label: "100+ Languages", note: "long-term goal" },
-  { label: "Natural Conversations" },
-];
-
 export default function Page() {
   return (
     <>
@@ -34,29 +24,31 @@ export default function Page() {
       <main>
         <Hero />
 
-        {/* What is Voxlate? — paired with the planned desktop experience */}
-        <section id="about" aria-labelledby="what-title" className="border-t border-line bg-mist/60 py-16 md:py-24">
-          <div className="page-container grid items-center gap-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
+        {/* What is Voxlate? */}
+        <section id="about" aria-labelledby="what-title" className="border-t border-line bg-mist/60 py-12 sm:py-16 md:py-20">
+          <div className="page-container grid items-center gap-10 md:grid-cols-[1.2fr_0.8fr] lg:gap-16">
             <div>
               <h2 id="what-title" className="display-section">What is Voxlate?</h2>
-              <p className="mt-5 max-w-[56ch] text-[17px] leading-relaxed text-slate md:text-[18px]">
+              <p className="mt-5 max-w-[54ch] text-[17px] leading-relaxed text-slate md:text-[18px]">
                 Voxlate is an AI-powered communication platform designed to eliminate language barriers while preserving
                 the speaker&apos;s natural voice, tone, and emotions. Whether online or face-to-face, the goal is for
                 conversations to feel natural without requiring anyone to learn a new language.
               </p>
-              <div className="mt-8 border-t border-line pt-5">
-                <p className="text-[13px] font-medium text-slate">What we&apos;re building toward</p>
-                <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[15px] text-ink">
-                  {GOALS.map((g) => (
-                    <li key={g.label}>
-                      {g.label}
-                      {g.note && <span className="text-slate"> — {g.note}</span>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
-            <DesktopPreview />
+            <figure className="mx-auto w-full max-w-[320px] sm:max-w-[360px] md:max-w-[380px]">
+              <div className="overflow-hidden rounded-[14px] border border-line/70 bg-[#EEF4FA] p-6 sm:p-7 shadow-xs">
+                <Image
+                  src="/images/physical/hero-device.png"
+                  alt="Concept rendering of the Voxlate Physical wearable translation device"
+                  width={2048}
+                  height={2062}
+                  sizes="(max-width: 768px) 100vw, 380px"
+                  className="h-auto w-full object-contain transition-transform duration-300 hover:scale-[1.02]"
+                  priority
+                />
+              </div>
+              <figcaption className="mt-3 text-center text-[13px] text-slate">Concept rendering</figcaption>
+            </figure>
           </div>
         </section>
 

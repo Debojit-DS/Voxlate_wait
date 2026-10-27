@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   HeartHandshake,
@@ -9,19 +9,76 @@ import {
   Quote,
   Upload,
   Image as ImageIcon,
+  BadgeCheck,
 } from "lucide-react";
-import { apiRequest } from "@/lib/apiClient";
+import { useAuth } from "@/components/auth/AuthProvider";
 
-// Predefined avatar options
-const predefinedAvatars = [
+// Predefined gender-matched avatar pools
+const maleAvatars = [
   "https://i.pravatar.cc/150?img=11",
-  "https://i.pravatar.cc/150?img=5",
   "https://i.pravatar.cc/150?img=3",
-  "https://i.pravatar.cc/150?img=9",
   "https://i.pravatar.cc/150?img=8",
-  "https://i.pravatar.cc/150?img=7",
   "https://i.pravatar.cc/150?img=12",
+  "https://i.pravatar.cc/150?img=14",
   "https://i.pravatar.cc/150?img=33",
+  "https://i.pravatar.cc/150?img=59",
+  "https://i.pravatar.cc/150?img=68",
+];
+
+const femaleAvatars = [
+  "https://i.pravatar.cc/150?img=5",
+  "https://i.pravatar.cc/150?img=9",
+  "https://i.pravatar.cc/150?img=16",
+  "https://i.pravatar.cc/150?img=20",
+  "https://i.pravatar.cc/150?img=23",
+  "https://i.pravatar.cc/150?img=32",
+  "https://i.pravatar.cc/150?img=44",
+  "https://i.pravatar.cc/150?img=49",
+];
+
+const FEMALE_NAMES = new Set([
+  "khushi", "sudeshna", "alessandra", "sarah", "priya", "maya", "elena", "ananya",
+  "aditi", "sneha", "pooja", "neha", "ritu", "anjali", "shreya", "divya", "kavita",
+  "sunita", "preeti", "swati", "deepa", "meera", "nisha", "rashmi", "tanvi", "payal",
+  "simran", "richa", "aarti", "sakshi", "monika", "anushka", "diya", "ishita",
+  "riya", "aarohi", "tanya", "muskan", "sonam", "jyoti", "rekha", "priyanka",
+  "shweta", "radha", "parul", "komal", "mansi", "kriti", "bhavna", "alisha",
+  "charlotte", "emma", "olivia", "sophia", "isabella", "mia", "amelia", "harper",
+  "evelyn", "abigail", "emily", "elizabeth", "sofia", "avery", "ella", "scarlett",
+  "grace", "chloe", "victoria", "riley", "aria", "lily", "aubrey", "zoey",
+  "hannah", "layla", "nora", "camila", "penelope", "madelyn", "leah", "maria"
+]);
+
+const MALE_NAMES = new Set([
+  "aditya", "rudra", "shiva", "krishna", "rama", "surya", "bala", "arya", "duo",
+  "arman", "raunak", "aashutosh", "ajay", "subhranil", "rajdeep", "vivek", "saptarsha",
+  "prabhat", "vinay", "harsh", "prahlad", "alex", "daniel", "ethan", "jordan",
+  "david", "carlos", "marcus", "rahul", "hironori", "michael", "james", "john",
+  "robert", "william", "joseph", "charles", "thomas", "matthew", "anthony",
+  "mark", "donald", "steven", "paul", "andrew", "joshua", "kenneth", "kevin", "brian"
+]);
+
+function isFemale(name: string): boolean {
+  if (!name) return false;
+  const firstName = name.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z]/g, "");
+  if (MALE_NAMES.has(firstName)) return false;
+  if (FEMALE_NAMES.has(firstName)) return true;
+  if (firstName.endsWith("a") || firstName.endsWith("i") || firstName.endsWith("ya") || firstName.endsWith("ika")) {
+    return true;
+  }
+  return false;
+}
+
+function getAvatarForName(name: string, index: number): string {
+  if (isFemale(name)) {
+    return femaleAvatars[index % femaleAvatars.length];
+  }
+  return maleAvatars[index % maleAvatars.length];
+}
+
+const predefinedAvatars = [
+  ...maleAvatars.slice(0, 4),
+  ...femaleAvatars.slice(0, 4),
 ];
 
 export interface TestimonialData {
@@ -37,6 +94,7 @@ interface DbReview {
   id: string;
   authorName: string;
   authorPhotoUrl: string | null;
+  userEmail: string | null;
   text: string;
   rating: number;
   createdAt: string;
@@ -92,7 +150,7 @@ const defaultTestimonials: TestimonialData[] = [
     name: "Maya T.",
     country: "Travel Creator",
     type: "Traveler",
-    avatar: "https://i.pravatar.cc/150?img=7",
+    avatar: "https://i.pravatar.cc/150?img=16",
     feedback:
       "The wearable concept and real-time translation is a dream for global travel. Communicating face-to-face without language barriers feels like the future.",
     rating: 5,
@@ -110,7 +168,7 @@ const defaultTestimonials: TestimonialData[] = [
     name: "Elena R.",
     country: "Customer Operations Lead",
     type: "Support",
-    avatar: "https://i.pravatar.cc/150?img=33",
+    avatar: "https://i.pravatar.cc/150?img=20",
     feedback:
       "In sensitive customer support calls, tone is everything. Preserving empathy and genuine human cadence across languages transforms the service experience.",
     rating: 5,
@@ -119,8 +177,8 @@ const defaultTestimonials: TestimonialData[] = [
 
 const avatars = [
   {
-    imageUrl: "https://avatars.githubusercontent.com/u/170235967?v=4",
-    profileUrl: "https://github.com/BikramMondal5",
+    imageUrl: "https://avatars.githubusercontent.com/u/16860528",
+    profileUrl: "https://github.com/dillionverma",
   },
   {
     imageUrl: "https://avatars.githubusercontent.com/u/20110627",
@@ -187,6 +245,8 @@ export function TestimonialsSection() {
   } | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const [customImage, setCustomImage] = useState<string | null>(null);
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     name: "",
     occupation: "",
@@ -204,30 +264,65 @@ export function TestimonialsSection() {
     setMounted(true);
   }, []);
 
-  // Fetch live reviews from the database (the exact same endpoint used in /demo)
+  // Autofill name from auth if available
+  useEffect(() => {
+    if (user?.name && !formData.name) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        avatar: user.photoUrl || prev.avatar,
+      }));
+    }
+  }, [user, formData.name]);
+
+  // Fetch live reviews from the database (identical data and endpoint as /demo page)
   const fetchDbReviews = useCallback(async () => {
     try {
-      const res = await apiRequest("/api/reviews");
-      if (res.ok) {
+      // 1. Attempt local /api/reviews proxy
+      let res: Response | null = null;
+      try {
+        res = await fetch("/api/reviews", { cache: "no-store" });
+      } catch {
+        res = null;
+      }
+
+      // 2. If proxy is unavailable or errored, fetch directly from the upstream backend API
+      if (!res || !res.ok) {
+        const directBase =
+          process.env.NEXT_PUBLIC_API_BASE_URL || "https://voxlate-wait.onrender.com";
+        try {
+          res = await fetch(`${directBase}/api/reviews`, { cache: "no-store" });
+        } catch {
+          res = null;
+        }
+      }
+
+      if (res && res.ok) {
         const data = await res.json();
         if (data.status === "success" && Array.isArray(data.reviews) && data.reviews.length > 0) {
-          const mapped: TestimonialData[] = data.reviews.map((rev: DbReview, idx: number) => ({
-            name: rev.authorName || "Verified User",
-            country: "Verified Tester",
-            type: "Demo User",
-            avatar:
-              rev.authorPhotoUrl ||
-              predefinedAvatars[idx % predefinedAvatars.length],
-            feedback: rev.text,
-            rating: typeof rev.rating === "number" ? rev.rating : 5,
-          }));
+          // Sort reviews by rating then date (matching ReviewBanner.tsx)
+          const sorted = [...data.reviews].sort((a: DbReview, b: DbReview) => {
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+
+          const mapped: TestimonialData[] = sorted.map((rev: DbReview, idx: number) => {
+            const author = rev.authorName || "Verified User";
+            return {
+              name: author,
+              country: rev.userEmail ? "Verified Waitlist User" : "Community Tester",
+              type: "Demo User",
+              avatar: rev.authorPhotoUrl || getAvatarForName(author, idx),
+              feedback: rev.text,
+              rating: typeof rev.rating === "number" ? rev.rating : 5,
+            };
+          });
           setTestimonials(mapped);
           return;
         }
       }
-      // If DB has no records yet or endpoint is not reachable, retain defaultTestimonials
-    } catch {
-      // In case unable to load fetched DB data, gracefully fallback to default hardcoded testimonials
+    } catch (err) {
+      console.error("fetch reviews error", err);
     }
   }, []);
 
@@ -235,6 +330,13 @@ export function TestimonialsSection() {
     const timer = setTimeout(() => void fetchDbReviews(), 0);
     return () => clearTimeout(timer);
   }, [fetchDbReviews]);
+
+  // Listen for review:open-form event so any button on the site can open the modal
+  useEffect(() => {
+    const handler = () => setIsModalOpen(true);
+    window.addEventListener("review:open-form", handler);
+    return () => window.removeEventListener("review:open-form", handler);
+  }, []);
 
   // Ensure rows have enough items for continuous seamless marquee looping
   const ensureMinLength = (items: TestimonialData[]): TestimonialData[] => {
@@ -266,28 +368,46 @@ export function TestimonialsSection() {
     const payload = {
       text: formData.feedback.trim(),
       rating: formData.rating,
-      authorName: formData.name.trim(),
-      authorPhotoUrl: formData.avatar || null,
+      authorName: user?.name || formData.name.trim(),
+      authorPhotoUrl: user?.photoUrl || formData.avatar || null,
+      userEmail: user?.email || undefined,
     };
 
     try {
-      const response = await apiRequest("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res: Response | null = null;
+      try {
+        res = await fetch("/api/reviews", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } catch {
+        res = null;
+      }
 
-      if (response.ok) {
-        const data = await response.json().catch(() => null);
+      // If local proxy failed, post directly to upstream backend
+      if (!res || !res.ok) {
+        const directBase =
+          process.env.NEXT_PUBLIC_API_BASE_URL || "https://voxlate-wait.onrender.com";
+        res = await fetch(`${directBase}/api/reviews`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
         if (data?.status === "success" && data.review) {
+          const authorName = data.review.authorName || payload.authorName;
           const newEntry: TestimonialData = {
-            name: data.review.authorName || payload.authorName,
-            country: formData.occupation || "Verified Tester",
+            name: authorName,
+            country: user ? "Verified Waitlist User" : "Community Tester",
             type: "Demo User",
             avatar:
               data.review.authorPhotoUrl ||
               payload.authorPhotoUrl ||
-              predefinedAvatars[0],
+              getAvatarForName(authorName, 0),
             feedback: data.review.text || payload.text,
             rating: data.review.rating || payload.rating,
           };
@@ -295,8 +415,7 @@ export function TestimonialsSection() {
 
           setStatusMessage({
             type: "success",
-            message:
-              "Thank you! Your feedback has been saved to the database.",
+            message: "Thank you! Your review has been saved to the database.",
           });
           setFormData({
             name: "",
@@ -321,20 +440,19 @@ export function TestimonialsSection() {
       }
       throw new Error("API post rejected or offline");
     } catch {
-      // Client fallback in case DB is unreachable
+      // Graceful fallback for demo
+      const fallbackAuthor = formData.name || "Anonymous";
       const fallbackEntry: TestimonialData = {
-        name: formData.name || "Anonymous",
-        country: formData.occupation || "Community Tester",
-        type: formData.primaryUse || "Early Tester",
+        name: fallbackAuthor,
+        country: "Community Tester",
+        type: "Demo User",
         avatar:
           formData.avatar ||
-          `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 12 + 1)}`,
+          getAvatarForName(fallbackAuthor, 0),
         feedback: formData.feedback,
         rating: formData.rating,
       };
-      if (formData.allowPublic) {
-        setTestimonials((prev) => [fallbackEntry, ...prev]);
-      }
+      setTestimonials((prev) => [fallbackEntry, ...prev]);
       setStatusMessage({
         type: "success",
         message:
@@ -463,10 +581,11 @@ export function TestimonialsSection() {
               <div className="overflow-y-auto flex-1 pr-1 space-y-4">
                 {statusMessage && (
                   <div
-                    className={`p-4 rounded-xl border ${statusMessage.type === "success"
+                    className={`p-4 rounded-xl border ${
+                      statusMessage.type === "success"
                         ? "bg-success-tint border-success/30 text-success"
                         : "bg-danger-tint border-danger/30 text-danger"
-                      } flex items-center gap-3`}
+                    } flex items-center gap-3`}
                   >
                     <p className="font-medium text-sm">{statusMessage.message}</p>
                   </div>
@@ -489,10 +608,11 @@ export function TestimonialsSection() {
                             className="transition-transform hover:scale-110 cursor-pointer"
                           >
                             <Star
-                              className={`h-7 w-7 ${star <= formData.rating
+                              className={`h-7 w-7 ${
+                                star <= formData.rating
                                   ? "fill-primary text-primary"
                                   : "fill-none text-line hover:text-slate"
-                                }`}
+                              }`}
                             />
                           </button>
                         ))}
@@ -506,9 +626,9 @@ export function TestimonialsSection() {
 
                       <div className="flex items-center gap-4">
                         <div className="relative w-14 h-14 rounded-2xl border border-line bg-mist/60 overflow-hidden flex items-center justify-center">
-                          {customImage || selectedAvatar ? (
+                          {customImage || formData.avatar || selectedAvatar ? (
                             <img
-                              src={customImage || selectedAvatar || ""}
+                              src={customImage || formData.avatar || selectedAvatar || ""}
                               alt="Avatar Preview"
                               className="w-full h-full object-cover"
                             />
@@ -580,10 +700,11 @@ export function TestimonialsSection() {
                                   setSelectedAvatar(avatar);
                                   setFormData({ ...formData, avatar });
                                 }}
-                                className={`w-9 h-9 rounded-xl overflow-hidden border-2 transition-all hover:scale-110 cursor-pointer ${selectedAvatar === avatar
+                                className={`w-9 h-9 rounded-xl overflow-hidden border-2 transition-all hover:scale-110 cursor-pointer ${
+                                  selectedAvatar === avatar
                                     ? "border-primary ring-2 ring-primary/20"
                                     : "border-line hover:border-slate"
-                                  }`}
+                                }`}
                               >
                                 <img
                                   src={avatar}
@@ -600,6 +721,12 @@ export function TestimonialsSection() {
                     <div className="space-y-1">
                       <label htmlFor="name" className="text-xs font-semibold text-ink">
                         Your Name <span className="text-primary">*</span>
+                        {user && (
+                          <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-mist px-2 py-0.5 text-[11px] font-medium text-primary">
+                            <BadgeCheck size={12} />
+                            Signed in
+                          </span>
+                        )}
                       </label>
                       <input
                         id="name"
@@ -609,8 +736,9 @@ export function TestimonialsSection() {
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
+                        readOnly={!!user?.name}
                         required
-                        className="w-full px-3 py-2 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus:border-primary text-sm"
+                        className="w-full px-3 py-2 bg-mist/30 border border-line rounded-xl text-ink placeholder:text-slate/60 focus:outline-none focus:border-primary text-sm read-only:bg-mist/60"
                       />
                     </div>
 
@@ -619,7 +747,7 @@ export function TestimonialsSection() {
                         htmlFor="occupation"
                         className="text-xs font-semibold text-ink"
                       >
-                        Occupation <span className="text-primary">*</span>
+                        Occupation <span className="text-slate font-normal">(Optional)</span>
                       </label>
                       <select
                         id="occupation"
@@ -630,7 +758,6 @@ export function TestimonialsSection() {
                             occupation: e.target.value,
                           })
                         }
-                        required
                         className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary text-sm"
                       >
                         <option value="">Select your occupation</option>
@@ -646,100 +773,14 @@ export function TestimonialsSection() {
 
                     <div className="space-y-1">
                       <label
-                        htmlFor="primaryUse"
-                        className="text-xs font-semibold text-ink"
-                      >
-                        Primary Use Case <span className="text-primary">*</span>
-                      </label>
-                      <select
-                        id="primaryUse"
-                        value={formData.primaryUse}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            primaryUse: e.target.value,
-                          })
-                        }
-                        required
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary text-sm"
-                      >
-                        <option value="">Select primary use case</option>
-                        <option value="Remote Team Meetings">Remote Team Meetings</option>
-                        <option value="Cross-Border Business">Cross-Border Business</option>
-                        <option value="Multilingual Customer Support">Multilingual Customer Support</option>
-                        <option value="International Travel">International Travel</option>
-                        <option value="Family & Personal Conversations">Family & Personal Conversations</option>
-                        <option value="Academic Collaboration">Academic Collaboration</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label
-                        htmlFor="frequency"
-                        className="text-xs font-semibold text-ink"
-                      >
-                        How often do you need voice translation?{" "}
-                        <span className="text-primary">*</span>
-                      </label>
-                      <select
-                        id="frequency"
-                        value={formData.frequency}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            frequency: e.target.value,
-                          })
-                        }
-                        required
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary text-sm"
-                      >
-                        <option value="">Select frequency</option>
-                        <option value="Daily">Daily</option>
-                        <option value="Weekly">Weekly</option>
-                        <option value="Monthly">Monthly</option>
-                        <option value="Occasionally">Occasionally</option>
-                        <option value="This is my first time">This is my first time</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label
-                        htmlFor="favoriteFeature"
-                        className="text-xs font-semibold text-ink"
-                      >
-                        Favorite Planned Feature{" "}
-                        <span className="text-slate font-normal">(Optional)</span>
-                      </label>
-                      <select
-                        id="favoriteFeature"
-                        value={formData.favoriteFeature}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            favoriteFeature: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary text-sm"
-                      >
-                        <option value="">Select a feature</option>
-                        <option value="Natural Voice Preservation">Natural Voice Preservation</option>
-                        <option value="No-Bot Direct Meeting Integration">No-Bot Direct Meeting Integration</option>
-                        <option value="Hardware Wearable Concept">Hardware Wearable Concept</option>
-                        <option value="Emotion & Tone Preservation">Emotion & Tone Preservation</option>
-                        <option value="Enterprise Privacy & Security">Enterprise Privacy & Security</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label
                         htmlFor="feedback"
                         className="text-xs font-semibold text-ink"
                       >
-                        Share Your Experience <span className="text-primary">*</span>
+                        Your Review <span className="text-primary">*</span>
                       </label>
                       <textarea
                         id="feedback"
-                        placeholder="Tell us what excites you about Voxlate or how voice preservation would help you communicate across languages."
+                        placeholder="Share your thoughts about Voxlate..."
                         value={formData.feedback}
                         onChange={(e) =>
                           setFormData({ ...formData, feedback: e.target.value })
@@ -750,33 +791,12 @@ export function TestimonialsSection() {
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 py-1">
-                      <input
-                        id="allowPublic"
-                        type="checkbox"
-                        checked={formData.allowPublic}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            allowPublic: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 rounded border-line text-primary focus:ring-primary cursor-pointer"
-                      />
-                      <label
-                        htmlFor="allowPublic"
-                        className="text-xs font-medium text-slate cursor-pointer"
-                      >
-                        I agree to let Voxlate display my feedback publicly.
-                      </label>
-                    </div>
-
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !formData.feedback.trim() || formData.rating === 0}
                       className="w-full h-11 rounded-full bg-primary text-white hover:bg-primary-hover font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
                     >
-                      {isSubmitting ? "Submitting..." : "Submit Feedback"}
+                      {isSubmitting ? "Submitting..." : "Submit Review"}
                     </button>
                   </form>
                 )}
@@ -824,9 +844,9 @@ function TestimonialCard({ testimonial }: { testimonial: TestimonialData }) {
       className="relative group transition-all duration-300 h-full border border-line/80 bg-surface shadow-[0_2px_12px_rgba(24,43,58,0.04)] hover:shadow-[0_8px_24px_rgba(24,43,58,0.08)] hover:-translate-y-1 rounded-3xl overflow-hidden text-left flex flex-col justify-between"
       style={{ minHeight: "270px" }}
     >
-      {/* Decorative quote icon */}
-      <div className="absolute top-0 right-0 p-6 text-primary/15 group-hover:text-primary/30 transition-colors pointer-events-none">
-        <Quote className="w-12 h-12 rotate-180" aria-hidden="true" />
+      {/* Decorative quote icon - strictly neutral slate gray (#CBD5E1) with zero pink/color hue */}
+      <div className="absolute top-0 right-0 p-6 text-[#CBD5E1] group-hover:text-[#94A3B8] transition-colors pointer-events-none select-none">
+        <Quote className="w-12 h-12 rotate-180 text-[#CBD5E1] group-hover:text-[#94A3B8]" strokeWidth={1.5} aria-hidden="true" />
       </div>
 
       <div className="p-7 flex flex-col h-full relative z-10 justify-between flex-grow">
@@ -858,7 +878,7 @@ function TestimonialCard({ testimonial }: { testimonial: TestimonialData }) {
           </div>
 
           {/* Feedback quote */}
-          <p className="text-slate text-[15px] leading-relaxed text-pretty flex-grow mb-5 group-hover:text-ink transition-colors italic">
+          <p className="text-slate text-[15px] leading-relaxed text-pretty flex-grow mb-5 group-hover:text-ink transition-colors italic line-clamp-4">
             &quot;{testimonial.feedback}&quot;
           </p>
         </div>
@@ -869,10 +889,11 @@ function TestimonialCard({ testimonial }: { testimonial: TestimonialData }) {
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`h-4 w-4 ${star <= (testimonial.rating || 5)
+                className={`h-4 w-4 ${
+                  star <= (testimonial.rating || 5)
                     ? "fill-primary text-primary"
                     : "fill-none text-line"
-                  }`}
+                }`}
                 aria-hidden="true"
               />
             ))}

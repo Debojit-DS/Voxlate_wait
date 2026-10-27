@@ -7,6 +7,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  role?: string;
   photoUrl?: string;
 };
 
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: data.data.id,
               name: data.data.name,
               email: data.data.email,
+              ...(data.data.role ? { role: data.data.role } : {}),
               ...(data.data.photoUrl ? { photoUrl: data.data.photoUrl } : {}),
             });
           }

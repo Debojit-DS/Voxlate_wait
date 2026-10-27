@@ -29,6 +29,7 @@ const GROUPS = [
       { label: "Careers", href: "/careers" },
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
+      { label: "Admin Portal", href: "/admin" },
     ],
   },
 ];
@@ -41,7 +42,7 @@ const SOCIAL = [
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-line bg-surface">
+    <footer id="contact" className="mt-auto border-t border-line bg-surface">
       <div className="page-container py-12 md:py-16">
         <div className="grid gap-10 sm:grid-cols-3 lg:grid-cols-[1.3fr_repeat(3,0.8fr)_1.2fr]">
           <div className="sm:col-span-3 lg:col-span-1">

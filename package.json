@@ -20,7 +20,8 @@
     "db:generate": "npm --prefix backend run db:generate",
     "db:push": "npm --prefix backend run db:push",
     "db:seed": "npm --prefix backend run db:seed",
-    "db:studio": "npm --prefix backend run db:studio"
+    "db:studio": "npm --prefix backend run db:studio",
+    "dev:all": "npx --yes concurrently -n \"backend,frontend\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.5.7",

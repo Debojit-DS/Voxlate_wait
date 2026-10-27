@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 type ButtonProps = {
   /** primary: expressive InteractiveHoverButton treatment. Others share geometry with quieter motion. */
-  variant?: "primary" | "secondary" | "quiet";
+  variant?: "primary" | "secondary" | "quiet" | "primary-demo";
   children: ReactNode;
   icon?: ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
   onClick?: () => void;
@@ -33,6 +33,8 @@ const variants = {
   secondary:
     "border border-line-strong bg-surface text-ink hover:bg-mist hover:border-primary disabled:opacity-60",
   quiet: "text-ink hover:bg-mist disabled:opacity-60",
+  "primary-demo":
+    "bg-gradient-to-r from-[#3B82F6] to-[#06B6D4] text-white hover:opacity-90 font-semibold shadow-lg shadow-blue-500/25 disabled:opacity-60",
 };
 
 export function Button({
@@ -57,12 +59,9 @@ export function Button({
     variant === "primary" ? (
       <>
         <span className="ihb-dot" aria-hidden="true" />
-        <span className="ihb-label">
-          {children}
-          {Icon && <Icon size={16} aria-hidden />}
-        </span>
+        <span className="ihb-label">{children}</span>
         <span className="ihb-hover" aria-hidden="true">
-          {children}
+          <span>{children}</span>
           <ArrowRight size={16} aria-hidden />
         </span>
       </>
@@ -73,22 +72,16 @@ export function Button({
       </>
     );
 
-  if (href && !inactive) {
+  if (href) {
     return (
-      <Link href={href} className={classes} onClick={onClick}>
+      <Link href={href} aria-disabled={inactive} className={classes}>
         {content}
       </Link>
     );
   }
 
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={inactive}
-      aria-busy={loading || undefined}
-      className={classes}
-    >
+    <button type={type} onClick={onClick} disabled={inactive} aria-busy={loading} className={classes}>
       {content}
     </button>
   );

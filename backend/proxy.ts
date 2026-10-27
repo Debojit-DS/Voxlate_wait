@@ -15,10 +15,9 @@ export async function proxy(req: NextRequest) {
     return withSecurityHeaders(corsResponse);
   }
 
-  const isAdminPage = pathname.startsWith("/admin") && pathname !== "/admin/login";
   const isAdminApi = pathname.startsWith("/api/admin");
 
-  if (!isAdminPage && !isAdminApi) {
+  if (!isAdminApi) {
     const response = NextResponse.next();
     if (pathname.startsWith("/api")) {
       const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
@@ -31,17 +30,12 @@ export async function proxy(req: NextRequest) {
   const session = token ? await verifySession(token) : null;
 
   if (!session || session.role !== "ADMIN") {
-    if (isAdminApi) {
-      const response = NextResponse.json(
-        { status: "error", message: "Forbidden." },
-        { status: 403 }
-      );
-      const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
-      return withSecurityHeaders(corsResponse);
-    }
-    const loginUrl = new URL("/admin/login", req.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.json(
+      { status: "error", message: "Forbidden." },
+      { status: 403 }
+    );
+    const corsResponse = withCors(response, req.headers.get("origin") ?? undefined);
+    return withSecurityHeaders(corsResponse);
   }
 
   const response = NextResponse.next();
@@ -53,7 +47,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/:path*"],
+  matcher: ["/api/:path*"],
 };
-
-

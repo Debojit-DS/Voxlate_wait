@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
 import { Button } from "@/components/ui/Button";
+import { PhysicalBentoGrid } from "@/components/sections/physical/PhysicalBentoGrid";
 
 export const metadata = {
   title: "Voxlate Physical — Real World. Real Conversations.",
@@ -47,24 +48,7 @@ const MODES = [
   },
 ];
 
-const FEATURES = [
-  { label: "Real-time Translation" },
-  { label: "Works Offline (Edge Processing)" },
-  { label: "Long Battery Life" },
-  { label: "Lightweight & Comfortable" },
-  { label: "Secure & Private", note: "design goal" },
-  { label: "Multi-Language Support" },
-  { label: "One Device, Many Possibilities" },
-];
 
-const SPECS = [
-  { label: "Battery Life", value: "Up to 8 Hours" },
-  { label: "Standby Time", value: "Up to 48 Hours" },
-  { label: "Charging Case", value: "Portable & Magnetic" },
-  { label: "Connectivity", value: "Bluetooth 5.3" },
-  { label: "Range", value: "Up to 10 Meters" },
-  { label: "Weight", value: "Ultra Light" },
-];
 
 export default function PhysicalVersionPage() {
   return (
@@ -186,47 +170,8 @@ export default function PhysicalVersionPage() {
           </div>
         </section>
 
-        {/* Why choose */}
-        <section aria-labelledby="why-title" className="py-16 md:py-24">
-          <div className="page-container grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div>
-              <h2 id="why-title" className="display-section">Why Choose Voxlate Physical?</h2>
-              <ul className="mt-8 divide-y divide-line border-y border-line">
-                {FEATURES.map((f) => (
-                  <li key={f.label} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
-                    <span className="text-[16px] font-medium text-ink">{f.label}</span>
-                    {f.note && <span className="text-[13px] text-slate">{f.note}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-[19px] font-semibold text-ink">Specifications</h3>
-              <p className="mt-2 text-[15px] text-slate">These are the specifications we are working toward as development progresses.</p>
-              <div className="mt-6 overflow-x-auto">
-                <table className="w-full text-left text-[15px]">
-                  <thead>
-                    <tr className="border-b border-ink text-[13px] text-slate">
-                      <th scope="col" className="py-2 pr-4 font-medium">Topic</th>
-                      <th scope="col" className="py-2 pr-4 font-medium">Target</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {SPECS.map((s) => (
-                      <tr key={s.label}>
-                        <th scope="row" className="py-3 pr-4 font-medium text-ink">{s.label}</th>
-                        <td className="py-3 pr-4 text-ink">{s.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-6 text-[14px] text-slate">
-                The web demo translates recorded clips in a browser; it does not demonstrate this device.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Why Choose Voxlate Physical (Bento Grid & Specs) */}
+        <PhysicalBentoGrid />
 
         <EarlyTesterBanner source="physical-tester-banner" />
       </main>

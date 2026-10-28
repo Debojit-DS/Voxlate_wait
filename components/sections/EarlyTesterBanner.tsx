@@ -11,11 +11,17 @@ const trustAvatars = [
 ];
 
 /** Closing call to action banner matching the hero-card format with visible #285A78 grid pattern. */
-export function EarlyTesterBanner({ source = "tester-banner" }: { source?: string }) {
+export function EarlyTesterBanner({
+  source = "tester-banner",
+  className = "",
+}: {
+  source?: string;
+  className?: string;
+}) {
   return (
     <section
       aria-labelledby={`tester-${source}`}
-      className="bg-page py-16 md:py-24"
+      className={`bg-page pt-4 pb-16 sm:pt-6 sm:pb-20 md:pt-8 md:pb-24 ${className}`}
     >
       <div className="page-container max-w-[1100px] mx-auto">
         <div className="group relative overflow-hidden rounded-[28px] sm:rounded-[36px] border border-line/80 bg-surface px-6 py-14 sm:px-12 sm:py-18 md:px-16 md:py-20 text-center shadow-[0_8px_30px_rgba(24,43,58,0.04)] hover:shadow-[0_12px_36px_rgba(40,90,120,0.06)] transition-shadow duration-300">

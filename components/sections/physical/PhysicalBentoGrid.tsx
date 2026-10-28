@@ -43,7 +43,7 @@ export function PhysicalBentoGrid() {
     <section
       id="features"
       aria-labelledby="why-title"
-      className="border-t border-line bg-page py-16 sm:py-20 md:py-24"
+      className="border-t border-line bg-page pt-16 pb-8 sm:pt-20 sm:pb-10 md:pt-24 md:pb-12"
     >
       <div className="page-container">
         {/* Section Header */}

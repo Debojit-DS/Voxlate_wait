@@ -37,7 +37,7 @@ const FAQS = [
 
 export function FAQSection() {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="py-16 md:py-24">
+    <section id="faq" aria-labelledby="faq-title" className="pt-16 pb-8 md:pt-24 md:pb-12">
       <div className="page-container grid gap-10 md:grid-cols-[1fr_1.6fr] md:gap-16">
         <h2 id="faq-title" className="display-section">
           Frequently Asked Questions

@@ -417,16 +417,10 @@ export function DemoCard() {
                   </div>
                   <Button
                     variant="primary-demo"
-                    onClick={() => {
-                      window.dispatchEvent(new Event("review:open-form"));
-                      const el = document.getElementById("review-form-section");
-                      if (el) {
-                        el.scrollIntoView({ behavior: "smooth", block: "center" });
-                      }
-                    }}
+                    onClick={() => openModal("demo-card")}
                     className="font-bold whitespace-nowrap"
                   >
-                    Leave a Review
+                    Join Waitlist
                   </Button>
                 </div>
               </div>

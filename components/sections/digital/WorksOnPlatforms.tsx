@@ -43,7 +43,7 @@ const PLATFORMS: PlatformItem[] = [
 
 export function WorksOnPlatforms() {
   return (
-    <section aria-labelledby="platforms-heading" className="border-t border-line bg-page py-14 md:py-16">
+    <section aria-labelledby="platforms-heading" className="border-t border-line bg-page pt-14 pb-8 md:pt-16 md:pb-10">
       <div className="mx-auto max-w-[1200px] px-6 md:px-8">
         <h2
           id="platforms-heading"

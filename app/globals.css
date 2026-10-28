@@ -356,57 +356,7 @@ body {
   100% { background-size: 100% 1px, 100% 1px; background-position: right 0 bottom 0, left 0 bottom 0; }
 }
 
-/* InteractiveHoverButton — React port of the selected reference
-   (dot expands into a fill; label slides out while a label + arrow slides in). */
-.ihb {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-.ihb-dot {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  z-index: -1;
-  width: 8px;
-  height: 8px;
-  margin-top: -4px;
-  border-radius: 0;
-  opacity: 0;
-  background: rgb(255 255 255 / 0.75);
-  transition: transform 280ms ease, background-color 280ms ease, opacity 150ms ease;
-}
-.ihb-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transform: translateX(6px);
-  transition: transform 280ms ease, opacity 200ms ease;
-}
-.ihb-hover {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  opacity: 0;
-  transform: translateX(28px);
-  transition: transform 280ms ease, opacity 200ms ease;
-}
-.ihb:is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) .ihb-dot {
-  opacity: 1;
-  transform: scale(60);
-  background: var(--color-primary-hover);
-}
-.ihb:is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) .ihb-label {
-  transform: translateX(40px);
-  opacity: 0;
-}
-.ihb:is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) .ihb-hover {
-  transform: translateX(0);
-  opacity: 1;
-}
+
 
 @keyframes tw-blink {
   0%, 100% { opacity: 1; }
@@ -439,19 +389,6 @@ body {
   .underline-link {
     --ul-size: 100% 1px !important;
     animation: none !important;
-  }
-  .ihb-dot {
-    display: none;
-  }
-  .ihb .ihb-label {
-    transform: none !important;
-    opacity: 1 !important;
-  }
-  .ihb .ihb-hover {
-    display: none;
-  }
-  .ihb:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
   }
 }
 

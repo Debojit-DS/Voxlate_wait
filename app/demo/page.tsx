@@ -3,8 +3,8 @@ import DemoPageClient from "./DemoPageClient";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Try the demo — Voxlate",
-  description: "Record a short clip and hear it translated. A recorded-clip demo of Voxlate's translation work.",
+  title: "Demo Experience | Voxlate",
+  description: "Try Voxlate's real-time AI voice translation demo. Speak naturally and hear every language.",
 };
 
 export default function DemoPage() {

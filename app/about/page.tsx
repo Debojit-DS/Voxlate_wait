@@ -146,7 +146,7 @@ const TEAM_GROUPS: TeamGroup[] = [
         name: "Subinita Ghosh",
         role: "Content and Creative Director",
         bio: "Responsible for content strategy, creative storytelling, poetry, artistic expression, and the conceptualization and production of advertising campaigns for Voxlate.",
-        image: "/images/team/subinita.png",
+        image: "/images/team/subinita.jpeg",
         linkedin: "https://www.linkedin.com/in/subinita-ghosh-bbb74b370/",
       },
       {

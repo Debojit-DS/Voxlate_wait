@@ -1,11 +1,12 @@
-import { DEVELOPMENT_MESSAGE } from "@/lib/productCopy";
 import Image from "next/image";
+import { Workflow } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { DesktopPreview } from "@/components/sections/DesktopPreview";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
-import { UnderlineLink } from "@/components/ui/UnderlineLink";
 import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
+import { Button } from "@/components/ui/Button";
+import { WorksOnPlatforms } from "@/components/sections/digital/WorksOnPlatforms";
+import { DigitalBentoGrid } from "@/components/sections/digital/DigitalBentoGrid";
 
 export const metadata = {
   title: "Digital Version — Voxlate | Breaking Language Barriers",
@@ -25,54 +26,7 @@ const SETUP = [
   { title: "Start a supported session", body: "Start translation for a supported language pair. You speak in yours; the meeting hears theirs." },
 ];
 
-const USE_CASES = [
-  {
-    label: "Business Meeting",
-    photo: "/images/use-case-business.png",
-    alt: "Business meeting use case",
-    caption: "You speak in their language. They speak theirs. Close deals without language barriers.",
-  },
-  {
-    label: "Freelancer & Client",
-    photo: "/images/use-case-freelancer.png",
-    alt: "Freelancer and client use case",
-    caption: "Work with global clients comfortably. Clear communication, better results.",
-  },
-  {
-    label: "HR & Candidate Interview",
-    photo: "/images/use-case-interview.png",
-    alt: "HR and candidate interview use case",
-    caption: "Interview in your language. Candidate answers in theirs. Fair evaluation, no misunderstanding.",
-  },
-  {
-    label: "Student & Teacher",
-    photo: "/images/use-case-student.png",
-    alt: "Student and teacher use case",
-    caption: "Learn in your language, teacher teaches in theirs. Better understanding, better learning.",
-  },
-];
 
-// Original six features with status (REDESIGN_CONTENT_MAP.md C17–C20).
-const FEATURES = [
-  { label: "Real-time AI Translation", status: "Core of the product in development" },
-  { label: "Voice & Tone Preserved", status: "In development — generic voice first; using your own voice will be optional" },
-  { label: "100+ Supported Languages", status: "Long-term goal — Hindi ↔ English pilot first" },
-  { label: "Secure & Private", status: "Design goal" },
-  { label: "Lightweight & Easy to Use", status: "Design goal" },
-  { label: "Works in Background", status: "Planned — runs from the system tray with pause, mute and quit" },
-];
-
-const MEETING_APPS = [
-  { name: "Zoom", src: "/images/platforms/zoom.svg", width: 1000, height: 225, className: "w-[76px]" },
-  { name: "Google Meet", src: "/images/platforms/google-meet-icon.png", width: 623, height: 514, className: "w-[52px]" },
-  { name: "Microsoft Teams", src: "/images/platforms/microsoft-teams.webp", width: 1280, height: 1352, className: "w-[46px]" },
-];
-
-const PRIVACY_POINTS = [
-  "Background translation while a session is running (planned)",
-  "Designed to preserve your original voice, tone & emotion",
-  "Security and privacy are design goals",
-];
 
 export default function DigitalVersionPage() {
   return (
@@ -80,42 +34,69 @@ export default function DigitalVersionPage() {
       <Navbar />
       <main>
         {/* Hero */}
-        <section aria-labelledby="digital-title" className="pb-14 pt-14 md:pb-20 md:pt-20">
-          <div className="page-container grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
-            <div>
-              <p className="eyebrow">Digital Version</p>
-              <h1 id="digital-title" className="display-page mt-5">
-                One Meeting. <em className="italic">Every Language.</em>
-              </h1>
-              <p className="mt-4 text-[14px] text-slate">
-                {DEVELOPMENT_MESSAGE}
-              </p>
-              <div className="mt-6 max-w-[56ch] space-y-3 text-[17px] leading-relaxed text-slate">
-                <p>Voxlate Digital is real-time AI translation software we&apos;re developing for online meetings, calls and remote collaboration.</p>
-                <p>
-                  Speak naturally in your own language and hear others in yours — in real time, designed to preserve your
-                  original voice and tone.
-                </p>
+        <section aria-labelledby="digital-title" className="pt-10 pb-16 sm:pt-12 sm:pb-20 md:pt-16 md:pb-24">
+          <div className="page-container grid items-stretch gap-10 lg:grid-cols-[0.95fr_1.25fr] lg:gap-12 xl:gap-14">
+            <div className="flex flex-col justify-between">
+              <div>
+                <p className="eyebrow text-[12px] sm:text-[13px] tracking-[0.16em]">Digital Version</p>
+                <h1 id="digital-title" className="font-display text-[40px] sm:text-[46px] md:text-[52px] leading-[1.08] text-ink font-normal tracking-tight mt-3 sm:mt-4">
+                  One Meeting. <em className="italic">Every Language.</em>
+                </h1>
+                <div className="mt-4 sm:mt-5 max-w-[50ch] space-y-3.5 text-[16px] sm:text-[17px] leading-relaxed text-slate">
+                  <p>Voxlate Digital is real-time AI translation software we&apos;re developing for online meetings, calls and remote collaboration.</p>
+                  <p>
+                    Speak naturally in your own language and hear others in yours — in real time, designed to preserve your
+                    original voice and tone.
+                  </p>
+                </div>
               </div>
-              <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-                <WaitlistButton source="digital-hero" label="Join Waitlist" wide />
-                <UnderlineLink href="/demo" variant="goes-out-comes-in" direction="right" className="text-[15px] font-semibold">
-                  View Our Demo
-                </UnderlineLink>
+
+              {/* Two Action Buttons in a Row */}
+              <div className="mt-7 sm:mt-8 flex flex-row items-center gap-3.5 sm:gap-4">
+                <WaitlistButton source="digital-hero" label="Join Waitlist" />
+                <Button href="/demo" variant="secondary">
+                  Try Live Demo
+                </Button>
               </div>
-              <p className="mt-5 text-[14px] text-slate">
-                Join the waitlist today and get a chance to become one of our early product testers.
-              </p>
             </div>
-            <DesktopPreview />
+
+            {/* Product Image starting at heading level and ending at button height */}
+            <div className="w-full h-full flex flex-col lg:pt-[28px]">
+              <div className="relative w-full flex-1 min-h-[280px] sm:min-h-[340px] lg:min-h-0 overflow-hidden rounded-[20px] sm:rounded-[26px] border border-line bg-surface shadow-md transition-transform duration-300 hover:scale-[1.01]">
+                <Image
+                  src="/images/product-digital.png"
+                  alt="Voxlate Digital version software preview on laptop"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 760px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
           </div>
         </section>
+
+        {/* Bento Grid: Features & Capabilities ("Built for Every Professional Need") */}
+        <DigitalBentoGrid />
 
         {/* How it works */}
         <section aria-labelledby="how-title" className="border-t border-line bg-surface py-16 md:py-24">
           <div className="page-container">
-            <p className="eyebrow">How It Works</p>
-            <h2 id="how-title" className="display-section mt-4">Real-time Translation Between Two People</h2>
+            {/* Section Header */}
+            <div className="mx-auto max-w-[800px] text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/90 px-3.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-xs mb-4">
+                <Workflow size={14} className="text-primary shrink-0" aria-hidden="true" />
+                <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-primary">
+                  HOW IT WORKS
+                </span>
+              </div>
+              <h2 id="how-title" className="font-display text-[34px] sm:text-[42px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight">
+                Speak Naturally. Understand Instantly.
+              </h2>
+              <p className="mt-3 text-[16px] sm:text-[18px] md:text-[19px] leading-relaxed text-slate max-w-[64ch] mx-auto">
+                Speak in your language while Voxlate translates your words in real time. Stay focused on the conversation, not the language barrier.
+              </p>
+            </div>
             <figure className="mt-10">
               <Image
                 src="/images/digital-how-it-works.png"
@@ -128,13 +109,13 @@ export default function DigitalVersionPage() {
               <figcaption className="mt-3 text-[13px] text-slate">Concept illustration of the meeting version.</figcaption>
             </figure>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
-              <div className="rounded-[6px] border-2 border-primary p-6">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-primary">You → meeting</p>
+              <div className="rounded-[8px] border border-line bg-surface p-6 shadow-xs">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink">You → meeting</p>
                 <p className="mt-3 text-[17px] leading-relaxed text-ink">
                   You speak Hindi; the meeting hears English through Voxlate Microphone.
                 </p>
               </div>
-              <div className="rounded-[6px] border border-line-strong p-6">
+              <div className="rounded-[8px] border border-line bg-surface p-6 shadow-xs">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink">Meeting → you</p>
                 <p className="mt-3 text-[17px] leading-relaxed text-ink">
                   Others speak English; you hear Hindi from Voxlate Speaker on your own headphones.
@@ -142,7 +123,7 @@ export default function DigitalVersionPage() {
               </div>
             </div>
             <div className="mt-12">
-              <p className="text-[13px] font-medium text-slate">Planned setup</p>
+              <p className="text-[13px] font-medium text-slate">Steps to follows</p>
               <ol className="mt-4 grid gap-8 md:grid-cols-3">
                 {SETUP.map((step, i) => (
                   <li key={step.title} className="border-t border-ink pt-4">
@@ -156,96 +137,8 @@ export default function DigitalVersionPage() {
           </div>
         </section>
 
-        {/* Use cases */}
-        <section aria-labelledby="uses-title" className="py-16 md:py-24">
-          <div className="page-container">
-            <h2 id="uses-title" className="display-section">Use Cases</h2>
-            <ul className="mt-10 divide-y divide-line border-y border-line">
-              {USE_CASES.map((u) => (
-                <li key={u.label} className="grid gap-3 py-6 sm:grid-cols-[minmax(180px,0.8fr)_1.4fr] sm:gap-10">
-                  <h3 className="text-[16px] font-medium text-ink">{u.label}</h3>
-                  <p className="max-w-[65ch] text-[16px] leading-relaxed text-slate">{u.caption}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Built for every professional need */}
-        <section id="features" aria-labelledby="features-title" className="border-t border-line py-16 md:py-24">
-          <div className="page-container grid gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16">
-            <div>
-              <h2 id="features-title" className="display-section">Built for Every Professional Need</h2>
-              <p className="mt-4 text-[15px] text-slate">Each item shows where it stands today.</p>
-            </div>
-            <dl className="divide-y divide-line border-y border-line">
-              {FEATURES.map((f) => (
-                <div key={f.label} className="grid gap-1 py-4 sm:grid-cols-[1fr_1.3fr] sm:gap-6">
-                  <dt className="text-[17px] font-medium text-ink">{f.label}</dt>
-                  <dd className="text-[15px] text-slate">{f.status}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* Platforms — Granola-style compatibility panel */}
-        <section id="meeting-apps" aria-labelledby="apps-title" className="py-16 md:py-24">
-          <div className="page-container">
-            <div className="grid gap-5 border-t border-line pt-6 md:grid-cols-2 md:gap-12">
-              <h2 id="apps-title" className="display-section">Your meeting apps. Our next step.</h2>
-              <p className="max-w-[46ch] text-[18px] leading-relaxed text-ink md:pt-2">
-                We&apos;re developing Voxlate for use alongside Zoom, Google Meet and Microsoft Teams through virtual
-                audio devices.
-              </p>
-            </div>
-
-            <div className="relative mt-12 overflow-hidden rounded-[8px] border border-line bg-mist md:aspect-[2.4/1]">
-
-              <div className="relative flex h-full flex-col items-center justify-center gap-8 px-6 py-12">
-                <ul className="grid w-full max-w-[640px] grid-cols-1 gap-4 min-[420px]:grid-cols-3 md:gap-8">
-                  {MEETING_APPS.map((app) => (
-                    <li key={app.name} className="flex flex-col items-center gap-3">
-                      <span className="flex aspect-square w-full max-w-[148px] items-center justify-center rounded-[8px] border border-line bg-surface max-[419px]:max-w-[120px]">
-                        <Image src={app.src} alt="" width={app.width} height={app.height} className={`h-auto ${app.className}`} />
-                      </span>
-                      <span className="text-center">
-                        <span className="block text-[15px] font-semibold text-ink">{app.name}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <p className="mt-6 max-w-[70ch] text-[15px] leading-relaxed text-slate">
-              Webex and GoTo Meeting are also part of our development roadmap. No bots. No extra links. Once the app is available,
-              you&apos;ll install it and choose Voxlate&apos;s audio devices in your meeting app.
-            </p>
-          </div>
-        </section>
-
-        {/* Privacy */}
-        <section aria-labelledby="privacy-title" className="border-t border-line py-16 md:py-24">
-          <div className="page-container grid gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16">
-            <div>
-              <h2 id="privacy-title" className="display-section">Totally Natural. Private by Design.</h2>
-            </div>
-            <div>
-              <p className="text-[18px] leading-relaxed text-ink">
-                Voxlate is being designed to work alongside the meeting apps you already use.
-              </p>
-              <ul className="mt-6 space-y-3 text-[16px] text-slate">
-                {PRIVACY_POINTS.map((p) => (
-                  <li key={p} className="border-l-2 border-primary pl-4">{p}</li>
-                ))}
-              </ul>
-              <p className="mt-6 text-[15px] text-slate">
-                Using your own voice will be a separate, optional setup step. For how account and demo data is handled
-                today, read the <UnderlineLink href="/privacy" variant="center">Privacy Policy</UnderlineLink>.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Works on all major platforms */}
+        <WorksOnPlatforms />
 
         <EarlyTesterBanner source="digital-tester-banner" />
       </main>

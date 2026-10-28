@@ -1,8 +1,11 @@
-import { DEVELOPMENT_MESSAGE } from "@/lib/productCopy";
 import Image from "next/image";
+import { RadioTower } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
+import { Button } from "@/components/ui/Button";
+import { PhysicalBentoGrid } from "@/components/sections/physical/PhysicalBentoGrid";
 
 export const metadata = {
   title: "Voxlate Physical — Real World. Real Conversations.",
@@ -16,20 +19,7 @@ export const metadata = {
   },
 };
 
-const HERO_POINTS = [
-  "Hear any language in your language in real time.",
-  "Designed to preserve your original voice, tone & emotion.",
-  "Communicate naturally, anywhere, anytime.",
-];
 
-const SITUATIONS = [
-  { label: "Tourists", src: "/images/physical/situations/tourists.png", alt: "Tourists interacting with locals on a street", w: 2496, h: 1728 },
-  { label: "Students", src: "/images/physical/situations/students.png", alt: "Students collaborating at a table", w: 2480, h: 1728 },
-  { label: "Business Meetings", src: "/images/physical/situations/business-meeting.png", alt: "Four people at a boardroom table in a meeting", w: 2498, h: 1696 },
-  { label: "Seminars & Conferences", src: "/images/physical/situations/seminar.png", alt: "Presenter addressing a seated audience", w: 2528, h: 1694 },
-  { label: "Markets & Shopping", src: "/images/physical/situations/market.png", alt: "People interacting at a market stall", w: 2528, h: 1688 },
-  { label: "Travel & Airports", src: "/images/physical/situations/travel.png", alt: "Two people with luggage at an airport terminal", w: 2472, h: 1696 },
-];
 
 const STEPS = ["Wear Voxlate Device", "Choose Your Language", "Talk Naturally", "Hear Translation"];
 
@@ -58,24 +48,7 @@ const MODES = [
   },
 ];
 
-const FEATURES = [
-  { label: "Real-time Translation" },
-  { label: "Works Offline (Edge Processing)" },
-  { label: "Long Battery Life" },
-  { label: "Lightweight & Comfortable" },
-  { label: "Secure & Private", note: "design goal" },
-  { label: "Multi-Language Support" },
-  { label: "One Device, Many Possibilities" },
-];
 
-const SPECS = [
-  { label: "Battery Life", value: "Up to 8 Hours" },
-  { label: "Standby Time", value: "Up to 48 Hours" },
-  { label: "Charging Case", value: "Portable & Magnetic" },
-  { label: "Connectivity", value: "Bluetooth 5.3" },
-  { label: "Range", value: "Up to 10 Meters" },
-  { label: "Weight", value: "Ultra Light" },
-];
 
 export default function PhysicalVersionPage() {
   return (
@@ -83,68 +56,50 @@ export default function PhysicalVersionPage() {
       <Navbar />
       <main>
         {/* Hero */}
-        <section aria-labelledby="physical-title" className="pb-14 pt-14 md:pb-20 md:pt-20">
-          <div className="page-container grid items-center gap-12 md:grid-cols-[1.15fr_1fr]">
+        <section aria-labelledby="physical-title" className="pt-10 pb-16 sm:pt-12 sm:pb-20 md:pt-16 md:pb-24">
+          <div className="page-container grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 xl:gap-14">
             <div>
-              <p className="flex flex-wrap items-center gap-3">
-                <span className="eyebrow">Physical Version</span>
-                <span className="status-tag">Concept · in development</span>
-              </p>
-              <h1 id="physical-title" className="display-page mt-5">
+              <p className="eyebrow text-[12px] sm:text-[13px] tracking-[0.16em]">Physical Version</p>
+              <h1 id="physical-title" className="font-display text-[40px] sm:text-[46px] md:text-[52px] leading-[1.08] text-ink font-normal tracking-tight mt-3 sm:mt-4">
                 Real World. <em className="italic">Real Conversations.</em>
               </h1>
-              <div className="mt-6 max-w-[54ch] space-y-3 text-[17px] leading-relaxed text-slate">
+              <div className="mt-4 sm:mt-5 max-w-[50ch] space-y-3.5 text-[16px] sm:text-[17px] leading-relaxed text-slate">
                 <p>
-                  Voxlate Physical is a wearable translation device we&apos;re developing to let you{" "}
-                  <span className="font-medium text-ink">hear and speak in your own language — in real time.</span>
+                  Voxlate Physical is a wearable translation device in development that helps you hear and speak in your own language, in real time. Designed for face-to-face conversations in the real world.
                 </p>
-                <p>Designed for face-to-face communication in the real world. No apps. No typing. Just natural conversations.</p>
+                <p>
+                  It lets you communicate naturally across languages without apps or typing. With a focus on preserving voice, tone, and emotion, Voxlate aims to make every conversation feel effortless, wherever you go.
+                </p>
               </div>
-              <ul className="mt-6 space-y-2 border-l-2 border-primary pl-4 text-[15px] text-ink">
-                {HERO_POINTS.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <WaitlistButton source="physical-version-hero" label="Join Waitlist" wide />
+
+              {/* Two Action Buttons in a Row */}
+              <div className="mt-7 sm:mt-8 flex flex-row items-center gap-3.5 sm:gap-4">
+                <WaitlistButton source="physical-version-hero" label="Join Waitlist" />
+                <Button href="/demo" variant="secondary">
+                  View Demo
+                </Button>
               </div>
-              <p className="mt-5 text-[14px] text-slate">
-                {DEVELOPMENT_MESSAGE}
-              </p>
             </div>
-            <figure>
-              <div className="overflow-hidden rounded-[8px] border border-line bg-mist">
+
+            {/* Product Image */}
+            <div className="flex items-center justify-center lg:justify-end">
+              <div className="w-full max-w-[340px] sm:max-w-[370px] lg:max-w-[390px] overflow-hidden rounded-[20px] sm:rounded-[24px] border border-line bg-[#EEF4FA] p-6 sm:p-7 shadow-sm transition-transform duration-300 hover:scale-[1.01]">
                 <Image
                   src="/images/physical/hero-device.png"
                   alt="Concept rendering of the Voxlate Physical wearable translation device"
                   width={2048}
                   height={2062}
-                  sizes="(max-width: 768px) 100vw, 500px"
-                  className="h-auto w-full"
                   priority
+                  sizes="(max-width: 1024px) 100vw, 390px"
+                  className="h-auto w-full object-contain transition-transform duration-300 hover:scale-[1.02]"
                 />
               </div>
-              <figcaption className="mt-3 text-[13px] text-slate">Concept rendering — not a photograph of working hardware.</figcaption>
-            </figure>
-          </div>
-        </section>
-
-        {/* Situations */}
-        <section aria-labelledby="situations-title" className="border-t border-line bg-surface py-16 md:py-24">
-          <div className="page-container">
-            <h2 id="situations-title" className="display-section">Built for Real-Life Situations</h2>
-            <ul className="mt-10 grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3">
-              {SITUATIONS.map((s) => (
-                <li key={s.label} className="border-t border-line py-3">
-                  <p className="text-[17px] font-medium text-ink">{s.label}</p>
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
         </section>
 
         {/* How it works */}
-        <section aria-labelledby="how-title" className="py-16 md:py-24">
+        <section aria-labelledby="how-title" className="border-t border-line bg-surface py-16 md:py-24">
           <div className="page-container">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <h2 id="how-title" className="display-section">How It Works</h2>
@@ -172,9 +127,20 @@ export default function PhysicalVersionPage() {
         {/* Communication modes */}
         <section aria-labelledby="modes-title" className="border-t border-line bg-mist/60 py-16 md:py-24">
           <div className="page-container">
-            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-              <h2 id="modes-title" className="display-section">Communication Modes</h2>
-              <p className="text-[14px] text-slate">Planned modes</p>
+            {/* Section Header */}
+            <div className="mx-auto max-w-[800px] text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/90 px-3.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-xs mb-4">
+                <RadioTower size={14} className="text-primary shrink-0" aria-hidden="true" />
+                <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-primary">
+                  COMMUNICATION MODES
+                </span>
+              </div>
+              <h2 id="modes-title" className="font-display text-[34px] sm:text-[42px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight">
+                One Device. Every Conversation.
+              </h2>
+              <p className="mt-3 text-[16px] sm:text-[18px] md:text-[19px] leading-relaxed text-slate max-w-[64ch] mx-auto">
+                From one-to-one conversations to large group settings, Voxlate Physical is designed to help people communicate naturally across language barriers.
+              </p>
             </div>
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               {MODES.map((m) => (
@@ -204,60 +170,10 @@ export default function PhysicalVersionPage() {
           </div>
         </section>
 
-        {/* Why choose */}
-        <section aria-labelledby="why-title" className="py-16 md:py-24">
-          <div className="page-container grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <div>
-              <h2 id="why-title" className="display-section">Why Choose Voxlate Physical?</h2>
-              <ul className="mt-8 divide-y divide-line border-y border-line">
-                {FEATURES.map((f) => (
-                  <li key={f.label} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
-                    <span className="text-[16px] font-medium text-ink">{f.label}</span>
-                    {f.note && <span className="text-[13px] text-slate">{f.note}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-[19px] font-semibold text-ink">Specifications</h3>
-              <p className="mt-2 text-[15px] text-slate">These are the specifications we are working toward as development progresses.</p>
-              <div className="mt-6 overflow-x-auto">
-                <table className="w-full text-left text-[15px]">
-                  <thead>
-                    <tr className="border-b border-ink text-[13px] text-slate">
-                      <th scope="col" className="py-2 pr-4 font-medium">Topic</th>
-                      <th scope="col" className="py-2 pr-4 font-medium">Target</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {SPECS.map((s) => (
-                      <tr key={s.label}>
-                        <th scope="row" className="py-3 pr-4 font-medium text-ink">{s.label}</th>
-                        <td className="py-3 pr-4 text-ink">{s.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-6 text-[14px] text-slate">
-                The web demo translates recorded clips in a browser; it does not demonstrate this device.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Why Choose Voxlate Physical (Bento Grid & Specs) */}
+        <PhysicalBentoGrid />
 
-        {/* Early tester */}
-        <section aria-labelledby="physical-tester" className="border-t border-line bg-mist/60 py-16 md:py-20">
-          <div className="page-container flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 id="physical-tester" className="display-section">Be an Early Tester</h2>
-              <p className="mt-3 max-w-[56ch] text-[17px] leading-relaxed text-slate">
-                Join the waitlist and selected users will receive early product testing access before the official launch.
-              </p>
-            </div>
-            <WaitlistButton source="physical-version-banner" label="Join Waitlist Now" wide />
-          </div>
-        </section>
+        <EarlyTesterBanner source="physical-tester-banner" />
       </main>
       <Footer />
     </>

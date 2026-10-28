@@ -18,8 +18,10 @@ const PRODUCT_LINKS = [
 
 const NAV_LINKS = [
   { label: "Demo", href: "/demo" },
+  { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
-  { label: "Join My Team", href: "/careers" },
+  { label: "Join Our Team", href: "/careers" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 /** Closes a popover on Escape (returning focus to its trigger) or on an outside click/focus. */
@@ -87,7 +89,11 @@ export function Navbar() {
   useDismiss(accountOpen, closeAccount, accountRef, accountButton);
   useDismiss(mobileOpen, closeMobile, mobileRef, mobileButton);
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href.startsWith("/#") || href.startsWith("#")) return false;
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
   const productActive = PRODUCT_LINKS.some((l) => isActive(l.href));
   const loginHref = `/login?redirectTo=${encodeURIComponent(pathname || "/")}`;
 
@@ -129,8 +135,7 @@ export function Navbar() {
   };
 
   const linkClass = (active: boolean) =>
-    `rounded-[8px] px-3 py-2 text-[15px] font-medium transition-colors ${
-      active ? "text-primary" : "text-ink hover:bg-mist"
+    `rounded-[8px] px-3 py-2 text-[15px] font-medium transition-colors ${active ? "text-primary" : "text-ink hover:bg-mist"
     }`;
 
   return (
@@ -229,6 +234,15 @@ export function Navbar() {
                     >
                       Sign Out
                     </button>
+                    {user.role === "ADMIN" && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setAccountOpen(false)}
+                        className="mt-1 block w-full rounded-[6px] border-t border-line px-3 py-2 text-left text-sm font-semibold text-primary hover:bg-mist"
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
@@ -293,6 +307,11 @@ export function Navbar() {
                       <button type="button" className="text-link" onClick={() => { closeMobile(); void handleLogout(); }}>
                         Sign Out
                       </button>
+                      {user.role === "ADMIN" && (
+                        <Link href="/admin" onClick={closeMobile} className="text-link font-semibold">
+                          Admin
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -303,7 +322,7 @@ export function Navbar() {
               )}
               <Button
                 className="w-full"
-               
+
                 onClick={() => {
                   closeMobile();
                   openWaitlist("navbar");

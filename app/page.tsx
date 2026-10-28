@@ -1,12 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
+import { AudioLines } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { DesktopPreview } from "@/components/sections/DesktopPreview";
+import { ProductsSection } from "@/components/sections/ProductsSection";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { FAQSection } from "@/components/sections/FAQSection";
-import { UnderlineLink } from "@/components/ui/UnderlineLink";
-import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
 
 export const metadata = {
   title: "Voxlate — Breaking Language Barriers",
@@ -18,15 +19,6 @@ export const metadata = {
   },
 };
 
-// TrustStrip topics, kept as goals (REDESIGN_CONTENT_MAP.md C4–C6).
-const GOALS = [
-  { label: "Real-Time Translation" },
-  { label: "Original Voice Preserved", note: "in development" },
-  { label: "Secure & Private", note: "a design goal" },
-  { label: "100+ Languages", note: "long-term goal" },
-  { label: "Natural Conversations" },
-];
-
 export default function Page() {
   return (
     <>
@@ -34,105 +26,66 @@ export default function Page() {
       <main>
         <Hero />
 
-        {/* What is Voxlate? — paired with the planned desktop experience */}
-        <section id="about" aria-labelledby="what-title" className="border-t border-line bg-mist/60 py-16 md:py-24">
-          <div className="page-container grid items-center gap-12 lg:grid-cols-[1fr_1.15fr] lg:gap-16">
-            <div>
-              <h2 id="what-title" className="display-section">What is Voxlate?</h2>
-              <p className="mt-5 max-w-[56ch] text-[17px] leading-relaxed text-slate md:text-[18px]">
-                Voxlate is an AI-powered communication platform designed to eliminate language barriers while preserving
-                the speaker&apos;s natural voice, tone, and emotions. Whether online or face-to-face, the goal is for
-                conversations to feel natural without requiring anyone to learn a new language.
-              </p>
-              <div className="mt-8 border-t border-line pt-5">
-                <p className="text-[13px] font-medium text-slate">What we&apos;re building toward</p>
-                <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[15px] text-ink">
-                  {GOALS.map((g) => (
-                    <li key={g.label}>
-                      {g.label}
-                      {g.note && <span className="text-slate"> — {g.note}</span>}
-                    </li>
-                  ))}
-                </ul>
+        {/* Meet Voxlate / What is Voxlate? */}
+        <section id="about" aria-labelledby="meet-title" className="border-t border-line bg-mist/60 py-14 sm:py-16 md:py-24">
+          <div className="page-container">
+            {/* Header matching the reference format */}
+            <div className="mx-auto max-w-[800px] text-center mb-6 sm:mb-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/90 px-3.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-xs mb-4">
+                <AudioLines size={14} className="text-primary shrink-0" aria-hidden="true" />
+                <span className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-primary">
+                  MEET VOXLATE
+                </span>
               </div>
+              <h2 id="meet-title" className="font-display text-[34px] sm:text-[42px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight">
+                One Meeting. Every Language.
+              </h2>
+              <p className="mt-3 text-[16px] sm:text-[18px] md:text-[19px] leading-relaxed text-slate max-w-[64ch] mx-auto">
+                Connect across languages while keeping your voice, tone, and emotion. Make every conversation feel natural, wherever you meet.
+              </p>
             </div>
-            <DesktopPreview />
+
+            {/* "What is Voxlate?" and device rendering */}
+            <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr] lg:gap-14">
+              <div className="pt-0.5 md:pt-1">
+                <h3 id="what-title" className="font-display text-[32px] sm:text-[38px] md:text-[42px] leading-tight text-ink font-bold">
+                  What is Voxlate?
+                </h3>
+                <p className="mt-3.5 max-w-[54ch] text-[18px] sm:text-[19px] md:text-[20px] leading-[1.7] text-slate">
+                  Voxlate is an AI-powered communication platform designed to eliminate language barriers while preserving
+                  the speaker&apos;s natural voice, tone, and emotions. Whether online or face-to-face, the goal is for
+                  conversations to feel natural without requiring anyone to learn a new language.
+                </p>
+                <p className="mt-4 max-w-[54ch] text-[16px] sm:text-[17px] md:text-[18px] leading-[1.65] text-slate">
+                  Voxlate is available across two professional form factors: an intuitive <Link href="/digital-version" className="font-semibold text-ink hover:text-primary transition-colors">software platform</Link> for seamless virtual meetings (Zoom, Teams, Google Meet), and an intelligent <Link href="/physical-version" className="font-semibold text-ink hover:text-primary transition-colors">wearable hardware device</Link> for spontaneous face-to-face conversations.
+                </p>
+              </div>
+              <figure className="mx-auto w-full max-w-[320px] sm:max-w-[360px] md:max-w-[380px]">
+                <div className="overflow-hidden rounded-[14px] border border-line/70 bg-[#EEF4FA] p-6 sm:p-7 shadow-xs">
+                  <Image
+                    src="/images/physical/hero-device.png"
+                    alt="Concept rendering of the Voxlate Physical wearable translation device"
+                    width={2048}
+                    height={2062}
+                    sizes="(max-width: 768px) 100vw, 380px"
+                    className="h-auto w-full object-contain transition-transform duration-300 hover:scale-[1.02]"
+                    priority
+                  />
+                </div>
+                <figcaption className="mt-3 text-center text-[13px] text-slate">Concept rendering</figcaption>
+              </figure>
+            </div>
           </div>
         </section>
 
         {/* Our Products */}
-        <section id="products" aria-labelledby="products-title" className="py-16 md:py-24">
-          <div className="page-container">
-            <h2 id="products-title" className="display-section">Our Products</h2>
+        <ProductsSection />
 
-            <article className="mt-10 grid gap-8 border-y border-line py-8 sm:py-10 md:grid-cols-[1.3fr_1fr] md:items-center">
-              <div>
-                <p className="flex flex-wrap items-center gap-3">
-                  <span className="eyebrow">Digital Version</span>
-                  <span className="status-tag">In development · Windows first</span>
-                </p>
-                <h3 className="mt-4 font-display text-[34px] leading-tight text-ink md:text-[42px]">One Meeting. Every Language.</h3>
-                <p className="mt-3 max-w-[48ch] text-[17px] leading-relaxed text-slate">
-                  Perfect for freelancers, IT companies, BPOs, online meetings and global teams.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
-                  <WaitlistButton source="digital-card" label="Join Waitlist" />
-                  <UnderlineLink href="/digital-version" variant="goes-out-comes-in" direction="right" className="text-[15px] font-semibold">
-                    See Details
-                  </UnderlineLink>
-                  <UnderlineLink href="/demo" variant="goes-out-comes-in" direction="right" className="text-[15px] font-semibold">
-                    View Our Demo
-                  </UnderlineLink>
-                </div>
-              </div>
-              <dl className="grid gap-px overflow-hidden rounded-[6px] border border-line bg-line text-[15px]">
-                {[
-                  ["Today", "Recorded-clip web demo"],
-                  ["First pilot", "Hindi ↔ English, both directions"],
-                  ["Planned meeting apps", "Zoom, Google Meet, Teams"],
-                ].map(([term, value]) => (
-                  <div key={term} className="flex flex-col gap-1 bg-page px-5 py-4 sm:flex-row sm:justify-between sm:gap-6">
-                    <dt className="text-slate">{term}</dt>
-                    <dd className="font-medium text-ink sm:text-right">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </article>
+        {/* Voices of Voxlate / Testimonials */}
+        <TestimonialsSection />
 
-            <article className="grid items-center gap-8 border-b border-line py-8 sm:py-10 md:grid-cols-[1.3fr_1fr]">
-              <div>
-                <p className="flex flex-wrap items-center gap-3">
-                  <span className="eyebrow">Physical Version</span>
-                  <span className="status-tag">Concept · in development</span>
-                </p>
-                <h3 className="mt-4 font-display text-[30px] leading-tight text-ink md:text-[34px]">Real Conversations. No Language Barrier.</h3>
-                <p className="mt-3 max-w-[48ch] text-[17px] leading-relaxed text-slate">
-                  Designed for tourists, classrooms, seminars and face-to-face communication.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-4">
-                  <WaitlistButton source="physical-card" label="Join Waitlist" />
-                  <UnderlineLink href="/physical-version" variant="goes-out-comes-in" direction="right" className="text-[15px] font-semibold">
-                    See Details
-                  </UnderlineLink>
-                </div>
-              </div>
-              <figure className="mx-auto w-full max-w-[280px]">
-                <Image
-                  src="/images/physical/hero-device.png"
-                  alt="Concept rendering of the Voxlate Physical earpiece"
-                  width={2048}
-                  height={2062}
-                  sizes="280px"
-                  className="h-auto w-full rounded-[6px] bg-mist"
-                />
-                <figcaption className="mt-2 text-center text-[13px] text-slate">Concept rendering</figcaption>
-              </figure>
-            </article>
-          </div>
-        </section>
-
-        <EarlyTesterBanner source="tester-banner" />
         <FAQSection />
+        <EarlyTesterBanner source="tester-banner" />
       </main>
       <Footer />
     </>

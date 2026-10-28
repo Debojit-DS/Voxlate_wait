@@ -72,7 +72,6 @@ export default function Page() {
                     priority
                   />
                 </div>
-                <figcaption className="mt-3 text-center text-[13px] text-slate">Concept rendering</figcaption>
               </figure>
             </div>
           </div>

@@ -103,7 +103,7 @@ export default function PhysicalVersionPage() {
           <div className="page-container">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <h2 id="how-title" className="display-section">How It Works</h2>
-              <p className="text-[14px] text-slate">Proposed interaction · not yet built</p>
+
             </div>
             <div className="mt-10 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:items-start">
               <ol className="grid gap-px overflow-hidden rounded-[8px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">

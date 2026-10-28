@@ -65,7 +65,14 @@ export async function proxyApiRequest(request: Request, env: NodeJS.ProcessEnv =
     }
     const responseHeaders = new Headers(upstream.headers);
     for (const key of ["connection", "keep-alive", "transfer-encoding", "content-encoding", "content-length", "set-cookie", "access-control-allow-origin", "access-control-allow-credentials"]) responseHeaders.delete(key);
-    for (const cookie of upstream.headers.getSetCookie()) responseHeaders.append("Set-Cookie", cookie);
+    for (const cookie of upstream.headers.getSetCookie()) {
+      let cleaned = cookie.replace(/Domain=[^;]+;?\s*/gi, "");
+      if (incoming.protocol !== "https:") {
+        cleaned = cleaned.replace(/Secure;?\s*/gi, "");
+      }
+      cleaned = cleaned.trim().replace(/;\s*$/, "");
+      responseHeaders.append("Set-Cookie", cleaned);
+    }
     responseHeaders.set("Cache-Control", "no-store");
     const noBody = request.method === "HEAD" || [204, 304].includes(upstream.status);
     const responseBody = noBody ? null : await upstream.arrayBuffer();

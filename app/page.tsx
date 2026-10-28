@@ -1,9 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AudioLines } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { WorksOnPlatforms } from "@/components/sections/digital/WorksOnPlatforms";
+import { ProductsSection } from "@/components/sections/ProductsSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
 import { FAQSection } from "@/components/sections/FAQSection";
@@ -45,8 +46,8 @@ export default function Page() {
             </div>
 
             {/* "What is Voxlate?" and device rendering */}
-            <div className="grid items-center gap-8 md:grid-cols-[1.2fr_0.8fr] lg:gap-14">
-              <div>
+            <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr] lg:gap-14">
+              <div className="pt-0.5 md:pt-1">
                 <h3 id="what-title" className="font-display text-[32px] sm:text-[38px] md:text-[42px] leading-tight text-ink font-bold">
                   What is Voxlate?
                 </h3>
@@ -54,6 +55,9 @@ export default function Page() {
                   Voxlate is an AI-powered communication platform designed to eliminate language barriers while preserving
                   the speaker&apos;s natural voice, tone, and emotions. Whether online or face-to-face, the goal is for
                   conversations to feel natural without requiring anyone to learn a new language.
+                </p>
+                <p className="mt-4 max-w-[54ch] text-[16px] sm:text-[17px] md:text-[18px] leading-[1.65] text-slate">
+                  Voxlate is available across two professional form factors: an intuitive <Link href="/digital-version" className="font-semibold text-ink hover:text-primary transition-colors">software platform</Link> for seamless virtual meetings (Zoom, Teams, Google Meet), and an intelligent <Link href="/physical-version" className="font-semibold text-ink hover:text-primary transition-colors">wearable hardware device</Link> for spontaneous face-to-face conversations.
                 </p>
               </div>
               <figure className="mx-auto w-full max-w-[320px] sm:max-w-[360px] md:max-w-[380px]">
@@ -74,8 +78,8 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Works On All Major Platforms */}
-        <WorksOnPlatforms />
+        {/* Our Products */}
+        <ProductsSection />
 
         {/* Voices of Voxlate / Testimonials */}
         <TestimonialsSection />

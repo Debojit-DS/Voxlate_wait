@@ -17,10 +17,10 @@ const PRODUCT_LINKS = [
 ];
 
 const NAV_LINKS = [
-    { label: "Demo", href: "/demo" },
+  { label: "Demo", href: "/demo" },
   { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
-  { label: "Join My Team", href: "/careers" },
+  { label: "Join Our Team", href: "/careers" },
   { label: "Contact", href: "/#contact" },
 ];
 
@@ -135,8 +135,7 @@ export function Navbar() {
   };
 
   const linkClass = (active: boolean) =>
-    `rounded-[8px] px-3 py-2 text-[15px] font-medium transition-colors ${
-      active ? "text-primary" : "text-ink hover:bg-mist"
+    `rounded-[8px] px-3 py-2 text-[15px] font-medium transition-colors ${active ? "text-primary" : "text-ink hover:bg-mist"
     }`;
 
   return (
@@ -323,7 +322,7 @@ export function Navbar() {
               )}
               <Button
                 className="w-full"
-               
+
                 onClick={() => {
                   closeMobile();
                   openWaitlist("navbar");

@@ -16,7 +16,7 @@ export function JoinMyTeamButton({
       icon={ArrowRight}
       className={`w-full max-w-full hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary active:bg-ink active:[&_.ihb-dot]:bg-ink motion-safe:active:translate-y-px motion-reduce:transition-none sm:w-auto ${className}`}
     >
-      Join My Team
+      Join Our Team
     </Button>
   );
 }

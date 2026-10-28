@@ -1,8 +1,8 @@
-# Voxlate — Breaking Language Barriers
+# 🎧⭐ Voxlate — Breaking Language Barriers
 
-![Voxlate Preview](public/images/digital-hero-laptop.png)
+![Voxlate Preview](public\images\landingPage.jpeg)
 
-**Voxlate** is an AI-powered real-time voice translation platform designed to eliminate language barriers while preserving the speaker's original voice, tone, and emotion in both online meetings and real-world conversations.
+Voxlate is an AI-powered real-time voice translation platform designed to eliminate language barriers while preserving the speaker's original voice, tone, and emotion in both online meetings and real-world conversations.
 
 # 🌟 Overview
 

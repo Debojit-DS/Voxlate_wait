@@ -3,10 +3,10 @@ import { Workflow } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { EarlyTesterBanner } from "@/components/sections/EarlyTesterBanner";
-import { UnderlineLink } from "@/components/ui/UnderlineLink";
 import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
 import { Button } from "@/components/ui/Button";
 import { WorksOnPlatforms } from "@/components/sections/digital/WorksOnPlatforms";
+import { DigitalBentoGrid } from "@/components/sections/digital/DigitalBentoGrid";
 
 export const metadata = {
   title: "Digital Version — Voxlate | Breaking Language Barriers",
@@ -26,48 +26,7 @@ const SETUP = [
   { title: "Start a supported session", body: "Start translation for a supported language pair. You speak in yours; the meeting hears theirs." },
 ];
 
-const USE_CASES = [
-  {
-    label: "Business Meeting",
-    photo: "/images/use-case-business.png",
-    alt: "Business meeting use case",
-    caption: "You speak in their language. They speak theirs. Close deals without language barriers.",
-  },
-  {
-    label: "Freelancer & Client",
-    photo: "/images/use-case-freelancer.png",
-    alt: "Freelancer and client use case",
-    caption: "Work with global clients comfortably. Clear communication, better results.",
-  },
-  {
-    label: "HR & Candidate Interview",
-    photo: "/images/use-case-interview.png",
-    alt: "HR and candidate interview use case",
-    caption: "Interview in your language. Candidate answers in theirs. Fair evaluation, no misunderstanding.",
-  },
-  {
-    label: "Student & Teacher",
-    photo: "/images/use-case-student.png",
-    alt: "Student and teacher use case",
-    caption: "Learn in your language, teacher teaches in theirs. Better understanding, better learning.",
-  },
-];
 
-// Original six features with status (REDESIGN_CONTENT_MAP.md C17–C20).
-const FEATURES = [
-  { label: "Real-time AI Translation", status: "Core of the product in development" },
-  { label: "Voice & Tone Preserved", status: "In development — generic voice first; using your own voice will be optional" },
-  { label: "100+ Supported Languages", status: "Long-term goal — Hindi ↔ English pilot first" },
-  { label: "Secure & Private", status: "Design goal" },
-  { label: "Lightweight & Easy to Use", status: "Design goal" },
-  { label: "Works in Background", status: "Planned — runs from the system tray with pause, mute and quit" },
-];
-
-const PRIVACY_POINTS = [
-  "Background translation while a session is running (planned)",
-  "Designed to preserve your original voice, tone & emotion",
-  "Security and privacy are design goals",
-];
 
 export default function DigitalVersionPage() {
   return (
@@ -76,7 +35,7 @@ export default function DigitalVersionPage() {
       <main>
         {/* Hero */}
         <section aria-labelledby="digital-title" className="pt-10 pb-16 sm:pt-12 sm:pb-20 md:pt-16 md:pb-24">
-          <div className="page-container max-w-[1240px] grid items-stretch gap-10 lg:grid-cols-[0.95fr_1.25fr] lg:gap-12 xl:gap-14">
+          <div className="page-container grid items-stretch gap-10 lg:grid-cols-[0.95fr_1.25fr] lg:gap-12 xl:gap-14">
             <div className="flex flex-col justify-between">
               <div>
                 <p className="eyebrow text-[12px] sm:text-[13px] tracking-[0.16em]">Digital Version</p>
@@ -116,6 +75,9 @@ export default function DigitalVersionPage() {
             </div>
           </div>
         </section>
+
+        {/* Bento Grid: Features & Capabilities ("Built for Every Professional Need") */}
+        <DigitalBentoGrid />
 
         {/* How it works */}
         <section aria-labelledby="how-title" className="border-t border-line bg-surface py-16 md:py-24">
@@ -175,64 +137,8 @@ export default function DigitalVersionPage() {
           </div>
         </section>
 
-        {/* Use cases */}
-        <section aria-labelledby="uses-title" className="py-16 md:py-24">
-          <div className="page-container">
-            <h2 id="uses-title" className="display-section">Use Cases</h2>
-            <ul className="mt-10 divide-y divide-line border-y border-line">
-              {USE_CASES.map((u) => (
-                <li key={u.label} className="grid gap-3 py-6 sm:grid-cols-[minmax(180px,0.8fr)_1.4fr] sm:gap-10">
-                  <h3 className="text-[16px] font-medium text-ink">{u.label}</h3>
-                  <p className="max-w-[65ch] text-[16px] leading-relaxed text-slate">{u.caption}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
         {/* Works on all major platforms */}
         <WorksOnPlatforms />
-
-        {/* Built for every professional need */}
-        <section id="features" aria-labelledby="features-title" className="border-t border-line py-16 md:py-24">
-          <div className="page-container grid gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16">
-            <div>
-              <h2 id="features-title" className="display-section">Built for Every Professional Need</h2>
-              <p className="mt-4 text-[15px] text-slate">Each item shows where it stands today.</p>
-            </div>
-            <dl className="divide-y divide-line border-y border-line">
-              {FEATURES.map((f) => (
-                <div key={f.label} className="grid gap-1 py-4 sm:grid-cols-[1fr_1.3fr] sm:gap-6">
-                  <dt className="text-[17px] font-medium text-ink">{f.label}</dt>
-                  <dd className="text-[15px] text-slate">{f.status}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* Privacy */}
-        <section aria-labelledby="privacy-title" className="border-t border-line py-16 md:py-24">
-          <div className="page-container grid gap-10 md:grid-cols-[1fr_1.5fr] md:gap-16">
-            <div>
-              <h2 id="privacy-title" className="display-section">Totally Natural. Private by Design.</h2>
-            </div>
-            <div>
-              <p className="text-[18px] leading-relaxed text-ink">
-                Voxlate is being designed to work alongside the meeting apps you already use.
-              </p>
-              <ul className="mt-6 space-y-3 text-[16px] text-slate">
-                {PRIVACY_POINTS.map((p) => (
-                  <li key={p} className="border-l-2 border-primary pl-4">{p}</li>
-                ))}
-              </ul>
-              <p className="mt-6 text-[15px] text-slate">
-                Using your own voice will be a separate, optional setup step. For how account and demo data is handled
-                today, read the <UnderlineLink href="/privacy" variant="center">Privacy Policy</UnderlineLink>.
-              </p>
-            </div>
-          </div>
-        </section>
 
         <EarlyTesterBanner source="digital-tester-banner" />
       </main>

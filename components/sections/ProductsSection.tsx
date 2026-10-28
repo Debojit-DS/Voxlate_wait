@@ -44,7 +44,7 @@ export function ProductsSection() {
 
               {/* Title */}
               <h3 className="mt-3 font-display text-[22px] sm:text-[25px] md:text-[28px] font-bold leading-snug text-ink">
-                One Meeting. Every Language.
+                Your Meeting. Every Language.
               </h3>
 
               {/* Sub-heading */}

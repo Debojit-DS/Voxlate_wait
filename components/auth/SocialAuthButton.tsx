@@ -16,16 +16,20 @@ const GoogleIcon = () => (
 );
 
 export function SocialAuthButton({ onSuccess }: Props) {
-  const { prompt } = useGoogleSignIn(onSuccess);
+  const { prompt, ready, busy, error } = useGoogleSignIn(onSuccess);
 
   return (
+    <div>
     <button
       type="button"
       onClick={prompt}
-      className="flex w-full items-center justify-center gap-3 rounded-button border border-border bg-white px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-surface-alt"
+      disabled={!ready || busy}
+      className="flex h-12 w-full items-center justify-center gap-3 rounded-[6px] border border-line-strong bg-surface px-4 text-[15px] font-medium text-ink transition-colors hover:bg-mist"
     >
       <GoogleIcon />
-      Continue with Google
+      {busy ? "Signing in…" : "Continue with Google"}
     </button>
+    {error && <p role="alert" className="field-error">{error}</p>}
+    </div>
   );
 }

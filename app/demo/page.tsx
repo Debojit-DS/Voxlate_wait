@@ -1,6 +1,3 @@
-import { DemoHeader, DemoHero, InfoBanner, InfoStrip, FeatureIconsRow, DemoFooter } from "@/components/sections/digital/DemoExperience";
-import { DemoCard } from "@/components/sections/digital/DemoCard";
-import { ReviewBanner } from "@/components/sections/digital/ReviewBanner";
 import DemoPageClient from "./DemoPageClient";
 
 export const dynamic = "force-dynamic";

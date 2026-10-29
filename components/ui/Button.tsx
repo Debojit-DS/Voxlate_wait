@@ -1,41 +1,78 @@
-import { type ComponentType } from "react";
+import { type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
 
 type ButtonProps = {
-  variant: "primary-orange" | "primary-navy" | "outline-navy" | "outline-on-navy" | "primary-demo";
-  children: React.ReactNode;
-  icon?: ComponentType<{ size?: number }>;
+  /** primary: clean solid primary button with subtle darkening on hover. */
+  variant?: "primary" | "secondary" | "quiet" | "primary-demo";
+  children: ReactNode;
+  icon?: ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
   onClick?: () => void;
   type?: "button" | "submit";
   disabled?: boolean;
+  /** Shows a stable busy state and blocks repeat activation. */
+  loading?: boolean;
+  /** Reference `wide` option: a wider minimum, capped to the container on small screens. */
+  wide?: boolean;
+  size?: "md" | "sm";
   className?: string;
   href?: string;
 };
 
-export function Button({ variant, children, icon: Icon, onClick, type = "button", disabled, className = "", href }: ButtonProps) {
-  const base = "inline-flex items-center justify-center gap-2 rounded-button px-6 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap select-none " +
+  "transition-all duration-200 disabled:cursor-not-allowed aria-disabled:cursor-not-allowed cursor-pointer";
 
-  const variants = {
-    "primary-orange": "bg-orange text-white hover:bg-orange-hover",
-    "primary-navy": "bg-navy-cta text-white hover:bg-navy-cta/90",
-    "outline-navy": "border border-border text-text-primary bg-transparent hover:bg-bg-surface-alt",
-    "outline-on-navy": "border border-text-on-navy/30 text-text-on-navy bg-transparent hover:bg-white/10",
-    "primary-demo": "bg-gradient-to-r from-[#2b73e6] to-[#22baeb] text-white hover:opacity-90",
-  };
+const sizes = {
+  md: "h-12 text-[15px]",
+  sm: "h-10 text-sm",
+};
+
+const variants = {
+  primary:
+    "bg-primary text-white hover:bg-primary-hover shadow-xs hover:shadow-sm active:translate-y-px disabled:opacity-60 aria-disabled:opacity-60",
+  secondary:
+    "border border-line-strong bg-surface text-ink hover:bg-mist hover:border-primary disabled:opacity-60",
+  quiet: "text-ink hover:bg-mist disabled:opacity-60",
+  "primary-demo":
+    "bg-gradient-to-r from-[#3B82F6] to-[#06B6D4] text-white hover:opacity-90 font-semibold shadow-lg shadow-blue-500/25 disabled:opacity-60",
+};
+
+export function Button({
+  variant = "primary",
+  children,
+  icon: Icon,
+  onClick,
+  type = "button",
+  disabled,
+  loading,
+  wide,
+  size = "md",
+  className = "",
+  href,
+}: ButtonProps) {
+  const inactive = disabled || loading;
+  const classes = `${base} ${sizes[size]} ${variants[variant]} ${variant === "primary" ? "px-7 sm:px-8" : size === "md" ? "px-6" : "px-4"} ${
+    wide ? "min-w-56 max-w-full" : ""
+  } ${className}`;
+
+  const content = (
+    <>
+      {children}
+      {Icon && <Icon size={16} aria-hidden />}
+    </>
+  );
 
   if (href) {
     return (
-      <Link href={href} className={`${base} ${variants[variant]} ${className}`}>
-        {children}
-        {Icon && <Icon size={16} />}
+      <Link href={href} aria-disabled={inactive} className={classes}>
+        {content}
       </Link>
     );
   }
 
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>
-      {children}
-      {Icon && <Icon size={16} />}
+    <button type={type} onClick={onClick} disabled={inactive} aria-busy={loading} className={classes}>
+      {content}
     </button>
   );
 }

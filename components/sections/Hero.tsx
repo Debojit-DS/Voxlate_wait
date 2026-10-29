@@ -1,65 +1,99 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { ArrowRight, Users, Play } from "lucide-react";
+import Link from "next/link";
+import { Sparkle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
-import { useDemoTransition } from "@/components/transitions/useDemoTransition";
-import { TutorialModal } from "@/components/waitlist/TutorialModal";
+import styles from "./Hero.module.css";
+
+const WAVE_BARS = [14, 22, 36, 18, 42, 28, 52, 38, 20, 48, 32, 56, 40, 24, 46, 30, 50, 26, 40, 22, 34, 18];
 
 export function Hero() {
   const { openWaitlist } = useGatedWaitlist();
-  const { goToDemo } = useDemoTransition();
-  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   return (
-    <section id="home" className="bg-bg-page pt-12 pb-16 md:pt-16 md:pb-20">
-      <div className="mx-auto max-w-[1200px] px-6 md:px-8">
-        <div className="grid items-center gap-12 md:grid-cols-2">
-          <div className="max-w-xl">
-            <div className="mb-4">
-              <h1 className="text-4xl font-bold leading-tight text-text-primary md:text-5xl">
-                Breaking Language Barriers.
-              </h1>
-              <h2 className="mt-2 text-2xl font-bold text-text-primary md:text-3xl">
-                Speak Naturally. Hear Every Language.
-              </h2>
-            </div>
-            <p className="mt-4 text-base text-text-secondary md:text-lg">
-              Real-time AI translation that preserves your original voice, tone and emotion.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button variant="primary-orange" onClick={() => openWaitlist("hero")} icon={ArrowRight}>
-                Join Waitlist
-              </Button>
-              <Button variant="primary-demo" onClick={goToDemo}>
-                View Our Demo
-              </Button>
-              <Button variant="outline-navy" onClick={() => setIsTutorialOpen(true)} icon={Play}>
-                Watch Tutorial
-              </Button>
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-text-muted">
-              <Users size={16} />
-              <p className="text-sm">
-                Join the waitlist today and get a chance to become one of our early product testers before the official launch.
-              </p>
-            </div>
-          </div>
-          <div>
-            <Image
-              src="/images/hero-laptop.png"
-              alt="AI translation interface on a laptop"
-              width={600}
-              height={400}
-              className="w-full max-w-[600px] h-auto object-contain"
-              loading="eager"
+    <section aria-labelledby="hero-title" className={styles.hero}>
+      {/* Background ambient audio waveform visual */}
+      <svg
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1440px] h-full max-h-[520px] opacity-[0.14] select-none"
+        viewBox="0 0 1200 400"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 200 C 150 110, 260 290, 400 200 C 540 110, 660 290, 800 200 C 940 110, 1060 290, 1200 200"
+          stroke="var(--color-primary, #285A78)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M0 200 C 180 270, 290 130, 450 200 C 610 270, 730 130, 900 200 C 1040 260, 1140 150, 1200 200"
+          stroke="#06B6D4"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeDasharray="6 6"
+        />
+        <path
+          d="M0 200 C 210 150, 320 250, 520 200 C 720 150, 820 250, 1020 200 C 1110 175, 1160 220, 1200 200"
+          stroke="var(--color-primary, #285A78)"
+          strokeWidth="1.5"
+          strokeOpacity="0.5"
+        />
+      </svg>
+
+      <div className={`page-container ${styles.content}`}>
+        {/* Eyebrow badge */}
+        <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/90 px-3.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-xs mb-6 sm:mb-8">
+          <Sparkle size={13} className="text-primary shrink-0" aria-hidden="true" />
+          <span className="text-[12px] sm:text-[13px] font-semibold text-primary tracking-wide">
+            AI-Powered Voice Translation
+          </span>
+        </div>
+
+        {/* Large serif headline */}
+        <h1 id="hero-title" className={`${styles.title} font-display font-normal text-ink`}>
+          <span className="block">Speak your language.</span>
+          <span className="block mt-1 sm:mt-2">Connect without borders.</span>
+        </h1>
+
+        {/* Supporting description (two distinct lines) */}
+        <div className={`${styles.description} text-slate font-normal`}>
+          <p className="block">Connect with anyone, in any language, through real-time AI translation.</p>
+          <p className="block mt-1 sm:mt-1.5">Keep the voice, tone, and emotion that make every conversation yours.</p>
+        </div>
+
+        {/* Subtle audio waveform visual */}
+        <div className={styles.waveformContainer} aria-hidden="true">
+          {WAVE_BARS.map((h, i) => (
+            <span
+              key={i}
+              className={styles.waveBar}
+              style={{
+                height: `${h}px`,
+                animationDelay: `${(i * 0.08).toFixed(2)}s`,
+              }}
             />
-          </div>
+          ))}
+        </div>
+
+        {/* Prominent CTA buttons */}
+        <div className={styles.actions}>
+          <Button
+            onClick={() => openWaitlist("hero")}
+            wide
+            className="!h-13 sm:!h-14 !px-8 sm:!px-10 !text-[16px] sm:!text-[17px] !rounded-[10px] shadow-md shadow-primary/15 transition-transform hover:-translate-y-0.5"
+          >
+            Join the Waitlist
+          </Button>
+          <Link
+            href="/demo"
+            className="inline-flex h-13 sm:h-14 items-center justify-center rounded-[10px] border-2 border-primary bg-surface/90 px-8 sm:px-10 text-[16px] sm:text-[17px] font-semibold text-primary transition-all duration-200 hover:bg-mist/80 hover:text-primary-hover hover:border-primary-hover hover:-translate-y-0.5 select-none whitespace-nowrap no-underline shadow-xs"
+          >
+            Experience the Demo
+          </Link>
         </div>
       </div>
-      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
     </section>
   );
 }

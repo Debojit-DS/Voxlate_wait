@@ -1,34 +1,40 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { loginUser } from "@/lib/authApi";
 import { loginSchema, type LoginFormValues } from "@/lib/authValidation";
+import { safeRedirect } from "@/lib/safeRedirect";
 import { Button } from "@/components/ui/Button";
 import { AuthFormError } from "@/components/auth/AuthFormError";
-import { Footer } from "@/components/layout/Footer";
-import { Logo } from "@/components/ui/Logo";
+import { AuthShell, AuthStatus } from "@/components/auth/AuthShell";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  const redirectTo = searchParams.get("redirectTo") || "/";
+  const redirectTo = safeRedirect(searchParams.get("redirectTo"));
   const queryString = searchParams.toString();
+  const errorParam = searchParams.get("error");
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -36,9 +42,56 @@ export default function LoginForm() {
     mode: "onBlur",
   });
 
+  useEffect(() => {
+    if (errorParam) {
+      if (errorParam === "AccessDenied") {
+        setFormError("Google sign-in was cancelled or access was denied.");
+      } else if (errorParam === "OAuthCallback" || errorParam === "OAuthSignin") {
+        setFormError("Could not authenticate with Google. Please try again.");
+      } else {
+        setFormError("Authentication error. Please try again.");
+      }
+    }
+  }, [errorParam]);
+
+  useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem("voxlate_remember_email");
+      if (savedEmail) {
+        setValue("email", savedEmail);
+        setRememberMe(true);
+      }
+    } catch {
+      // Ignore localStorage availability errors
+    }
+  }, [setValue]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      setFormError(null);
+      await signIn("google", { callbackUrl: redirectTo || "/" });
+    } catch (err) {
+      console.error("Google signIn error:", err);
+      setFormError("Failed to connect to Google. Please try again.");
+      setGoogleLoading(false);
+    }
+  };
+
   async function onSubmit(values: LoginFormValues) {
     setIsSubmitting(true);
     setFormError(null);
+
+    try {
+      if (rememberMe) {
+        localStorage.setItem("voxlate_remember_email", values.email);
+      } else {
+        localStorage.removeItem("voxlate_remember_email");
+      }
+    } catch {
+      // Ignore localStorage error
+    }
+
     const result = await loginUser(values);
     setIsSubmitting(false);
 
@@ -55,112 +108,152 @@ export default function LoginForm() {
     }
   }
 
-  if (success) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="w-full max-w-[420px] text-center">
-            <div className="text-success mb-4">
-              <svg className="mx-auto" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-text-primary">Signed in</h2>
-            <p className="mt-2 text-text-secondary text-sm">Redirecting you...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  if (success) return <AuthStatus title="Signed in" message="Redirecting you..." />;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="w-full px-6 py-6">
-        <div className="mx-auto max-w-[1200px] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Logo className="h-16 w-auto" />
-            <div className="leading-none">
-              <span className="block text-3xl font-bold tracking-tight text-text-primary">VOXLATE</span>
-              <span className="block text-xs font-medium uppercase tracking-widest text-text-muted">Breaking Language Barriers</span>
-            </div>
+    <AuthShell
+      title="Welcome Back"
+      subtitle="Sign in to access your account"
+      icon={
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary shadow-xs">
+          <Lock className="h-6 w-6 text-primary" strokeWidth={2} />
+        </div>
+      }
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-busy={isSubmitting || googleLoading} noValidate>
+        {formError && <AuthFormError message={formError} />}
+
+        {/* Email Address */}
+        <div>
+          <label htmlFor="email" className="block text-[13px] font-medium text-ink mb-1.5">
+            Email Address
+          </label>
+          <div className="relative">
+            <Mail
+              size={18}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate/70"
+              aria-hidden="true"
+            />
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              aria-invalid={errors.email ? true : undefined}
+              className="w-full h-11 sm:h-12 rounded-[10px] border border-line bg-surface pl-10 pr-4 text-[14px] sm:text-[15px] text-ink placeholder:text-slate/40 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              {...register("email")}
+            />
           </div>
-          <Link href="/" className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary">
-            <ArrowLeft size={16} />
-            Back to Home
+          {errors.email?.message && (
+            <p className="mt-1 text-[12px] text-danger">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Password */}
+        <div>
+          <label htmlFor="password" className="block text-[13px] font-medium text-ink mb-1.5">
+            Password
+          </label>
+          <div className="relative">
+            <Lock
+              size={18}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate/70"
+              aria-hidden="true"
+            />
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              aria-invalid={errors.password ? true : undefined}
+              className="w-full h-11 sm:h-12 rounded-[10px] border border-line bg-surface pl-10 pr-11 text-[14px] sm:text-[15px] text-ink placeholder:text-slate/40 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate/70 hover:text-ink transition-colors cursor-pointer rounded-md"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
+            </button>
+          </div>
+          {errors.password?.message && (
+            <p className="mt-1 text-[12px] text-danger">{errors.password.message}</p>
+          )}
+        </div>
+
+        {/* Remember me & Forgot password */}
+        <div className="flex items-center justify-between text-[13px] pt-0.5">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-slate hover:text-ink transition-colors">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-line text-primary focus:ring-primary/30 accent-primary cursor-pointer"
+            />
+            <span>Remember me</span>
+          </label>
+          <a
+            href="mailto:support@voxlate.com?subject=Password%20Reset%20Request"
+            className="font-medium text-primary hover:text-primary-hover transition-colors"
+          >
+            Forgot password?
+          </a>
+        </div>
+
+        {/* Sign In Button */}
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full h-11 sm:h-12 rounded-[10px] bg-primary hover:bg-primary-hover text-white text-[15px] font-medium shadow-xs transition-all cursor-pointer flex items-center justify-center"
+            loading={isSubmitting}
+            disabled={googleLoading}
+          >
+            {isSubmitting ? "Signing in..." : "Sign In"}
+          </Button>
+        </div>
+
+        {/* Don't have an account */}
+        <p className="text-center text-[13.5px] text-slate pt-1">
+          Don&apos;t have an account?{" "}
+          <Link
+            href={`/signup${queryString ? `?${queryString}` : ""}`}
+            className="font-semibold text-primary hover:text-primary-hover transition-colors"
+          >
+            Sign up
           </Link>
-        </div>
-      </header>
+        </p>
 
-      <main className="flex-1 flex items-center justify-center px-6 py-8">
-        <div className="w-full max-w-[420px]">
-          <div className="rounded-card bg-surface p-8 shadow-sm border border-border">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold text-text-primary">Welcome Back</h1>
-              <p className="mt-2 text-text-secondary text-sm">Login to access your Voxlate account.</p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" aria-busy={isSubmitting}>
-              {formError && <AuthFormError message={formError} />}
-
-              <div>
-                <label htmlFor="email" className="sr-only">Email Address</label>
-                <div className="relative">
-                  <Mail size={18} className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2" />
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Email Address"
-                    className={`border rounded-input h-12 w-full bg-white pl-10 pr-4 text-sm outline-none transition-colors focus:border-orange focus:ring-2 focus:ring-orange/15 ${errors.email ? "border-danger" : "border-border"}`}
-                    {...register("email")}
-                  />
-                </div>
-                {errors.email && <p className="text-danger mt-1 text-sm">{errors.email.message}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="sr-only">Password</label>
-                <div className="relative">
-                  <Lock size={18} className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2" />
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    className={`border rounded-input h-12 w-full bg-white pr-11 pl-10 text-sm outline-none transition-colors focus:border-orange focus:ring-2 focus:ring-orange/15 ${errors.password ? "border-danger" : "border-border"}`}
-                    {...register("password")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-text-muted absolute top-1/2 right-3 -translate-y-1/2"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {errors.password && <p className="text-danger mt-1 text-sm">{errors.password.message}</p>}
-              </div>
-
-              <Button variant="primary-navy" type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Logging in..." : "Log In"}
-              </Button>
-
-              <p className="text-center text-sm text-text-secondary mt-6">
-                Don&apos;t have an account?{" "}
-                <Link 
-                  href={`/signup${queryString ? `?${queryString}` : ""}`} 
-                  className="text-orange font-semibold hover:underline"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </form>
+        {/* OR Divider */}
+        <div className="relative my-4 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-line/80" />
           </div>
+          <span className="relative bg-surface px-3 text-[11px] font-semibold uppercase tracking-wider text-slate/70">
+            OR
+          </span>
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        {/* Google OAuth 2.0 Sign In */}
+        <div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading || isSubmitting}
+            className="flex h-11 sm:h-12 w-full items-center justify-center gap-3 rounded-[10px] border border-line bg-surface px-4 text-[14px] sm:text-[15px] font-medium text-ink transition-all duration-200 hover:bg-mist hover:border-line-strong/60 shadow-xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Image
+              src="/images/google-logo.png"
+              alt="Google logo"
+              width={20}
+              height={20}
+              className="h-5 w-5 object-contain"
+            />
+            <span>{googleLoading ? "Redirecting to Google…" : "Continue with Google"}</span>
+          </button>
+        </div>
+      </form>
+    </AuthShell>
   );
 }

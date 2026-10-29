@@ -1,0 +1,84 @@
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100svh - 72px);
+  padding-block: clamp(36px, 5svh, 60px);
+  overflow-x: clip;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  max-inline-size: 100%;
+  font-size: clamp(2.5rem, 5.8vw, 6.1875rem);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  overflow-wrap: normal;
+}
+
+.description {
+  max-inline-size: min(100%, 72ch);
+  margin: clamp(20px, 3svh, 30px) auto 0;
+  font-size: clamp(17px, 1.35vw, 21px);
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: clamp(16px, 2.5vw, 28px);
+  row-gap: 14px;
+  margin-block-start: clamp(28px, 4svh, 42px);
+}
+
+.waveformContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-block-start: clamp(24px, 3.5svh, 36px);
+  padding-block: 4px;
+}
+
+.waveBar {
+  width: 3.5px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, var(--color-primary), #487d9f);
+  transform-origin: center;
+  animation: heroWavePulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes heroWavePulse {
+  0% {
+    transform: scaleY(0.35);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scaleY(0.45);
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waveBar {
+    animation: none;
+    opacity: 0.6;
+  }
+}

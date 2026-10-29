@@ -3,7 +3,6 @@
 import { motion, type Variants } from "framer-motion";
 import { DemoHeader, DemoHero, InfoBanner, InfoStrip, FeatureIconsRow, DemoFooter } from "@/components/sections/digital/DemoExperience";
 import { DemoCard } from "@/components/sections/digital/DemoCard";
-import { ReviewBanner } from "@/components/sections/digital/ReviewBanner";
 
 const pageVariants: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -31,7 +30,6 @@ export default function DemoPageClient() {
         <InfoBanner />
         <InfoStrip />
         <DemoCard />
-        <ReviewBanner />
         <FeatureIconsRow />
       </main>
       <DemoFooter />

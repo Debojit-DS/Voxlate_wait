@@ -47,7 +47,7 @@ export function DemoHeader() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            {["Home", "Digital Version", "Physical Version", "About Us", "Careers"].map((link) => (
+            {["Digital Version", "Physical Version", "About Us", "Careers"].map((link) => (
               <Link
                 key={link}
                 href={link === "Home" ? "/" : `/${link.toLowerCase().replace(" ", "-")}`}
@@ -440,3 +440,4 @@ export function DemoFooter() {
     </footer>
   );
 }
+

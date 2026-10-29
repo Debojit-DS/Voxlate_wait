@@ -185,212 +185,212 @@ export default function CareersPage() {
             </p>
           </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
-            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Candidate Profile & Academic Background</h2>
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={form.fullName}
-                  onChange={update("fullName")}
-                  placeholder="e.g., Jane Doe"
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                />
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-2">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+              <h2 className="text-lg font-semibold text-[#001b44] mb-6">Candidate Profile & Academic Background</h2>
+              <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Email Address *</label>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={update("email")}
-                    placeholder="jane@example.com"
-                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Contact Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={form.phone}
-                    onChange={update("phone")}
-                    placeholder="Enter your contact number"
-                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-3">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">College / University *</label>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Full Name *</label>
                   <input
                     type="text"
                     required
-                    value={form.college}
-                    onChange={update("college")}
-                    placeholder="Enter your institution"
+                    value={form.fullName}
+                    onChange={update("fullName")}
+                    placeholder="e.g., Jane Doe"
                     className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Current Year *</label>
-                  <select
-                    required
-                    value={form.year}
-                    onChange={update("year")}
-                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                  >
-                    <option value="">Select year</option>
-                    {YEARS.map((y) => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={update("email")}
+                      placeholder="jane@example.com"
+                      className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Contact Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={form.phone}
+                      onChange={update("phone")}
+                      placeholder="Enter your contact number"
+                      className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-3">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-[#141d23] mb-1.5">College / University *</label>
+                    <input
+                      type="text"
+                      required
+                      value={form.college}
+                      onChange={update("college")}
+                      placeholder="Enter your institution"
+                      className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Current Year *</label>
+                    <select
+                      required
+                      value={form.year}
+                      onChange={update("year")}
+                      className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                    >
+                      <option value="">Select year</option>
+                      {YEARS.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
-            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Role Selection & Core Capabilities</h2>
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Which Role are you applying for? *</label>
-                <select
-                  required
-                  value={form.role}
-                  onChange={update("role")}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                >
-                  <option value="">Select a role</option>
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+              <h2 className="text-lg font-semibold text-[#001b44] mb-6">Role Selection & Core Capabilities</h2>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Which Role are you applying for? *</label>
+                  <select
+                    required
+                    value={form.role}
+                    onChange={update("role")}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  >
+                    <option value="">Select a role</option>
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What are your strongest skills? *</label>
-                <p className="text-xs text-[#44474f] mb-1.5">Technical, creative, communication, marketing, leadership, etc.</p>
-                <textarea
-                  required
-                  value={form.skills}
-                  onChange={update("skills")}
-                  placeholder="e.g., Python, Next.js, Fast-API, Hardware Prototyping, Growth Strategy, Pitch Presentations..."
-                  rows={4}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
-            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Motivation, Vision & Track Record</h2>
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Why do you want to join Voxlate, and what interests you about this role? *</label>
-                <textarea
-                  required
-                  value={form.motivation}
-                  onChange={update("motivation")}
-                  placeholder="Tell us what excites you about building wearable real-time voice translation and how you see yourself contributing..."
-                  rows={4}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">
-                  Tell us about one project, achievement, experience, or initiative you&apos;re proud of.
-                </label>
-                <p className="text-xs text-[#44474f] mb-1.5">Optional, but highly recommended. Include technical depth, links, metrics, or personal impact.</p>
-                <textarea
-                  value={form.project}
-                  onChange={update("project")}
-                  placeholder="Describe the problem, your solution, technologies/strategies used, and the measurable outcome..."
-                  rows={4}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">If you joined Voxlate, what is one idea or improvement you would bring to the company? *</label>
-                <textarea
-                  required
-                  value={form.ideas}
-                  onChange={update("ideas")}
-                  placeholder="A product feature, technical optimization, marketing strategy, or internal workflow improvement..."
-                  rows={3}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What makes you different from other candidates, and why should we choose you? *</label>
-                <textarea
-                  required
-                  value={form.differentiator}
-                  onChange={update("differentiator")}
-                  placeholder="Highlight your unique edge, grit, fast-learning ability, or domain expertise..."
-                  rows={3}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What are your strongest skills? *</label>
+                  <p className="text-xs text-[#44474f] mb-1.5">Technical, creative, communication, marketing, leadership, etc.</p>
+                  <textarea
+                    required
+                    value={form.skills}
+                    onChange={update("skills")}
+                    placeholder="e.g., Python, Next.js, Fast-API, Hardware Prototyping, Growth Strategy, Pitch Presentations..."
+                    rows={4}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
-            <h2 className="text-lg font-semibold text-[#001b44] mb-6">Portfolios & Links</h2>
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Resume/CV (PDF) *</label>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  required
-                  onChange={update("resume")}
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                />
-                <p className="text-xs text-[#44474f] mt-1">Upload your resume in PDF format. Max size: 10MB.</p>
-              </div>
+            <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+              <h2 className="text-lg font-semibold text-[#001b44] mb-6">Motivation, Vision & Track Record</h2>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Why do you want to join Voxlate, and what interests you about this role? *</label>
+                  <textarea
+                    required
+                    value={form.motivation}
+                    onChange={update("motivation")}
+                    placeholder="Tell us what excites you about building wearable real-time voice translation and how you see yourself contributing..."
+                    rows={4}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Portfolio / GitHub / LinkedIn URLs *</label>
-                <input
-                  type="text"
-                  required
-                  value={form.links}
-                  onChange={update("links")}
-                  placeholder="https://github.com/... | https://linkedin.com/in/..."
-                  className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">
+                    Tell us about one project, achievement, experience, or initiative you&apos;re proud of.
+                  </label>
+                  <p className="text-xs text-[#44474f] mb-1.5">Optional, but highly recommended. Include technical depth, links, metrics, or personal impact.</p>
+                  <textarea
+                    value={form.project}
+                    onChange={update("project")}
+                    placeholder="Describe the problem, your solution, technologies/strategies used, and the measurable outcome..."
+                    rows={4}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">If you joined Voxlate, what is one idea or improvement you would bring to the company? *</label>
+                  <textarea
+                    required
+                    value={form.ideas}
+                    onChange={update("ideas")}
+                    placeholder="A product feature, technical optimization, marketing strategy, or internal workflow improvement..."
+                    rows={3}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">What makes you different from other candidates, and why should we choose you? *</label>
+                  <textarea
+                    required
+                    value={form.differentiator}
+                    onChange={update("differentiator")}
+                    placeholder="Highlight your unique edge, grit, fast-learning ability, or domain expertise..."
+                    rows={3}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)] resize-none"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              {error}
+            <div className="rounded-2xl border border-[#c5c6d0] bg-white p-6 md:p-10">
+              <h2 className="text-lg font-semibold text-[#001b44] mb-6">Portfolios & Links</h2>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Resume/CV (PDF) *</label>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    required
+                    onChange={update("resume")}
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  />
+                  <p className="text-xs text-[#44474f] mt-1">Upload your resume in PDF format. Max size: 10MB.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#141d23] mb-1.5">Portfolio / GitHub / LinkedIn URLs *</label>
+                  <input
+                    type="text"
+                    required
+                    value={form.links}
+                    onChange={update("links")}
+                    placeholder="https://github.com/... | https://linkedin.com/in/..."
+                    className="w-full rounded-md border border-[#c5c6d0] bg-white px-4 py-2.5 text-sm text-[#141d23] outline-none transition-colors focus:border-[#0059bb] focus:shadow-[0_0_0_3px_rgba(0,89,187,0.15)]"
+                  />
+                </div>
+              </div>
             </div>
-          )}
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="h-12 min-w-[240px] rounded-md bg-[#001b44] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002966] disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Submitting your application..." : "Submit Application →"}
-            </button>
-          </div>
-        </form>
+            {error && (
+              <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-12 min-w-[240px] rounded-md bg-[#001b44] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002966] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting your application..." : "Submit Application →"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  </CareersGate>
+    </CareersGate>
   );
 }

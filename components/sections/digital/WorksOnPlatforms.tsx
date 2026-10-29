@@ -1,48 +1,109 @@
 import Image from "next/image";
 
-const PLATFORMS = [
-  { name: "zoom", image: "/images/platforms/zoom.svg" },
-  { name: "Google Meet", image: "/images/platforms/google-meet.webp", large: true },
-  { name: "Microsoft Teams", image: "/images/platforms/microsoft-teams.webp", label: "Microsoft Teams" },
-  { name: "webex", image: "/images/platforms/webex.svg", subtitle: "by Cisco", large: true },
-  { name: "GoTo Meeting", image: "/images/platforms/goto-meeting.svg", label: "GoTo Meeting" },
+interface PlatformItem {
+  name: string;
+  image?: string;
+  label?: string;
+  isGoTo?: boolean;
+  width?: number;
+  height?: number;
+  imageClass?: string;
+}
+
+const PLATFORMS: PlatformItem[] = [
+  {
+    name: "Zoom",
+    image: "/images/platforms/zoom.svg",
+    imageClass: "h-7 w-24",
+  },
+  {
+    name: "Google Meet",
+    image: "/images/platforms/google-meet.webp",
+    imageClass: "h-6.5 w-28",
+  },
+  {
+    name: "Microsoft Teams",
+    image: "/images/platforms/microsoft-teams.webp",
+    label: "Microsoft Teams",
+    imageClass: "h-7 w-7",
+  },
+  {
+    name: "Webex",
+    image: "/images/platforms/webex.svg",
+    imageClass: "h-7 w-28",
+  },
+  {
+    name: "GoTo Meeting",
+    image: "/images/platforms/goto-meeting.svg",
+    label: "GoTo Meeting",
+    isGoTo: true,
+    imageClass: "h-6 w-6",
+  },
 ];
 
 export function WorksOnPlatforms() {
   return (
-    <section className="bg-bg-page py-10 md:py-12">
+    <section aria-labelledby="platforms-heading" className="border-t border-line bg-page pt-14 pb-8 md:pt-16 md:pb-10">
       <div className="mx-auto max-w-[1200px] px-6 md:px-8">
-        <h2 className="text-center text-xl md:text-2xl font-bold text-text-primary mb-10">
-          WORKS ON ALL MAJOR PLATFORMS
+        <h2
+          id="platforms-heading"
+          className="text-center font-display text-[34px] sm:text-[42px] md:text-[50px] leading-[1.08] text-ink font-normal tracking-tight"
+        >
+          Works on All Major Platforms
         </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+
+        <div className="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
           {PLATFORMS.map((platform) => (
             <div
               key={platform.name}
-              className="bg-bg-surface-alt border border-border rounded-card flex items-center justify-center gap-2 p-3 min-h-[100px]"
+              className="flex h-[88px] md:h-[96px] items-center justify-center rounded-[12px] border border-line bg-surface p-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-line-strong hover:shadow-xs"
             >
-              <div className="relative shrink-0" style={{ width: platform.large ? '96px' : '56px', height: platform.large ? '96px' : '56px' }}>
-                <Image src={platform.image} alt={platform.name} fill className="object-contain" />
-              </div>
-              {platform.label && platform.name === "GoTo Meeting" && (
-                <span className="text-xs md:text-sm text-text-primary whitespace-nowrap">
-                  <span className="font-bold">GoTo</span> Meeting
-                </span>
-              )}
-              {platform.label && platform.name !== "GoTo Meeting" && (
-                <span className="text-xs md:text-sm font-medium text-text-primary whitespace-nowrap">{platform.label}</span>
+              {platform.label ? (
+                <div className="flex items-center gap-2">
+                  <div className={`relative shrink-0 ${platform.imageClass || "h-7 w-7"}`}>
+                    <Image
+                      src={platform.image!}
+                      alt={platform.name}
+                      fill
+                      sizes="60px"
+                      className="object-contain"
+                    />
+                  </div>
+                  {platform.isGoTo ? (
+                    <span className="text-[13px] md:text-[14px] text-ink whitespace-nowrap">
+                      <strong className="font-bold">GoTo</strong> Meeting
+                    </span>
+                  ) : (
+                    <span className="text-[13px] md:text-[14px] font-semibold text-ink whitespace-nowrap">
+                      {platform.label}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className={`relative shrink-0 ${platform.imageClass || "h-7 w-24"}`}>
+                  <Image
+                    src={platform.image!}
+                    alt={platform.name}
+                    fill
+                    sizes="120px"
+                    className="object-contain"
+                  />
+                </div>
               )}
             </div>
           ))}
-          <div className="bg-bg-surface-alt border border-border rounded-card flex flex-col items-center justify-center p-4 min-h-[100px]">
-            <span className="text-sm font-semibold text-text-primary">&amp; More</span>
-            <span className="text-xs text-text-muted">Coming Soon</span>
+
+          <div className="flex h-[88px] md:h-[96px] flex-col items-center justify-center rounded-[12px] border border-line bg-surface p-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-line-strong hover:shadow-xs">
+            <span className="text-[13px] md:text-[14px] font-bold text-ink">&amp; More</span>
+            <span className="text-[11px] md:text-[12px] font-medium text-slate">Coming Soon</span>
           </div>
         </div>
-        <p className="mt-6 text-center text-sm text-text-secondary">
+
+        <p className="mt-8 text-center text-[18px] sm:text-[19px] md:text-[20px] leading-[1.7] text-slate max-w-[64ch] mx-auto">
           Seamless integration. No bots. No extra links. Just install and start your meeting.
         </p>
       </div>
     </section>
   );
 }
+

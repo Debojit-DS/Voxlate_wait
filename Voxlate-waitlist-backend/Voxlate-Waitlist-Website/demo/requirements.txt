@@ -1,8 +1,0 @@
-groq
-dotenv
-fish-audio-sdk
-websockets 
-fastapi 
-uvicorn[standard]
-python-dotenv
-motor

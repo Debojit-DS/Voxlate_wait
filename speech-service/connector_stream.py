@@ -100,19 +100,24 @@ async def websocket_endpoint(ws: WebSocket):
             email = claims["email"]
 
         legacy = await users_collection.find_one({"email": email})
+        logger.info(f"Demo auth: identity={identity}, email={email}, legacy_count={(legacy or {}).get('count', 0)}")
         await users_collection.update_one({"_id": identity}, {"$setOnInsert": {
             "email": email, "count": (legacy or {}).get("count", 0), "ref_id": (legacy or {}).get("ref_id")
         }}, upsert=True)
         await ws.send_text("permitted")
         audio_data = await asyncio.wait_for(ws.receive_bytes(), 15)
         language_message = await asyncio.wait_for(ws.receive_text(), 5)
+        logger.info(f"Demo: audio_bytes={len(audio_data) if audio_data else 0}, lang_msg={language_message}")
         if not audio_data or len(audio_data) > MAX_AUDIO_BYTES or not language_message.startswith("lang: "):
+            logger.warning("Demo: audio or language validation failed")
             return await status_and_close(ws, "error")
         target_lang = language_message[6:]
         if target_lang not in LANGUAGES:
+            logger.warning(f"Demo: unsupported language {target_lang}")
             return await status_and_close(ws, "error")
         user = await users_collection.find_one_and_update(
             {"_id": identity, "count": {"$lt": 5}}, {"$inc": {"count": 1}}, return_document=ReturnDocument.AFTER)
+        logger.info(f"Demo: user lookup result: {user}")
         if not user:
             return await status_and_close(ws, "denied")
         reserved = True
@@ -121,19 +126,30 @@ async def websocket_endpoint(ws: WebSocket):
             output_filename = str(Path(directory) / "output.wav")
             Path(filename).write_bytes(audio_data)
             async with asyncio.timeout(80):
+                logger.info(f"Demo: starting transcription for {filename}")
                 transcript = await asyncio.to_thread(transcribe_audio_groq, filename)
+                logger.info(f"Demo: transcription result: {transcript}")
                 if not transcript or not isinstance(transcript.get("text"), str) or not transcript["text"].strip():
+                    logger.warning("Demo: transcription failed")
                     return await status_and_close(ws, "error")
+                logger.info(f"Demo: starting translation to {target_lang}")
                 translated = await asyncio.to_thread(translate_text_groq, transcript["text"], target_lang)
+                logger.info(f"Demo: translation result: {translated}")
                 if not isinstance(translated, str) or not translated.strip():
+                    logger.warning("Demo: translation failed")
                     return await status_and_close(ws, "error")
                 ref_id = user.get("ref_id")
                 if not ref_id:
+                    logger.info(f"Demo: onboarding voice for {filename}")
                     ref_id = await asyncio.to_thread(onboard_user_voice, filename)
+                    logger.info(f"Demo: voice onboarding result: {ref_id}")
                     if not ref_id:
+                        logger.warning("Demo: voice onboarding failed")
                         return await status_and_close(ws, "error")
                     await users_collection.update_one({"_id": identity}, {"$set": {"ref_id": ref_id}})
+                logger.info(f"Demo: generating TTS for output {output_filename}")
                 output = await asyncio.to_thread(generate_live_tts, translated, ref_id, output_filename)
+                logger.info(f"Demo: TTS result: {output}")
                 if not output:
                     return await status_and_close(ws, "error")
                 output_bytes = Path(output).read_bytes()
@@ -146,7 +162,7 @@ async def websocket_endpoint(ws: WebSocket):
     except WebSocketDisconnect:
         pass
     except Exception:
-        logger.warning("Demo request failed", exc_info=False)
+        logger.warning("Demo request failed", exc_info=True)
         await status_and_close(ws, "error")
     finally:
         if reserved and not completed:

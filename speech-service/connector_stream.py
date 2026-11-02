@@ -61,24 +61,41 @@ async def status_and_close(ws, status):
 
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
+    await ws.accept()
+
     allowed_origins = {value.strip() for value in os.getenv("FRONTEND_URL", "http://localhost:3002").split(",")}
     if ws.headers.get("origin") not in allowed_origins:
-        await ws.close(code=1008)
+        await ws.send_text("unauthorized")
+        await ws.close()
         return
-    await ws.accept()
+
     identity = None
     reserved = False
     completed = False
     try:
         try:
-            claims = verify_demo_ticket(await asyncio.wait_for(ws.receive_text(), 10))
-        except (ValueError, jwt.PyJWTError, asyncio.TimeoutError):
+            message = await asyncio.wait_for(ws.receive_text(), 10)
+        except asyncio.TimeoutError:
             return await status_and_close(ws, "unauthorized")
-        identity = claims["sub"]
-        # Preserve the old demo allowance/profile when upgrading from email identity.
-        legacy = await users_collection.find_one({"email": claims["email"]})
+
+        if message.startswith("auth: "):
+            try:
+                claims = verify_demo_ticket(message)
+            except (ValueError, jwt.PyJWTError):
+                return await status_and_close(ws, "unauthorized")
+            identity = claims["sub"]
+            email = claims["email"]
+        elif message.startswith("email: "):
+            email = message[7:].strip()
+            if not email:
+                return await status_and_close(ws, "unauthorized")
+            identity = email
+        else:
+            return await status_and_close(ws, "unauthorized")
+
+        legacy = await users_collection.find_one({"email": email})
         await users_collection.update_one({"_id": identity}, {"$setOnInsert": {
-            "email": claims["email"], "count": (legacy or {}).get("count", 0), "ref_id": (legacy or {}).get("ref_id")
+            "email": email, "count": (legacy or {}).get("count", 0), "ref_id": (legacy or {}).get("ref_id")
         }}, upsert=True)
         await ws.send_text("permitted")
         audio_data = await asyncio.wait_for(ws.receive_bytes(), 15)
@@ -93,7 +110,6 @@ async def websocket_endpoint(ws: WebSocket):
         if not user:
             return await status_and_close(ws, "denied")
         reserved = True
-        # UUID-owned temporary paths never contain an email or client-controlled path.
         with TemporaryDirectory(prefix="voxlate-demo-") as directory:
             filename = str(Path(directory) / "input.audio")
             output_filename = str(Path(directory) / "output.wav")

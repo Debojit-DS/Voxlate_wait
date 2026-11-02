@@ -122,7 +122,7 @@ async def websocket_endpoint(ws: WebSocket):
             return await status_and_close(ws, "denied")
         reserved = True
         with TemporaryDirectory(prefix="voxlate-demo-") as directory:
-            filename = str(Path(directory) / "input.audio")
+            filename = str(Path(directory) / "input.webm")
             output_filename = str(Path(directory) / "output.wav")
             Path(filename).write_bytes(audio_data)
             async with asyncio.timeout(80):

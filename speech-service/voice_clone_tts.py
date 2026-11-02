@@ -1,5 +1,8 @@
+import logging
 import os
 from fishaudio import FishAudio
+
+logger = logging.getLogger("voxlate.demo")
 
 def onboard_user_voice(audio_file_path, user_name="Voxlate_Speaker"):
     """
@@ -10,12 +13,12 @@ def onboard_user_voice(audio_file_path, user_name="Voxlate_Speaker"):
     try:
         client = FishAudio(timeout=30.0)
     except Exception as e:
-        print("ERROR: Failed to initialize Fish Audio Client. Is FISH_API_KEY in your .env?")
+        logger.error("ERROR: Failed to initialize Fish Audio Client. Is FISH_API_KEY in your .env?")
         return None
 
     try:
         with open(audio_file_path, "rb") as audio_file:
-            print(f"  [API] Uploading {audio_file_path} to create voice profile...")
+            logger.info(f"  [API] Uploading {audio_file_path} to create voice profile...")
             
             # The SDK handles the multipart form data perfectly to prevent 422 errors
             voice_profile = client.voices.create(
@@ -27,10 +30,10 @@ def onboard_user_voice(audio_file_path, user_name="Voxlate_Speaker"):
             return voice_profile.id
             
     except Exception as e:
-        print(f"ERROR: Voice onboarding failed. Error details: {e}")
+        logger.error(f"ERROR: Voice onboarding failed. Error details: {e}")
         # If it's an API error, this will print the exact reason (e.g., 'File too short')
         if hasattr(e, 'response') and hasattr(e.response, 'text'):
-            print(f"ERROR: Server replied: {e.response.text}")
+            logger.error(f"ERROR: Server replied: {e.response.text}")
         return None
 
 
@@ -41,7 +44,7 @@ def generate_live_tts(text_to_speak, reference_id, output_path="output.wav"):
     try:
         client = FishAudio(timeout=30.0)
         
-        print("  [API] Requesting ultra-low latency TTS chunk...")
+        logger.info("  [API] Requesting ultra-low latency TTS chunk...")
         audio_content = client.tts.convert(
             text=text_to_speak,
             reference_id=reference_id,
@@ -56,7 +59,7 @@ def generate_live_tts(text_to_speak, reference_id, output_path="output.wav"):
         return output_path
         
     except Exception as e:
-        print(f"ERROR: TTS generation failed: {e}")
+        logger.error(f"ERROR: TTS generation failed: {e}")
         if hasattr(e, 'response') and hasattr(e.response, 'text'):
-            print(f"ERROR: Server replied: {e.response.text}")
+            logger.error(f"ERROR: Server replied: {e.response.text}")
         return None

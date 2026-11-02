@@ -10,7 +10,7 @@ def onboard_user_voice(audio_file_path, user_name="Voxlate_Speaker"):
     try:
         client = FishAudio(timeout=30.0)
     except Exception as e:
-        print("❌ Failed to initialize Fish Audio Client. Is FISH_API_KEY in your .env?")
+        print("ERROR: Failed to initialize Fish Audio Client. Is FISH_API_KEY in your .env?")
         return None
 
     try:
@@ -27,10 +27,10 @@ def onboard_user_voice(audio_file_path, user_name="Voxlate_Speaker"):
             return voice_profile.id
             
     except Exception as e:
-        print(f"❌ Voice onboarding failed. Error details: {e}")
+        print(f"ERROR: Voice onboarding failed. Error details: {e}")
         # If it's an API error, this will print the exact reason (e.g., 'File too short')
         if hasattr(e, 'response') and hasattr(e.response, 'text'):
-            print(f"❌ Server replied: {e.response.text}")
+            print(f"ERROR: Server replied: {e.response.text}")
         return None
 
 
@@ -56,7 +56,7 @@ def generate_live_tts(text_to_speak, reference_id, output_path="output.wav"):
         return output_path
         
     except Exception as e:
-        print(f"❌ TTS generation failed: {e}")
+        print(f"ERROR: TTS generation failed: {e}")
         if hasattr(e, 'response') and hasattr(e.response, 'text'):
-            print(f"❌ Server replied: {e.response.text}")
+            print(f"ERROR: Server replied: {e.response.text}")
         return None

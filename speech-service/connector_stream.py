@@ -91,7 +91,13 @@ async def websocket_endpoint(ws: WebSocket):
                 return await status_and_close(ws, "unauthorized")
             identity = email
         else:
-            return await status_and_close(ws, "unauthorized")
+            # Accept a bare JWT token (no "auth: " prefix) as sent by the frontend
+            try:
+                claims = verify_demo_ticket("auth: " + message)
+            except (ValueError, jwt.PyJWTError):
+                return await status_and_close(ws, "unauthorized")
+            identity = claims["sub"]
+            email = claims["email"]
 
         legacy = await users_collection.find_one({"email": email})
         await users_collection.update_one({"_id": identity}, {"$setOnInsert": {

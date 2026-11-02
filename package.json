@@ -6,7 +6,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "next dev --turbopack --port 3002",
+    "dev": "next dev --webpack --port 3002",
     "dev:backend": "npm --prefix backend run dev",
     "build": "next build",
     "build:backend": "npm --prefix backend run build",

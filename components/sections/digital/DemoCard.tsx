@@ -160,6 +160,10 @@ export function DemoCard() {
             const buffer = await audioBlob.arrayBuffer();
             ws.send(buffer);
             ws.send(`lang: ${LANGUAGE_MAP[language] || "hi"}`);
+          } else if (event.data === "unauthorized") {
+            alert("Demo access expired. Please sign in again.");
+            setMicState("idle");
+            ws.close();
           } else if (event.data === "denied") {
             alert("Demo limit exceeded (Max 5 requests).");
             setMicState("idle");
@@ -167,6 +171,7 @@ export function DemoCard() {
           } else if (event.data === "error") {
             alert("Server processing error.");
             setMicState("idle");
+            ws.close();
           } else if (event.data.trim().startsWith("{")) {
             try {
               const payload = JSON.parse(event.data);
@@ -187,13 +192,19 @@ export function DemoCard() {
               }
             } catch (e) {
               console.error("Failed to parse server message:", e);
+              setMicState("idle");
             }
           }
         }
       };
 
+      ws.onerror = () => {
+        setMicState("idle");
+        alert("Couldn't connect to the translation service. Please try again.");
+      };
+
       ws.onclose = () => {
-        if (micState === "processing") {
+        if (micState === "processing" || micState === "recording") {
           setMicState("idle");
         }
       };

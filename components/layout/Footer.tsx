@@ -71,14 +71,12 @@ const COMMUNITY_LINKS = [
   { label: "Telegram Channel", href: "https://t.me/voxlate", external: true },
   { label: "Careers", href: "/careers" },
   { label: "Our Mission", href: "/about#mission" },
-  { label: "Try Demo", href: "/demo" },
 ];
 
 const SUPPORT_LINKS = [
   { label: "FAQs", href: "/#faq" },
   { label: "Contact Us", href: "mailto:support@voxlate.com", isMail: true },
   { label: "Admin Portal", href: "/admin" },
-  { label: "Speech Translation Demo", href: "/demo" },
   { label: "System Documentation", href: "/digital-version#features" },
 ];
 

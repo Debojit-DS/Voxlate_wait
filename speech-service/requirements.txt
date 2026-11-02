@@ -1,5 +1,5 @@
 groq==1.7.0
-fish-audio-sdk==1.3.0
+murf==2.3.0
 fastapi==0.143.0
 uvicorn[standard]==0.54.0
 python-dotenv==1.2.4

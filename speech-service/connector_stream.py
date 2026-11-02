@@ -15,7 +15,7 @@ from pymongo import ReturnDocument
 
 from transcribe_stt import transcribe_audio_groq
 from translate import translate_text_groq
-from voice_clone_tts import onboard_user_voice, generate_live_tts
+from voice_clone_tts import generate_live_tts
 
 load_dotenv()
 app = FastAPI()
@@ -138,17 +138,9 @@ async def websocket_endpoint(ws: WebSocket):
                 if not isinstance(translated, str) or not translated.strip():
                     logger.warning("Demo: translation failed")
                     return await status_and_close(ws, "error")
-                ref_id = user.get("ref_id")
-                if not ref_id:
-                    logger.info(f"Demo: onboarding voice for {filename}")
-                    ref_id = await asyncio.to_thread(onboard_user_voice, filename)
-                    logger.info(f"Demo: voice onboarding result: {ref_id}")
-                    if not ref_id:
-                        logger.warning("Demo: voice onboarding failed")
-                        return await status_and_close(ws, "error")
-                    await users_collection.update_one({"_id": identity}, {"$set": {"ref_id": ref_id}})
-                logger.info(f"Demo: generating TTS for output {output_filename}")
-                output = await asyncio.to_thread(generate_live_tts, translated, ref_id, output_filename)
+                voice_id = os.getenv("MURF_VOICE_ID", "en-US-natalie")
+                logger.info(f"Demo: generating TTS with Murf voice {voice_id} for output {output_filename}")
+                output = await asyncio.to_thread(generate_live_tts, translated, None, voice_id, output_filename)
                 logger.info(f"Demo: TTS result: {output}")
                 if not output:
                     return await status_and_close(ws, "error")

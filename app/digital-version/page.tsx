@@ -54,9 +54,6 @@ export default function DigitalVersionPage() {
               {/* Two Action Buttons in a Row */}
               <div className="mt-7 sm:mt-8 flex flex-row items-center gap-3.5 sm:gap-4">
                 <WaitlistButton source="digital-hero" label="Join Waitlist" />
-                <Button href="/demo" variant="secondary">
-                  Try Live Demo
-                </Button>
               </div>
             </div>
 

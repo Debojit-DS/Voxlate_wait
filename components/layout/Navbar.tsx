@@ -17,7 +17,6 @@ const PRODUCT_LINKS = [
 ];
 
 const NAV_LINKS = [
-  { label: "Demo", href: "/demo" },
   { label: "Waitlist", href: "/waitlist" },
   { label: "About Us", href: "/about" },
   { label: "Join Our Team", href: "/careers" },

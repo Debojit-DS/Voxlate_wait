@@ -86,12 +86,6 @@ export function Hero() {
           >
             Join the Waitlist
           </Button>
-          <Link
-            href="/demo"
-            className="inline-flex h-13 sm:h-14 items-center justify-center rounded-[10px] border-2 border-primary bg-surface/90 px-8 sm:px-10 text-[16px] sm:text-[17px] font-semibold text-primary transition-all duration-200 hover:bg-mist/80 hover:text-primary-hover hover:border-primary-hover hover:-translate-y-0.5 select-none whitespace-nowrap no-underline shadow-xs"
-          >
-            Experience the Demo
-          </Link>
         </div>
       </div>
     </section>

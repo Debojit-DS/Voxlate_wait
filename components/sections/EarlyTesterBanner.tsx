@@ -73,12 +73,6 @@ export function EarlyTesterBanner({
             {/* Action Buttons */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <WaitlistButton source={source} label="Get Started →" wide />
-              <Link
-                href="/demo"
-                className="inline-flex h-12 items-center justify-center rounded-control bg-mist px-7 text-[15px] font-semibold text-primary border border-line hover:bg-mist/80 hover:border-primary/40 transition-all duration-200"
-              >
-                Watch Demo
-              </Link>
             </div>
 
             {/* Social Trust Stack */}
@@ -94,7 +88,7 @@ export function EarlyTesterBanner({
                 ))}
               </div>
               <p className="text-[13px] sm:text-[14px] text-slate">
-                Trusted by <strong className="font-semibold text-ink">12,000+ waitlist members</strong> helping shape voice translation.
+                Trusted by <strong className="font-semibold text-ink">117+ waitlist members</strong> helping shape voice translation.
               </p>
             </div>
           </div>

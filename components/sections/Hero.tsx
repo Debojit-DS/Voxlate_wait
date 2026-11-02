@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import styles from "./Hero.module.css";
@@ -43,14 +42,6 @@ export function Hero() {
       </svg>
 
       <div className={`page-container ${styles.content}`}>
-        {/* Eyebrow badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/90 px-3.5 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] backdrop-blur-xs mb-6 sm:mb-8">
-          <Sparkle size={13} className="text-primary shrink-0" aria-hidden="true" />
-          <span className="text-[12px] sm:text-[13px] font-semibold text-primary tracking-wide">
-            AI-Powered Voice Translation
-          </span>
-        </div>
-
         {/* Large serif headline */}
         <h1 id="hero-title" className={`${styles.title} font-display font-normal text-ink`}>
           <span className="block">Speak your language.</span>

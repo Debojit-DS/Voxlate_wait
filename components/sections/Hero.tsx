@@ -15,7 +15,7 @@ export function Hero() {
     <section aria-labelledby="hero-title" className={styles.hero}>
       {/* Background ambient audio waveform visual */}
       <svg
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1440px] h-full max-h-[520px] opacity-[0.14] select-none"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1440px] h-full max-h-[520px] opacity-[0.4] select-none"
         viewBox="0 0 1200 400"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

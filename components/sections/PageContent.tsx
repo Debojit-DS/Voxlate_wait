@@ -12,6 +12,7 @@ import { FAQSection } from "@/components/sections/FAQSection";
 export default function PageContent() {
   return (
     <>
+      <Hero />
       {/* Meet Voxlate / What is Voxlate? */}
       <section id="about" aria-labelledby="meet-title" className="border-t border-line bg-mist/60 py-14 sm:py-16 md:py-24">
         <div className="page-container">

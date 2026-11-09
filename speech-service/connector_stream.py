@@ -138,8 +138,8 @@ async def websocket_endpoint(ws: WebSocket):
                 if not isinstance(translated, str) or not translated.strip():
                     logger.warning("Demo: translation failed")
                     return await status_and_close(ws, "error")
-                voice_id = os.getenv("MURF_VOICE_ID", "en-US-natalie")
-                logger.info(f"Demo: generating TTS with Murf voice {voice_id} for output {output_filename}")
+                voice_id = os.getenv("INWORLD_VOICE_ID", "Dennis")
+                logger.info(f"Demo: generating TTS with Inworld voice {voice_id} for output {output_filename}")
                 output = await asyncio.to_thread(generate_live_tts, translated, None, voice_id, output_filename)
                 logger.info(f"Demo: TTS result: {output}")
                 if not output:

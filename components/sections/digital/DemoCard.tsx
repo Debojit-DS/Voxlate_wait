@@ -165,7 +165,7 @@ export function DemoCard() {
             setMicState("idle");
             ws.close();
           } else if (event.data === "denied") {
-            alert("Demo limit exceeded (Max 5 requests).");
+            alert("Demo limit exceeded (Max 10 requests).");
             setMicState("idle");
             ws.close();
           } else if (event.data === "error") {

@@ -61,8 +61,8 @@ class DemoContract(unittest.TestCase):
                 result=socket.receive_json(); self.assertEqual(result["status"],"success"); self.assertEqual(result["translated_text"],"नमस्ते")
         self.assertEqual(self.collection.users["fixture-user"]["count"],3)
         self.assertEqual(self.collection.users["fixture-user"]["ref_id"],"fixture-profile")
-    def test_quota_denies_after_five_successful_clips(self):
-        self.collection.users["fixture-user"]={"_id":"fixture-user","email":"fixture@example.invalid","count":5,"ref_id":None}
+    def test_quota_denies_after_ten_successful_clips(self):
+        self.collection.users["fixture-user"]={"_id":"fixture-user","email":"fixture@example.invalid","count":10,"ref_id":None}
         with self.session() as socket:
             socket.send_text("auth: "+ticket()); self.assertEqual(socket.receive_text(),"permitted")
             socket.send_bytes(b"audio");socket.send_text("lang: hi");self.assertEqual(socket.receive_text(),"denied")

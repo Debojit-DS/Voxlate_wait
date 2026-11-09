@@ -116,7 +116,7 @@ async def websocket_endpoint(ws: WebSocket):
             logger.warning(f"Demo: unsupported language {target_lang}")
             return await status_and_close(ws, "error")
         user = await users_collection.find_one_and_update(
-            {"_id": identity, "count": {"$lt": 5}}, {"$inc": {"count": 1}}, return_document=ReturnDocument.AFTER)
+            {"_id": identity, "count": {"$lt": 10}}, {"$inc": {"count": 1}}, return_document=ReturnDocument.AFTER)
         logger.info(f"Demo: user lookup result: {user}")
         if not user:
             return await status_and_close(ws, "denied")

@@ -16,9 +16,82 @@ if not logger.handlers:
 logger.propagate = False
 
 
+def clone_voice(audio_file_path, voice_name=None, language_code="en-US"):
+    """
+    Creates an instant voice clone from an audio sample using Inworld's Voice API.
+    Returns the voiceId string, or None on failure.
+    """
+    api_key = os.getenv("INWORLD_API_KEY")
+    if not api_key:
+        logger.error("ERROR: INWORLD_API_KEY not set in .env")
+        return None
+
+    voice_name = voice_name or os.getenv("INWORLD_VOICE_NAME", "Voxlate_User_Voice")
+
+    try:
+        headers = {
+            "Authorization": f"Basic {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        # Read audio file and base64-encode it
+        with open(audio_file_path, "rb") as f:
+            audio_bytes = f.read()
+
+        audio_b64 = base64.b64encode(audio_bytes).decode("ascii")
+
+        payload = {
+            "displayName": voice_name,
+            "languageCode": language_code,
+            "voiceSamples": [
+                {
+                    "audioData": audio_b64,
+                    "transcription": "Voice sample for cloning.",
+                }
+            ],
+            "description": "Instant voice clone created from user audio sample.",
+            "tags": ["demo", "clone"],
+            "audioProcessingConfig": {
+                "removeBackgroundNoise": True,
+            },
+        }
+
+        logger.info(
+            f"  [API] Cloning voice with Inworld (voice: {voice_name}, file: {audio_file_path})..."
+        )
+
+        with httpx.Client(timeout=60.0) as client:
+            response = client.post(
+                "https://api.inworld.ai/voices/v1/voices:clone",
+                headers=headers,
+                json=payload,
+            )
+
+            if response.status_code != 200:
+                body = response.read()
+                logger.error(
+                    f"ERROR: Inworld voice cloning returned {response.status_code}: {body.decode('utf-8', errors='replace')[:500]}"
+                )
+                return None
+
+            result = response.json()
+            voice_id = result.get("voiceId")
+            if not voice_id:
+                logger.error(f"ERROR: No voiceId in Inworld response: {result}")
+                return None
+
+            logger.info(f"  [API] Voice cloned successfully: voiceId={voice_id}")
+            return voice_id
+
+    except Exception as e:
+        logger.error(f"ERROR: Voice cloning failed: {e}")
+        return None
+
+
 def generate_live_tts(text_to_speak, audio_file_path=None, voice_id=None, output_path="output.mp3"):
     """
     Generates speech using Inworld Inference chat completions with audio (LLM + TTS).
+    If audio_file_path is provided and no voice_id, clones the voice first.
     Sends the translated text as a user message; Inworld generates the answer and
     synthesizes it with Inworld TTS in one request.
     """
@@ -27,9 +100,20 @@ def generate_live_tts(text_to_speak, audio_file_path=None, voice_id=None, output
         logger.error("ERROR: INWORLD_API_KEY not set in .env")
         return None
 
-    voice_id = voice_id or os.getenv("INWORLD_VOICE_ID", "Dennis")
     tts_model = os.getenv("INWORLD_TTS_MODEL", "inworld-tts-2")
     text_model = os.getenv("INWORLD_TEXT_MODEL", "openai/gpt-5.4")
+
+    # If we have an audio file but no voice_id, clone the voice first
+    if audio_file_path and not voice_id:
+        cloned_voice_id = clone_voice(audio_file_path)
+        if cloned_voice_id:
+            voice_id = cloned_voice_id
+            logger.info(f"  [API] Using cloned voice: {voice_id}")
+        else:
+            logger.warning("  [WARNING] Voice cloning failed, falling back to default voice")
+            voice_id = os.getenv("INWORLD_VOICE_ID", "Dennis")
+
+    voice_id = voice_id or os.getenv("INWORLD_VOICE_ID", "Dennis")
 
     try:
         headers = {
@@ -70,10 +154,11 @@ def generate_live_tts(text_to_speak, audio_file_path=None, voice_id=None, output
             ) as response:
                 if response.status_code != 200:
                     body = response.read()
-                    logger.error(f"ERROR: Inworld TTS returned {response.status_code}: {body.decode('utf-8', errors='replace')[:500]}")
+                    logger.error(
+                        f"ERROR: Inworld TTS returned {response.status_code}: {body.decode('utf-8', errors='replace')[:500]}"
+                    )
                     return None
 
-                buffer = ""
                 for raw_line in response.iter_lines():
                     if not raw_line:
                         continue

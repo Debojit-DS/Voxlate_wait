@@ -15,7 +15,7 @@ from pymongo import ReturnDocument
 
 from transcribe_stt import transcribe_audio_groq
 from translate import translate_text_groq
-from voice_clone_tts import generate_live_tts
+from voice_clone_tts import clone_voice, generate_live_tts
 
 load_dotenv()
 app = FastAPI()
@@ -138,9 +138,24 @@ async def websocket_endpoint(ws: WebSocket):
                 if not isinstance(translated, str) or not translated.strip():
                     logger.warning("Demo: translation failed")
                     return await status_and_close(ws, "error")
-                voice_id = os.getenv("INWORLD_VOICE_ID", "Dennis")
+                # Use existing cloned voice if available, otherwise clone from user's audio
+                existing_voice_id = user.get("ref_id")
+                if existing_voice_id:
+                    voice_id = existing_voice_id
+                    logger.info(f"Demo: using existing cloned voice {voice_id}")
+                else:
+                    voice_id = await asyncio.to_thread(clone_voice, filename, f"Voxlate_User_{identity[:8]}", "en-US")
+                    if voice_id:
+                        await users_collection.update_one(
+                            {"_id": identity}, {"$set": {"ref_id": voice_id}}
+                        )
+                        logger.info(f"Demo: cloned new voice {voice_id} and stored for user {identity}")
+                    else:
+                        voice_id = os.getenv("INWORLD_VOICE_ID", "Dennis")
+                        logger.warning("Demo: voice cloning failed, falling back to default voice")
+
                 logger.info(f"Demo: generating TTS with Inworld voice {voice_id} for output {output_filename}")
-                output = await asyncio.to_thread(generate_live_tts, translated, None, voice_id, output_filename)
+                output = await asyncio.to_thread(generate_live_tts, translated, filename, voice_id, output_filename)
                 logger.info(f"Demo: TTS result: {output}")
                 if not output:
                     return await status_and_close(ws, "error")

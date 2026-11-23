@@ -27,6 +27,10 @@
   --color-success: #1F7A4D;
   --color-success-tint: #EDF6F1;
 
+  /* Physical modes: P2P green (5:1 under white text), P2E the brand blue */
+  --color-p2p: #0C7F4A;
+  --color-p2e: #1F3FB8;
+
   /* Fonts (Fontshare, self-hosted in /public/fonts, declared in app/theme.css) */
   --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Cabinet Grotesk", "Switzer", ui-sans-serif, system-ui, sans-serif;

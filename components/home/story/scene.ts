@@ -4,7 +4,8 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { arcTable, clamp01, easeInOut, lerp } from "../lemniscate";
 import { drawWordAtlas, RIBBON_PAIRS, SLOT_ASPECT } from "./words";
-import { createEarpieceMaterials } from "./earpiece";
+import { createEarpieceMaterials, LED_COLORS } from "./earpiece";
+import { createLedGlow } from "./ledGlow";
 
 /**
  * Hero + "stations" scene.
@@ -15,11 +16,18 @@ import { createEarpieceMaterials } from "./earpiece";
  * goes in as one language and comes out as the other — in both directions.
  *
  * Scrolling (`intro` 0→1) zooms into the right lobe until it becomes the arc the station
- * markers ride on; `station` (0..2) moves the markers along it and the device beside it.
+ * markers ride on; `station` (0..n-1) moves the markers along it and the device beside it.
+ *
+ * Two layouts share this: "home" (three stations; the device steps aside for the digital one) and
+ * "modes" for the Physical page (P2P and P2E; the device floats down and stays, and the ribbon and
+ * the LED strip take each mode's colour).
  */
 
-export type DevicePart = "touch_pad" | "volume_buttons" | "ear_gel";
+export type DevicePart = "touch_panel" | "led_strip" | "volume_buttons" | "ear_gel";
 export type MarkerPoint = { x: number; y: number };
+export type StoryVariant = "home" | "modes";
+/** Ribbon band colour and LED colour for the hero and for each station. */
+export type StoryPalette = { ribbon: string; led: string };
 
 export type StoryScene = {
   setTargets: (intro: number, station: number) => void;
@@ -34,6 +42,9 @@ type Options = {
   modelUrl: string;
   reducedMotion: boolean;
   markerCount: number;
+  variant?: StoryVariant;
+  /** Hero palette followed by one per station. Defaults to cobalt ribbon and blue LED throughout. */
+  palette?: StoryPalette[];
   /** Called after every rendered frame with marker screen positions and the smoothed scroll state. */
   onMarkers: (points: MarkerPoint[], compact: boolean, station: number, intro: number) => void;
   onDeviceReady?: () => void;
@@ -55,19 +66,51 @@ const COLORS = {
 };
 
 type RibbonPose = { x: number; y: number; scale: number; rotX: number; rotY: number; width: number; readX: number; readY: number };
-type DevicePose = { x: number; y: number; h: number; yaw: number; rotX: number; rotZ: number };
+/** `swing`: how far the device turns back and forth on its own at this pose (radians). */
+type DevicePose = { x: number; y: number; h: number; yaw: number; rotX: number; rotZ: number; swing: number };
 
-const PART_YAW: Record<DevicePart, number> = { touch_pad: -0.12, volume_buttons: -1.5, ear_gel: 2.55 };
-const PART_NUDGE: Record<DevicePart, [number, number, number]> = {
-  touch_pad: [0, 0, 0.2],
+const PART_YAW: Record<DevicePart, number> = { touch_panel: -0.12, led_strip: -0.22, volume_buttons: -1.5, ear_gel: 2.55 };
+const PART_NUDGE: Partial<Record<DevicePart, [number, number, number]>> = {
+  touch_panel: [0, 0, 0.16],
   volume_buttons: [0.18, 0, 0],
   ear_gel: [0, 0, -0.22],
 };
 
+const DEFAULT_PALETTE: StoryPalette = { ribbon: COLORS.cobalt, led: LED_COLORS.blue };
+
 /** Ribbon sits further back than the device, so screen-space targets are scaled to its depth. */
 const atRibbonDepth = (v: number) => (v * (CAM_Z - RIBBON_Z)) / CAM_Z;
 
-function computeLayout(W: number, H: number, compact: boolean, unitLength: number) {
+type Layout = ReturnType<typeof computeHomeLayout>;
+
+function computeLayout(W: number, H: number, compact: boolean, unitLength: number, variant: StoryVariant): Layout {
+  const home = computeHomeLayout(W, H, compact, unitLength);
+  if (variant === "home") return home;
+  // Physical page: the device floats down from above the ribbon and settles beside the P2P / P2E text,
+  // turned so the touch panel and LED strip face you.
+  if (!compact) {
+    return {
+      ...home,
+      markerGap: 0.3 * H,
+      heroDevice: { x: 0.25 * W, y: 0.05 * H, h: 0.5 * H, yaw: -0.38, rotX: 0.06, rotZ: -0.08, swing: 0 },
+      stationDevices: [
+        { x: 0.31 * W, y: -0.04 * H, h: 0.62 * H, yaw: -0.3, rotX: 0.04, rotZ: -0.05, swing: 0.22 },
+        { x: 0.31 * W, y: -0.04 * H, h: 0.62 * H, yaw: -0.42, rotX: 0.04, rotZ: -0.05, swing: 0.22 },
+      ],
+    };
+  }
+  return {
+    ...home,
+    markerGap: 0.24 * H,
+    heroDevice: { x: 0, y: -0.24 * H, h: 0.3 * H, yaw: -0.38, rotX: 0.06, rotZ: -0.08, swing: 0 },
+    stationDevices: [
+      { x: 0.12 * W, y: 0.22 * H, h: 0.32 * H, yaw: -0.3, rotX: 0.04, rotZ: -0.05, swing: 0.2 },
+      { x: 0.12 * W, y: 0.22 * H, h: 0.32 * H, yaw: -0.42, rotX: 0.04, rotZ: -0.05, swing: 0.2 },
+    ],
+  };
+}
+
+function computeHomeLayout(W: number, H: number, compact: boolean, unitLength: number) {
   if (!compact) {
     const heroScale = Math.min(0.215 * W, 0.5 * H);
     const stationScale = 1.15 * H;
@@ -95,11 +138,11 @@ function computeLayout(W: number, H: number, compact: boolean, unitLength: numbe
         readX: 0.2,
         readY: 0.98,
       } satisfies RibbonPose,
-      heroDevice: { x: 0.25 * W, y: -0.02 * H, h: 0.46 * H, yaw: -0.5, rotX: 0.06, rotZ: -0.1 } satisfies DevicePose,
+      heroDevice: { x: 0.25 * W, y: -0.02 * H, h: 0.46 * H, yaw: -0.42, rotX: 0.06, rotZ: -0.1, swing: 0 } satisfies DevicePose,
       stationDevices: [
-        { x: 0.335 * W, y: 0, h: 0.56 * H, yaw: -1.0, rotX: 0.05, rotZ: -0.06 },
-        { x: 0.42 * W, y: -1.0 * H, h: 0.4 * H, yaw: -0.6, rotX: 0.2, rotZ: 0.2 },
-        { x: 0.3 * W, y: -0.04 * H, h: 0.58 * H, yaw: -0.35, rotX: 0.04, rotZ: -0.04 },
+        { x: 0.335 * W, y: 0, h: 0.56 * H, yaw: -1.0, rotX: 0.05, rotZ: -0.06, swing: 0.55 },
+        { x: 0.42 * W, y: -1.0 * H, h: 0.4 * H, yaw: -0.6, rotX: 0.2, rotZ: 0.2, swing: 0.55 },
+        { x: 0.3 * W, y: -0.04 * H, h: 0.58 * H, yaw: -0.35, rotX: 0.04, rotZ: -0.04, swing: 0 },
       ] satisfies DevicePose[],
       unitLength,
     };
@@ -112,7 +155,7 @@ function computeLayout(W: number, H: number, compact: boolean, unitLength: numbe
     markerGap: 0.2 * H,
     heroRibbon: {
       x: 0,
-      y: atRibbonDepth(-0.28 * H),
+      y: atRibbonDepth(-0.31 * H),
       scale: atRibbonDepth(heroScale),
       rotX: -0.12,
       rotY: -0.16,
@@ -130,11 +173,11 @@ function computeLayout(W: number, H: number, compact: boolean, unitLength: numbe
       readX: 0.2,
       readY: 0.98,
     } satisfies RibbonPose,
-    heroDevice: { x: 0, y: -0.27 * H, h: 0.27 * H, yaw: -0.5, rotX: 0.06, rotZ: -0.1 } satisfies DevicePose,
+    heroDevice: { x: 0, y: -0.3 * H, h: 0.25 * H, yaw: -0.42, rotX: 0.06, rotZ: -0.1, swing: 0 } satisfies DevicePose,
     stationDevices: [
-      { x: 0.11 * W, y: 0.22 * H, h: 0.3 * H, yaw: -1.0, rotX: 0.05, rotZ: -0.06 },
-      { x: 0.11 * W, y: 1.0 * H, h: 0.26 * H, yaw: -0.6, rotX: -0.2, rotZ: 0.2 },
-      { x: 0.11 * W, y: 0.22 * H, h: 0.33 * H, yaw: -0.35, rotX: 0.04, rotZ: -0.04 },
+      { x: 0.11 * W, y: 0.22 * H, h: 0.3 * H, yaw: -1.0, rotX: 0.05, rotZ: -0.06, swing: 0.55 },
+      { x: 0.11 * W, y: 1.0 * H, h: 0.26 * H, yaw: -0.6, rotX: -0.2, rotZ: 0.2, swing: 0.55 },
+      { x: 0.11 * W, y: 0.22 * H, h: 0.33 * H, yaw: -0.35, rotX: 0.04, rotZ: -0.04, swing: 0 },
     ] satisfies DevicePose[],
     unitLength,
   };
@@ -164,6 +207,7 @@ function mixDevice(a: DevicePose, b: DevicePose, t: number): DevicePose {
     yaw: lerp(a.yaw, b.yaw, t),
     rotX: lerp(a.rotX, b.rotX, t),
     rotZ: lerp(a.rotZ, b.rotZ, t),
+    swing: lerp(a.swing, b.swing, t),
   };
 }
 
@@ -393,10 +437,18 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
   deviceRig.add(deviceSpin);
   deviceRig.visible = false;
   scene.add(deviceRig);
-  let deviceHeight = 5.78;
+  let deviceHeight = 5.82;
   const partMeshes = new Map<string, THREE.Mesh>();
   const partRest = new Map<string, THREE.Vector3>();
-  const materials = createEarpieceMaterials();
+  const earpiece = createEarpieceMaterials();
+  const { materials } = earpiece;
+  const glow = createLedGlow(renderer, earpiece);
+
+  // Ribbon and LED colours: index 0 is the hero, then one per station.
+  const palette = opts.palette?.length ? opts.palette : [DEFAULT_PALETTE];
+  const ribbonColors = palette.map((p) => new THREE.Color(p.ribbon));
+  const ledColors = palette.map((p) => new THREE.Color(p.led));
+  const paletteAt = (i: number) => Math.min(i, palette.length - 1);
 
   let disposed = false;
   let deviceAppear = 0;
@@ -405,14 +457,19 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
     opts.modelUrl,
     (gltf) => {
       if (disposed) return;
+      const occluders: THREE.Mesh[] = [];
+      const leds: THREE.Mesh[] = [];
       gltf.scene.traverse((obj) => {
         const mesh = obj as THREE.Mesh;
         if (!mesh.isMesh) return;
         const name = mesh.name as keyof typeof materials;
-        mesh.material = materials[name] ?? materials.body_front;
+        mesh.material = materials[name] ?? materials.shell_front;
+        earpiece.bindMesh(mesh);
+        (name === "led_strip" ? leds : occluders).push(mesh);
         partMeshes.set(mesh.name, mesh);
         partRest.set(mesh.name, mesh.position.clone());
       });
+      glow.setParts(occluders, leds, [ribbon]);
       const box = new THREE.Box3().setFromObject(gltf.scene);
       const size = box.getSize(new THREE.Vector3());
       const centre = box.getCenter(new THREE.Vector3());
@@ -431,7 +488,10 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
   // ── State ──
   let width = 1;
   let height = 1;
-  let layout = computeLayout(16, 9, false, unitLength);
+  const variant = opts.variant ?? "home";
+  // Parts can be highlighted only at the home page's Physical station.
+  const highlightStation = variant === "home" ? 2 : -1;
+  let layout = computeLayout(16, 9, false, unitLength, variant);
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
     width = Math.max(1, rect.width);
@@ -442,7 +502,7 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const H = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
-    layout = computeLayout(H * camera.aspect, H, compact, unitLength);
+    layout = computeLayout(H * camera.aspect, H, compact, unitLength, variant);
     if (!running) render(0);
   };
   const resizeObserver = new ResizeObserver(resize);
@@ -457,8 +517,8 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
   let px = 0;
   let py = 0;
   let highlight: DevicePart | null = null;
-  const highlightAmount: Record<DevicePart, number> = { touch_pad: 0, volume_buttons: 0, ear_gel: 0 };
-  let yaw = -0.5;
+  const highlightAmount: Record<DevicePart, number> = { touch_panel: 0, led_strip: 0, volume_buttons: 0, ear_gel: 0 };
+  let yaw = -0.42;
   let time = 0;
   let offset = 0;
   const markers: MarkerPoint[] = Array.from({ length: opts.markerCount }, () => ({ x: 0, y: 0 }));
@@ -494,22 +554,26 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
     const rl = Math.hypot(rp.readX, rp.readY);
     uniforms.uReadDir.value.set(rp.readX / rl, rp.readY / rl);
 
-    // Device pose: hero → stations (exits for the digital station).
-    const i0 = Math.max(0, Math.min(1, Math.floor(station)));
+    // Device pose: hero → stations (on the home page it steps aside for the digital station).
+    const lastPair = layout.stationDevices.length - 2;
+    const i0 = Math.max(0, Math.min(lastPair, Math.floor(station)));
     const f = clamp01(station - i0);
     const stationPose = mixDevice(layout.stationDevices[i0], layout.stationDevices[i0 + 1], easeInOut(f));
     const dp = mixDevice(layout.heroDevice, stationPose, t);
     const scale = dp.h / deviceHeight;
-    if (deviceRig.visible) deviceAppear = reducedMotion ? 1 : deviceAppear + (1 - deviceAppear) * damp(3);
+    // Home: the device rises into place. Physical page: it floats down from above.
+    const floatDown = variant === "modes";
+    if (deviceRig.visible) deviceAppear = reducedMotion ? 1 : deviceAppear + (1 - deviceAppear) * damp(floatDown ? 1.8 : 3);
     const appear = easeInOut(clamp01(deviceAppear));
     const bob = reducedMotion ? 0 : Math.sin(time * 0.9) * 0.06 * dp.h;
-    deviceRig.position.set(dp.x, dp.y + bob - (1 - appear) * 0.6, 0);
+    const entry = (1 - appear) * (floatDown ? 0.55 * dp.h : -0.6);
+    deviceRig.position.set(dp.x, dp.y + bob + entry, 0);
     deviceRig.scale.setScalar(scale * (0.9 + 0.1 * appear));
 
-    // Yaw: hero follows the pointer; station 1 turns slowly; station 3 turns to the highlighted part.
-    const physical = clamp01(1 - Math.abs(station - 2) * 1.5) * t;
-    const turntable = reducedMotion ? 0 : Math.sin(time * 0.35) * 0.55;
-    let yawTarget = dp.yaw + px * 0.35 * (1 - t) + turntable * t * (1 - physical);
+    // Yaw: the hero follows the pointer; stations swing gently; the home Physical station turns to the highlighted part.
+    const physical = highlightStation < 0 ? 0 : clamp01(1 - Math.abs(station - highlightStation) * 1.5) * t;
+    const turntable = reducedMotion ? 0 : Math.sin(time * 0.35);
+    let yawTarget = dp.yaw + px * 0.35 * (1 - t) + turntable * dp.swing * t;
     if (highlight && physical > 0.5) yawTarget = PART_YAW[highlight];
     yaw += (yawTarget - yaw) * (dt === 0 ? 1 : damp(4));
     deviceSpin.rotation.set(dp.rotX + py * 0.12 * (1 - t), yaw, dp.rotZ);
@@ -519,15 +583,31 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
       highlightAmount[part] += (target - highlightAmount[part]) * (dt === 0 ? 1 : damp(6));
       const mesh = partMeshes.get(part);
       const rest = partRest.get(part);
-      if (mesh && rest) {
-        const [nx, ny, nz] = PART_NUDGE[part];
+      const nudge = PART_NUDGE[part];
+      if (mesh && rest && nudge) {
         const a = highlightAmount[part];
-        mesh.position.set(rest.x + nx * a, rest.y + ny * a, rest.z + nz * a);
+        mesh.position.set(rest.x + nudge[0] * a, rest.y + nudge[1] * a, rest.z + nudge[2] * a);
         (mesh.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.3 * a;
       }
     }
 
-    renderer.render(scene, camera);
+    // Colours: hero → first station while zooming in, then station → station. The new LED colour
+    // fills the strip from the bottom of the stem upwards as the ribbon changes colour with it.
+    let from = 0;
+    let to = 1;
+    let k = t;
+    if (station > 0.002) {
+      const j = Math.max(0, Math.min(lastPair, Math.floor(station)));
+      from = 1 + j;
+      to = 2 + j;
+      k = clamp01(station - j);
+    }
+    uniforms.uCobalt.value.lerpColors(ribbonColors[paletteAt(from)], ribbonColors[paletteAt(to)], k);
+    const breathe = reducedMotion ? 1 : 0.92 + 0.08 * Math.sin(time * 1.7);
+    earpiece.setLed(ledColors[paletteAt(from)], ledColors[paletteAt(to)], k, Math.min(1.15, breathe + 0.2 * highlightAmount.led_strip));
+
+    const glowStrength = deviceRig.visible ? appear * (1 + 0.8 * highlightAmount.led_strip) : 0;
+    glow.render(scene, camera, glowStrength);
 
     // Station markers ride the arc around the right extreme of the right lobe.
     const sExt = (unitLength / 4) * rp.scale;
@@ -588,7 +668,8 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
       infoTexture.dispose();
       envTexture.dispose();
       pmrem.dispose();
-      for (const m of Object.values(materials)) m.dispose();
+      earpiece.dispose();
+      glow.dispose();
       partMeshes.forEach((mesh) => mesh.geometry.dispose());
       renderer.dispose();
     },

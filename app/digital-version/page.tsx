@@ -1,10 +1,7 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WaitlistGift } from "@/components/home/WaitlistGift";
-import { WaitlistButton } from "@/components/waitlist/WaitlistButton";
-import { PlatformMock } from "@/components/product/PlatformMock";
+import { LaptopStory } from "@/components/product/LaptopStory";
 
 export const metadata = {
   title: "Digital version — Voxlate",
@@ -45,38 +42,12 @@ const FEATURES = [
   },
 ];
 
-const SETUP = [
-  { title: "Choose devices and languages", body: "Pick your real microphone and headphones, then set My language and Meeting language." },
-  { title: "Select Voxlate in your meeting app", body: "In Zoom, Meet or Teams audio settings, choose Voxlate Microphone and Voxlate Speaker." },
-  { title: "Start a session", body: "Start translation for a supported language pair. You speak in yours; the meeting hears theirs." },
-];
-
 export default function DigitalVersionPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main>
-        <section aria-labelledby="digital-title" className="page-container vx-page-head grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
-          <div>
-            <p className="vx-label">Digital version</p>
-            <h1 id="digital-title" className="vx-display mt-4 text-[clamp(2.8rem,6vw,5rem)] text-ink">
-              Your meeting.
-              <br />
-              <span className="text-primary">Every language.</span>
-            </h1>
-            <p className="mt-6 max-w-[46ch] text-[17px] leading-relaxed text-slate">
-              Software we’re building for online meetings, calls and remote work. Speak naturally in your language; everyone else
-              hears you in theirs, still sounding like you.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
-              <WaitlistButton source="digital-hero" label="Join the Waitlist" />
-              <Link href="/demo" className="vx-link">
-                Try the web demo <ArrowRight size={16} aria-hidden />
-              </Link>
-            </div>
-          </div>
-          <PlatformMock />
-        </section>
+        <LaptopStory />
 
         <section id="features" aria-labelledby="features-title" className="border-t border-line">
           <div className="page-container grid gap-10 py-16 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20 lg:py-24">
@@ -96,23 +67,6 @@ export default function DigitalVersionPage() {
                     </div>
                     <p className="mt-3 max-w-[60ch] text-[16px] leading-relaxed text-slate">{f.body}</p>
                   </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section aria-labelledby="setup-title" className="bg-surface">
-          <div className="page-container py-16 lg:py-24">
-            <h2 id="setup-title" className="vx-display text-[clamp(2rem,3.8vw,3.25rem)] text-ink">
-              Three steps, then just talk.
-            </h2>
-            <ol className="mt-10 grid border-t border-line md:grid-cols-3">
-              {SETUP.map((s, i) => (
-                <li key={s.title} className={`py-8 md:pr-8 ${i > 0 ? "border-t border-line md:border-l md:border-t-0 md:pl-8" : ""}`}>
-                  <span className="vx-display text-[48px] leading-none text-line-strong">{i + 1}</span>
-                  <h3 className="mt-5 text-[18px] font-semibold text-ink">{s.title}</h3>
-                  <p className="mt-2 text-[15px] leading-relaxed text-slate">{s.body}</p>
                 </li>
               ))}
             </ol>

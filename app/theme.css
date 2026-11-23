@@ -95,9 +95,10 @@ body {
   height: var(--marker-size, 148px);
   margin: calc(var(--marker-size, 148px) / -2) 0 0 calc(var(--marker-size, 148px) / -2);
   border-radius: 9999px;
-  border: 1.5px solid var(--color-ink);
-  background: color-mix(in oklab, var(--color-ink) calc(var(--act) * 100%), var(--color-page));
-  color: color-mix(in oklab, var(--color-page) calc(var(--act) * 100%), var(--color-ink));
+  /* `--marker-color` lets a page colour each circle (the Physical page's P2P / P2E); ink by default. */
+  border: 1.5px solid var(--marker-color, var(--color-ink));
+  background: color-mix(in oklab, var(--marker-color, var(--color-ink)) calc(var(--act) * 100%), var(--color-page));
+  color: color-mix(in oklab, var(--color-page) calc(var(--act) * 100%), var(--marker-color, var(--color-ink)));
   font-family: var(--font-display);
   font-weight: calc(500 + var(--act) * 300);
   font-size: var(--marker-font, 17px);
@@ -124,6 +125,14 @@ body {
   opacity: 0.7;
   margin-bottom: 2px;
   font-variant-numeric: tabular-nums;
+}
+/* The mode name under P2P / P2E: shown on the circle in focus only, so small circles stay legible. */
+.vx-marker .vx-marker-note {
+  margin: 4px 0 0;
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1.15;
+  opacity: calc(var(--act) * var(--act) * 0.85);
 }
 
 /* Feature buttons inside a station */

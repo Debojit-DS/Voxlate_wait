@@ -1,33 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { TrustLine } from "@/components/home/TrustLine";
 import { clamp01, smoothstep } from "@/components/home/lemniscate";
 import { DigitalMock, PLATFORMS, type Platform } from "./DigitalMock";
+import { makeChoreography, StationIndex, StationPanel, useStationStyle } from "./Station";
 import type { DevicePart, MarkerPoint, StoryScene } from "./scene";
 
 /* Scroll choreography (fractions of the pinned scroll distance). */
 const SCROLL_VH = 420; // pinned distance, in svh
-const INTRO_FROM = 0.02;
-const INTRO_TO = 0.17;
-const STATION_FROM = 0.2;
-const STATION_STEP = 0.28;
-const STATIONS = 3;
-
-const introAt = (p: number) => clamp01((p - INTRO_FROM) / (INTRO_TO - INTRO_FROM));
-/** 0..2 with a dwell around each whole number so each station holds still while you read. */
-const stationAt = (p: number) => {
-  const x = Math.min(STATIONS - 1, Math.max(0, (p - STATION_FROM) / STATION_STEP));
-  const i = Math.min(STATIONS - 2, Math.floor(x));
-  return i + smoothstep(0.22, 0.78, x - i);
-};
-/** Scroll fraction at which station i is fully in focus. */
-const stationProgress = (i: number) => STATION_FROM + i * STATION_STEP + 0.03;
+const CHOREO = makeChoreography({ introFrom: 0.02, introTo: 0.17, stationFrom: 0.2, stationStep: 0.28, stations: 3 });
+const { introAt, stationAt, stationProgress } = CHOREO;
 
 const MARKERS = [
   { index: "01", label: "Voxlate" },
@@ -36,21 +24,11 @@ const MARKERS = [
 ];
 
 const PARTS: { part: DevicePart; label: string; note: string }[] = [
-  { part: "touch_pad", label: "Touch pad", note: "The blue disc on the face." },
+  { part: "touch_panel", label: "Touch panel", note: "The glossy blue panel on the face." },
+  { part: "led_strip", label: "Light strip", note: "Glows around the panel to show the mode." },
   { part: "volume_buttons", label: "Volume keys", note: "Two keys on the side." },
   { part: "ear_gel", label: "Ear gel", note: "Soft tip that holds it in place." },
 ];
-
-function useStationStyle(progress: MotionValue<number>, i: number) {
-  const opacity = useTransform(progress, (p) => {
-    const a = stationAt(p);
-    const fade = clamp01(1 - Math.abs(a - i) * 2.4);
-    return i === 0 ? fade * smoothstep(0.75, 1, introAt(p)) : fade;
-  });
-  const y = useTransform(progress, (p) => (i - stationAt(p)) * 36);
-  const pointerEvents = useTransform(opacity, (o) => (o > 0.5 ? "auto" : "none"));
-  return { opacity, y, pointerEvents };
-}
 
 export function HomeStory() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -71,9 +49,9 @@ export function HomeStory() {
   const heroOpacity = useTransform(scrollYProgress, (p) => 1 - smoothstep(0, 0.45, introAt(p)));
   const heroY = useTransform(scrollYProgress, (p) => introAt(p) * -56);
   const heroPointer = useTransform(heroOpacity, (o) => (o > 0.4 ? "auto" : "none"));
-  const s0 = useStationStyle(scrollYProgress, 0);
-  const s1 = useStationStyle(scrollYProgress, 1);
-  const s2 = useStationStyle(scrollYProgress, 2);
+  const s0 = useStationStyle(scrollYProgress, 0, CHOREO);
+  const s1 = useStationStyle(scrollYProgress, 1, CHOREO);
+  const s2 = useStationStyle(scrollYProgress, 2, CHOREO);
   const mockX = useTransform(scrollYProgress, (p) => (1 - stationAt(p)) * 48);
 
   // Markers are positioned every frame by the scene; this keeps them in sync without React renders.
@@ -325,45 +303,6 @@ export function HomeStory() {
         </StationPanel>
       </div>
     </section>
-  );
-}
-
-function StationPanel({
-  style,
-  labelledBy,
-  onFocus,
-  children,
-}: {
-  style: ReturnType<typeof useStationStyle>;
-  labelledBy: string;
-  onFocus: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <motion.article
-      aria-labelledby={labelledBy}
-      onFocusCapture={onFocus}
-      style={style}
-      className="absolute bottom-6 left-[26vw] right-4 top-[46%] flex flex-col justify-start sm:bottom-10 lg:bottom-auto lg:left-[31vw] lg:right-auto lg:top-1/2 lg:w-[min(28vw,440px)] lg:-translate-y-1/2"
-    >
-      {children}
-    </motion.article>
-  );
-}
-
-function StationIndex({ n, of, note }: { n: string; of: string; note?: string }) {
-  return (
-    <p className="vx-label mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 lg:mb-4">
-      <span className="text-ink">
-        {n} <span className="text-line-strong">/ {of}</span>
-      </span>
-      {note && (
-        <>
-          <span aria-hidden="true" className="h-px w-6 bg-line-strong" />
-          <span>{note}</span>
-        </>
-      )}
-    </p>
   );
 }
 

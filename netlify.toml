@@ -1,0 +1,9 @@
+# Netlify builds this Next.js site from source: its API routes, sign-in and server-rendered
+# pages need Netlify's Next.js runtime, which is applied automatically to `.next`.
+# The backend (backend/) and speech service are separate deployments.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

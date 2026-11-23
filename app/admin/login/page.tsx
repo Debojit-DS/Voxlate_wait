@@ -28,6 +28,7 @@ function AdminLoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password }),
+        credentials: "include",
       });
       const json = await res.json().catch(() => null);
       if (json?.status !== "success") {

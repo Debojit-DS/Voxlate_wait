@@ -1,6 +1,5 @@
 import localFont from "next/font/local";
 import {
-  Newsreader,
   Noto_Sans_Bengali,
   Noto_Sans_Devanagari,
   Noto_Sans_Gujarati,
@@ -14,22 +13,9 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthPromptProvider } from "@/components/auth/AuthPromptProvider";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
 import { NextAuthProvider } from "@/components/auth/NextAuthProvider";
+import { preload } from "react-dom";
 import "./globals.css";
-
-const dmSans = localFont({
-  src: [
-    { path: "./fonts/dm-sans/DMSans-Variable.ttf", weight: "100 900", style: "normal" },
-    { path: "./fonts/dm-sans/DMSans-Italic-Variable.ttf", weight: "100 900", style: "italic" },
-  ],
-  variable: "--font-dm-sans",
-  display: "swap",
-});
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
-  display: "swap",
-});
+import "./theme.css";
 
 // Script fallbacks for the hero's multilingual words. Not preloaded: the
 // browser fetches each one only when its script actually appears on the page.
@@ -44,7 +30,7 @@ const notoArabic = localFont({ src: "./fonts/ribbon/arabic.woff2", weight: "400"
 const notoJapanese = localFont({ src: "./fonts/ribbon/japanese.woff2", weight: "400", preload: false, display: "swap", variable: "--font-noto-japanese" });
 const notoChinese = localFont({ src: "./fonts/ribbon/chinese.woff2", weight: "400", preload: false, display: "swap", variable: "--font-noto-chinese" });
 
-const fontVariables = [dmSans, newsreader, notoDeva, notoBeng, notoTaml, notoTelu, notoGujr, notoKnda, notoArabic, notoJapanese, notoChinese]
+const fontVariables = [notoDeva, notoBeng, notoTaml, notoTelu, notoGujr, notoKnda, notoArabic, notoJapanese, notoChinese]
   .map((f) => f.variable)
   .join(" ");
 
@@ -63,6 +49,10 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // The two Fontshare faces are used on every page; fetch them with the HTML.
+  preload("/fonts/cabinet-grotesk-variable.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  preload("/fonts/switzer-variable.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+
   return (
     <html lang="en" className={fontVariables}>
       <body>

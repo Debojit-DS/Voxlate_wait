@@ -4,7 +4,7 @@ import { withCors, withCorrelationId, withSecurityHeaders } from "@/lib/cors";
 import { generateCorrelationId, getClientIp } from "@/lib/correlationId";
 import { prisma } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rateLimiter";
-import { resend } from "@/lib/resend";
+import { notifyTeam } from "@/lib/notify";
 
 const questionSchema = z.object({
   name: z.string().trim().min(1, "Your name is required.").max(80),
@@ -19,23 +19,6 @@ function respond(req: NextRequest, body: unknown, status = 200) {
     withSecurityHeaders(withCors(NextResponse.json(body, { status }), req.headers.get("origin") ?? undefined)),
     generateCorrelationId(),
   );
-}
-
-/** Lets the team know a question arrived. Optional: needs RESEND_API_KEY and QUESTIONS_NOTIFY_EMAIL. */
-async function notifyTeam(entry: { name: string; email: string; question: string }) {
-  const to = process.env.QUESTIONS_NOTIFY_EMAIL;
-  if (!process.env.RESEND_API_KEY || !to) return;
-  try {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Voxlate <no-reply@voxlatesn.in>",
-      to: to.split(",").map((value) => value.trim()).filter(Boolean),
-      replyTo: entry.email,
-      subject: `New question from ${entry.name.slice(0, 60)}`,
-      text: `${entry.question}\n\n— ${entry.name} <${entry.email}>\nReply to this email to answer.`,
-    });
-  } catch {
-    // The question is already stored; a failed notification must not fail the request.
-  }
 }
 
 export async function POST(req: NextRequest) {
@@ -60,7 +43,8 @@ export async function POST(req: NextRequest) {
     return respond(req, { status: "error", code: "server_error", message: "Your question couldn't be sent. Please try again." }, 503);
   }
 
-  await notifyTeam({ name, email, question });
+  // Optional email to the team (RESEND_API_KEY + QUESTIONS_NOTIFY_EMAIL).
+  await notifyTeam(process.env.QUESTIONS_NOTIFY_EMAIL, `New question from ${name}`, `${question}\n\n— ${name} <${email}>\nReply to this email to answer.`, email);
   return respond(req, { status: "success" }, 201);
 }
 

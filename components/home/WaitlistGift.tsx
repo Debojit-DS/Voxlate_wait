@@ -33,8 +33,10 @@ export function WaitlistGift() {
           </button>
 
           {/* Two tapes crossing the corner like a ribbon on a gift. */}
-          <Tape className="left-[-20%] top-[74%] w-[150%] -rotate-[17deg] bg-[#8b93a8] lg:left-[36%] lg:top-[60%] lg:w-[82%] lg:-rotate-[27deg]" dir="left" onClick={() => openWaitlist("gift-tape")} />
-          <Tape className="left-[-25%] top-[84%] w-[150%] -rotate-[5deg] bg-page lg:left-[44%] lg:top-[76%] lg:w-[78%] lg:-rotate-[11deg]" dir="right" onClick={() => openWaitlist("gift-tape")} />
+          {/* Both tapes are far longer than the box and pivot near the corner, so their ends always
+              run off the edges: the ribbon never starts or stops, it just keeps going. */}
+          <Tape className="left-[-130%] top-[76%] w-[400%] -rotate-[20deg] bg-[#8d97ad] lg:left-[-52%] lg:top-[62%] lg:w-[260%] lg:-rotate-[24deg]" dir="left" onClick={() => openWaitlist("gift-tape")} />
+          <Tape className="left-[-130%] top-[88%] w-[400%] -rotate-[6deg] bg-page lg:left-[-50%] lg:top-[76%] lg:w-[260%] lg:-rotate-[10deg]" dir="right" onClick={() => openWaitlist("gift-tape")} />
         </div>
       </div>
     </section>
@@ -42,7 +44,7 @@ export function WaitlistGift() {
 }
 
 function Tape({ className, dir, onClick }: { className: string; dir: "left" | "right"; onClick: () => void }) {
-  const items = Array.from({ length: 8 }, (_, i) => (
+  const items = Array.from({ length: 18 }, (_, i) => (
     <span key={i} className="flex shrink-0 items-center gap-6 pr-6">
       <span>{TAPE_TEXT}</span>
       <span aria-hidden="true" className="text-[1.6em] leading-none text-primary">

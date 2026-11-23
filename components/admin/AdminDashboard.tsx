@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { ContactsTab, QuestionsTab, ReviewsTab } from "./InboxTabs";
 
 type Stats = {
   totalWaitlist: number;
@@ -50,13 +51,16 @@ type JobApplication = {
   createdAt: string;
 };
 
-type Tab = "overview" | "waitlist" | "users" | "applications";
+type Tab = "overview" | "waitlist" | "users" | "applications" | "reviews" | "questions" | "contacts";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "waitlist", label: "Waitlist" },
+  { id: "contacts", label: "Contact" },
+  { id: "questions", label: "Questions" },
+  { id: "reviews", label: "Reviews" },
+  { id: "applications", label: "Team applications" },
   { id: "users", label: "Users" },
-  { id: "applications", label: "Applications" },
 ];
 
 export function AdminDashboard({ adminName }: { adminName: string }) {
@@ -70,15 +74,11 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <header className="mb-8 flex items-center justify-between">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+      <header className="mb-8 flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">
-            Voxlate Admin
-          </h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Signed in as {adminName}
-          </p>
+          <p className="vx-label">Signed in as {adminName}</p>
+          <h1 className="vx-display mt-2 text-[clamp(2rem,4vw,3rem)] text-ink">Voxlate admin</h1>
         </div>
         <button
           onClick={handleLogout}
@@ -88,7 +88,7 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
         </button>
       </header>
 
-      <nav className="mb-6 flex gap-1 rounded-[var(--radius-button)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-1 w-fit">
+      <nav className="mb-6 flex w-fit max-w-full flex-wrap gap-1 rounded-[var(--radius-button)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-1">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -108,6 +108,9 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
       {tab === "waitlist" && <WaitlistTab />}
       {tab === "users" && <UsersTab />}
       {tab === "applications" && <ApplicationsTab />}
+      {tab === "reviews" && <ReviewsTab />}
+      {tab === "questions" && <QuestionsTab />}
+      {tab === "contacts" && <ContactsTab />}
     </div>
   );
 }

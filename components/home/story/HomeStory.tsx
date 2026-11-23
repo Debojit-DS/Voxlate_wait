@@ -36,7 +36,7 @@ const MARKERS = [
 ];
 
 const PARTS: { part: DevicePart; label: string; note: string }[] = [
-  { part: "touch_pad", label: "Touch pad", note: "The brass disc on the face." },
+  { part: "touch_pad", label: "Touch pad", note: "The blue disc on the face." },
   { part: "volume_buttons", label: "Volume keys", note: "Two keys on the side." },
   { part: "ear_gel", label: "Ear gel", note: "Soft tip that holds it in place." },
 ];
@@ -174,8 +174,8 @@ export function HomeStory() {
   };
 
   return (
-    // Pulled up under the floating navbar (76px) so the pinned stage fills the whole viewport from the first frame.
-    <section ref={sectionRef} aria-label="Voxlate" className="relative -mt-[76px]" style={{ height: `calc(100svh + ${SCROLL_VH}svh)` }}>
+    // Pulled up under the navbar (72px) so the pinned stage fills the whole viewport from the first frame.
+    <section ref={sectionRef} aria-label="Voxlate" className="relative -mt-[72px]" style={{ height: `calc(100svh + ${SCROLL_VH}svh)` }}>
       {/* In-page anchors used by the navbar and footer */}
       <span id="about" aria-hidden="true" className="absolute left-0" style={{ top: `calc(${stationProgress(0) * SCROLL_VH}svh + 88px)` }} />
       <span id="products" aria-hidden="true" className="absolute left-0" style={{ top: `calc(${stationProgress(1) * SCROLL_VH}svh + 88px)` }} />
@@ -189,7 +189,7 @@ export function HomeStory() {
         {/* ── Hero ── */}
         <motion.div
           style={{ opacity: heroOpacity, y: heroY, pointerEvents: heroPointer }}
-          className="page-container absolute inset-x-0 top-0 flex h-full flex-col pt-[104px] lg:justify-center lg:pt-[76px]"
+          className="page-container absolute inset-x-0 top-0 flex h-full flex-col pt-[104px] lg:justify-center lg:pt-[72px]"
         >
           <div className="max-w-[560px] lg:max-w-[52%]">
             <h1 id="hero-title" className="vx-display text-[clamp(2.4rem,10vw,3.25rem)] text-ink lg:text-[clamp(3rem,4.3vw,4.6rem)] lg:whitespace-nowrap">

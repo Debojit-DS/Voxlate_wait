@@ -80,13 +80,17 @@ export async function drawWordAtlas(pairs: WordPair[]): Promise<HTMLCanvasElemen
       ctx.direction = p.lang === "ar" && text(p) === p.word ? "rtl" : "ltr";
       const label = text(p);
       const measured = ctx.measureText(label).width;
-      const max = ATLAS_SLOT_PX * 0.84;
+      const max = ATLAS_SLOT_PX * 0.8;
       const cx = k * ATLAS_SLOT_PX + ATLAS_SLOT_PX / 2;
       ctx.save();
       ctx.translate(cx, h / 2 + 2);
       if (measured > max) ctx.scale(max / measured, max / measured);
       ctx.fillText(label, 0, 0);
       ctx.restore();
+      // Separator dot between neighbouring words (kept clear of the slot edge so filtering can't smear it).
+      ctx.beginPath();
+      ctx.arc(k * ATLAS_SLOT_PX + 12, h / 2 + 1, 3.2, 0, Math.PI * 2);
+      ctx.fill();
     });
     return c;
   };

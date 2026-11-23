@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail } from "lucide-react";
-import { LogoLockup } from "@/components/ui/Logo";
+import { ArrowUpRight } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 
 const SOCIAL_LINKS = [
   {
@@ -53,172 +53,142 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const NAVIGATE_LINKS = [
-  { label: "Homepage", href: "/" },
-  { label: "About Us", href: "/about" },
-  { label: "Team", href: "/about#team" },
-  { label: "Digital Version", href: "/digital-version" },
-  { label: "Physical Version", href: "/physical-version" },
-  { label: "Features", href: "/digital-version#features" },
-  { label: "Testimonials", href: "/#testimonials" },
+const COLUMNS: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
+  {
+    title: "Product",
+    links: [
+      { label: "Digital version", href: "/digital-version" },
+      { label: "Physical version", href: "/physical-version" },
+      { label: "Try the demo", href: "/demo" },
+      { label: "Reviews", href: "/#testimonials" },
+      { label: "FAQ", href: "/#faq" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About us", href: "/about" },
+      { label: "Our team", href: "/about#team" },
+      { label: "Join our team", href: "/careers" },
+      { label: "Contact", href: "/contact" },
+      { label: "Investors", href: "/contact?for=investor" },
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      { label: "Waitlist", href: "/waitlist" },
+      { label: "Telegram", href: "https://t.me/voxlate", external: true },
+      { label: "WhatsApp", href: "https://chat.whatsapp.com", external: true },
+      { label: "Email us", href: "mailto:support@voxlate.com", external: true },
+    ],
+  },
 ];
 
-const COMMUNITY_LINKS = [
-  { label: "Early Access Waitlist", href: "/waitlist" },
-  { label: "WhatsApp Community", href: "https://chat.whatsapp.com", external: true },
-  { label: "Telegram Channel", href: "https://t.me/voxlate", external: true },
-  { label: "Careers", href: "/careers" },
-  { label: "Our Mission", href: "/about#mission" },
-  { label: "Try Demo", href: "/demo" },
-];
-
-const SUPPORT_LINKS = [
-  { label: "FAQs", href: "/#faq" },
-  { label: "Contact Us", href: "mailto:support@voxlate.com", isMail: true },
-  { label: "Admin Portal", href: "/admin" },
-  { label: "Speech Translation Demo", href: "/demo" },
-  { label: "System Documentation", href: "/digital-version#features" },
-];
-
+/** Site footer: night navy, so it reads as the closing chapter of every page. */
 export function Footer() {
   return (
-    <footer id="contact" className="mt-auto border-t border-line bg-surface">
-      <div className="page-container py-14 md:py-18">
-        {/* Main Footer Columns */}
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-14">
-          {/* Brand & Social Column */}
-          <div className="flex flex-col items-start">
-            <LogoLockup />
-
-            <p className="mt-4 max-w-[38ch] text-[14px] leading-relaxed text-slate">
-              We&apos;re more than a platform — we&apos;re a community breaking language barriers through real-time AI translation, preserving human voice, tone, and emotion across borders.
+    <footer className="relative mt-auto overflow-hidden bg-night text-page">
+      <div className="page-container pt-16 lg:pt-24">
+        <div className="grid gap-14 lg:grid-cols-[1.15fr_1fr] lg:gap-20">
+          <div>
+            <p className="vx-display max-w-[16ch] text-[clamp(2rem,4.4vw,3.5rem)]">
+              Natural translation, in your own voice.
             </p>
+            <p className="mt-5 max-w-[44ch] text-[15px] leading-relaxed text-page/65">
+              Voxlate keeps your tone, your pace and the person behind the words, so every conversation still sounds
+              like the people having it.
+            </p>
+            <Link
+              href="/waitlist"
+              className="mt-8 inline-flex items-center gap-2 border-b border-page/40 pb-1 text-[16px] font-semibold transition-colors hover:border-page"
+            >
+              Join the waitlist <ArrowUpRight size={17} aria-hidden />
+            </Link>
+          </div>
 
-            {/* Company attribution */}
-            <div className="mt-5 flex items-center gap-3">
-              <Image
-                src="/images/Comapany-logo.png"
-                alt="SN Tech Corporation"
-                width={37}
-                height={48}
-                className="h-10 w-auto opacity-90"
-              />
-              <span className="text-[13px] font-medium text-ink">
-                Product of SN Tech Corporation
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3">
+            {COLUMNS.map((col) => (
+              <div key={col.title}>
+                <h2 className="text-[13px] font-medium text-page/50">{col.title}</h2>
+                <ul className="mt-4 space-y-2.5 text-[15px]">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+                          rel="noopener noreferrer"
+                          className="break-all text-page/85 transition-colors hover:text-page"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className="text-page/85 transition-colors hover:text-page">
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        <div className="mt-16 flex flex-col gap-6 border-t border-page/15 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <span className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-page">
+              <Logo className="h-9 w-auto" />
+            </span>
+            <span className="flex items-center gap-2.5 text-[13px] text-page/65">
+              <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-page">
+                <Image src="/images/Comapany-logo.png" alt="" width={37} height={48} className="h-6 w-auto" />
               </span>
-            </div>
-
-            {/* Social Icon Pills */}
-            <div className="mt-6 flex flex-wrap items-center gap-2.5">
-              {SOCIAL_LINKS.map((item) => (
+              A product of SN Tech Corporation
+            </span>
+          </div>
+          <ul className="flex items-center gap-1">
+            {SOCIAL_LINKS.map((item) => (
+              <li key={item.label}>
                 <a
-                  key={item.label}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.label}
-                  className="h-10 w-10 rounded-xl border border-line bg-surface flex items-center justify-center text-slate hover:text-ink hover:bg-mist hover:border-primary/40 transition-all duration-200 shadow-xs cursor-pointer"
+                  className="flex h-10 w-10 items-center justify-center rounded-[8px] text-page/70 transition-colors hover:bg-page/10 hover:text-page"
                 >
                   {item.icon}
                 </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Column: Navigate */}
-          <div>
-            <h3 className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-ink">
-              NAVIGATE
-            </h3>
-            <ul className="mt-4 space-y-3 text-[14px]">
-              {NAVIGATE_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-slate hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column: Community */}
-          <div>
-            <h3 className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-ink">
-              COMMUNITY
-            </h3>
-            <ul className="mt-4 space-y-3 text-[14px]">
-              {COMMUNITY_LINKS.map((link) => (
-                <li key={link.label}>
-                  {link.external ? (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-slate hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column: Support */}
-          <div>
-            <h3 className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.16em] text-ink">
-              SUPPORT
-            </h3>
-            <ul className="mt-4 space-y-3 text-[14px]">
-              {SUPPORT_LINKS.map((link) => (
-                <li key={link.label}>
-                  {link.isMail ? (
-                    <a
-                      href={link.href}
-                      className="inline-flex items-center gap-1.5 text-slate hover:text-primary transition-colors"
-                    >
-                      <Mail className="h-3.5 w-3.5 shrink-0 text-slate" aria-hidden="true" />
-                      <span>{link.label}</span>
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-slate hover:text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-14 pt-6 border-t border-line/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-slate">
+        <div className="flex flex-col gap-3 py-6 text-[13px] text-page/50 sm:flex-row sm:justify-between">
           <p>© 2026 Voxlate by SN Tech Corporation. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-ink transition-colors">
+          <p className="flex gap-5">
+            <Link href="/privacy" className="transition-colors hover:text-page">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-ink transition-colors">
-              Terms &amp; Conditions
+            <Link href="/terms" className="transition-colors hover:text-page">
+              Terms
             </Link>
-          </div>
+            <Link href="/admin" className="transition-colors hover:text-page">
+              Admin
+            </Link>
+          </p>
         </div>
       </div>
+
+      {/* Oversized wordmark, cut by the page edge. */}
+      <p
+        aria-hidden="true"
+        className="pointer-events-none -mb-[0.24em] select-none whitespace-nowrap text-center font-bold leading-none tracking-[-0.06em] text-page/[0.06]"
+        style={{ fontFamily: "var(--font-display)", fontSize: "clamp(6rem, 22vw, 22rem)" }}
+      >
+        voxlate
+      </p>
     </footer>
   );
 }
-
-export default Footer;

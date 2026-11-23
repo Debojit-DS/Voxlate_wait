@@ -2,22 +2,31 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Star } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { fetchReviews, type PublicReview } from "@/lib/publicApi";
-import { arcTable } from "./lemniscate";
+import { arcTable, smoothstep } from "./lemniscate";
 import { ReviewForm } from "./ReviewForm";
 
 const LOOP = arcTable(1.6);
 const TONES = [
-  { bg: "#2340d8", fg: "#ffffff" },
-  { bg: "#0b1430", fg: "#ffffff" },
-  { bg: "#b08a55", fg: "#ffffff" },
-  { bg: "#e7ebf6", fg: "#0b1430" },
-  { bg: "#fbfaf8", fg: "#2340d8" },
+  { bg: "#1f3fb8", fg: "#ffffff" },
+  { bg: "#0d1b2a", fg: "#ffffff" },
+  { bg: "#4b5567", fg: "#ffffff" },
+  { bg: "#e6eaf4", fg: "#0d1b2a" },
+  { bg: "#fbfbf9", fg: "#1f3fb8" },
 ];
 
-type Plate = { key: string; review: PublicReview | null; add?: boolean; focusable: boolean };
+type Plate = { key: string; review: PublicReview | null; add?: boolean; focusable: boolean; slot?: number };
 type Active = { index: number; x: number; y: number } | null;
+
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 const initialOf = (name: string) => name.match(/\p{L}/u)?.[0]?.toLocaleUpperCase() ?? "V";
 const monthYear = (iso: string) => {
@@ -79,42 +88,96 @@ export function ReviewsLoop() {
     return () => ro.disconnect();
   }, []);
 
-  const plates = useMemo<Plate[]>(() => {
+  // How many plates the loop has room for at this size (one of them is the "Share yours" plate).
+  const room = useMemo(() => {
     const spacing = dims.w + (dims.compact ? 10 : 18);
-    const count = Math.max(10, Math.min(40, Math.round((LOOP.length * dims.a) / spacing)));
-    const list: Plate[] = [];
-    const source = reviews ?? [];
-    for (let i = 0; i < count - 1; i++) {
-      const review = source.length ? source[i % source.length] : null;
-      list.push({ key: `p${i}`, review, focusable: Boolean(review) && i < source.length });
-    }
-    // One plate in the loop is always yours to fill.
-    list.splice(Math.floor(count / 2), 0, { key: "add", review: null, add: true, focusable: true });
-    return list;
-  }, [reviews, dims]);
+    return Math.max(8, Math.min(40, Math.round((LOOP.length * dims.a) / spacing))) - 1;
+  }, [dims]);
 
-  // Flow the plates along the loop.
+  // Reviews rotate through the loop: a shuffled queue feeds plates as they pass the crossing,
+  // and a review is never on the loop twice at the same time.
+  const byId = useMemo(() => new Map((reviews ?? []).map((r) => [r.id, r])), [reviews]);
+  const queue = useRef<string[]>([]);
+  const nextInQueue = useRef(0);
+  const [onLoop, setOnLoop] = useState<string[]>([]);
+  const onLoopRef = useRef<string[]>([]);
+  const loaded = reviews !== null;
+
+  useEffect(() => {
+    if (!loaded) return;
+    const ids = shuffle((reviews ?? []).map((r) => r.id));
+    // Keep a few reviews off the loop so there is always something new to rotate in.
+    const count = ids.length > 6 ? Math.min(room, ids.length - 3) : Math.min(room, ids.length);
+    queue.current = ids;
+    nextInQueue.current = count;
+    onLoopRef.current = ids.slice(0, count);
+    setOnLoop(onLoopRef.current);
+    // Re-deal only when the reviews first arrive or the loop changes size.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, room]);
+
+  const rotateIn = useCallback((slot: number) => {
+    const q = queue.current;
+    const current = onLoopRef.current;
+    if (q.length <= current.length) return;
+    for (let tries = 0; tries < q.length; tries++) {
+      const id = q[nextInQueue.current % q.length];
+      nextInQueue.current += 1;
+      if (!current.includes(id)) {
+        const next = [...current];
+        next[slot] = id;
+        onLoopRef.current = next;
+        setOnLoop(next);
+        return;
+      }
+    }
+  }, []);
+
+  const plates = useMemo<Plate[]>(() => {
+    const list: Plate[] = loaded
+      ? onLoop.map((id, i) => ({ key: `p${i}`, review: byId.get(id) ?? null, focusable: true, slot: i }))
+      : Array.from({ length: room }, (_, i) => ({ key: `p${i}`, review: null, focusable: false }));
+    // One plate in the loop is always yours to fill.
+    list.splice(Math.ceil(list.length / 2), 0, { key: "add", review: null, add: true, focusable: true });
+    return list;
+  }, [loaded, onLoop, byId, room]);
+
+  const slotOf = useRef<number[]>([]);
+  useEffect(() => {
+    slotOf.current = plates.map((p) => (p.slot === undefined ? -1 : p.slot));
+  }, [plates]);
+
+  // Flow the plates along the loop. Position lives in a ref so swapping a plate's review never resets it.
+  const offsetRef = useRef(0);
+  const plateCount = plates.length;
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    let offset = 0;
     let boost = 0;
     let lastScroll = window.scrollY;
     let frame = 0;
     let last = performance.now();
-    let visible = false;
-    const n = plates.length;
+    const n = plateCount;
+    const prev = new Array<number>(n).fill(-1);
 
     const place = () => {
       for (let i = 0; i < n; i++) {
         const el = plateRefs.current[i];
         if (!el) continue;
-        const p = LOOP.at((i / n) * LOOP.length + offset);
+        const t = (((i / n + offsetRef.current / LOOP.length) % 1) + 1) % 1;
+        // Crossing the centre of the infinity is the transition point: the plate fades out,
+        // takes the next unseen review, and fades back in.
+        if (prev[i] >= 0 && t < prev[i] - 0.5 && slotOf.current[i] >= 0) rotateIn(slotOf.current[i]);
+        prev[i] = t;
+        const fade = smoothstep(0, 0.05, t) * smoothstep(1, 0.95, t);
+        const p = LOOP.at(t * LOOP.length);
         const x = p.x * dims.a;
         const z = -p.y * dims.a;
         // Face perpendicular to the path, so plates turn as they round each lobe.
         const yaw = Math.atan2(p.ty, p.tx);
-        el.style.transform = `translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${yaw.toFixed(4)}rad)`;
+        el.style.transform = `translate3d(${x.toFixed(1)}px, 0, ${z.toFixed(1)}px) rotateY(${yaw.toFixed(4)}rad) scale(${(0.6 + 0.4 * fade).toFixed(3)})`;
+        el.style.opacity = fade.toFixed(3);
+        el.style.visibility = fade < 0.02 ? "hidden" : "visible";
       }
     };
 
@@ -124,16 +187,15 @@ export function ReviewsLoop() {
       const y = window.scrollY;
       boost = boost * Math.exp(-dt * 3) + Math.abs(y - lastScroll) * 0.0009;
       lastScroll = y;
-      if (!activeRef.current && !reduced) offset += dt * (26 / dims.a + boost);
+      if (!activeRef.current && !reduced) offsetRef.current += dt * (34 / dims.a + boost);
       place();
       frame = requestAnimationFrame(tick);
     };
 
     place();
     const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
       cancelAnimationFrame(frame);
-      if (visible) {
+      if (entry.isIntersecting) {
         last = performance.now();
         lastScroll = window.scrollY;
         frame = requestAnimationFrame(tick);
@@ -144,7 +206,7 @@ export function ReviewsLoop() {
       io.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [plates, dims, reduced]);
+  }, [plateCount, dims, reduced, rotateIn]);
 
   const activate = useCallback((index: number) => {
     const el = plateRefs.current[index];
@@ -176,7 +238,10 @@ export function ReviewsLoop() {
   const cardLeft = active ? Math.max(12, Math.min(stageW - cardW - 12, active.x + (active.x > stageW / 2 ? -cardW - 48 : 48))) : 0;
   const cardTop = active ? Math.max(0, active.y - (dims.compact ? 150 : 120)) : 0;
 
-  const onPosted = (review: PublicReview) => setReviews((prev) => [review, ...(prev ?? [])]);
+  const onPosted = (review: PublicReview) => {
+    queue.current.splice(nextInQueue.current % Math.max(1, queue.current.length), 0, review.id);
+    setReviews((prev) => [review, ...(prev ?? [])]);
+  };
 
   return (
     <section ref={sectionRef} id="testimonials" aria-labelledby="reviews-title" className="relative overflow-hidden border-t border-line pt-20 pb-16 lg:pt-28 lg:pb-20">
@@ -248,26 +313,49 @@ export function ReviewsLoop() {
           })}
         </div>
 
+        <AnimatePresence>
+          {active && activeReview && (
+            <motion.svg
+              key={`line-${active.index}`}
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible"
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.12 } }}
+            >
+              <motion.path
+                d={`M ${active.x} ${active.y} L ${active.x > stageW / 2 ? cardLeft + cardW : cardLeft} ${cardTop + 36}`}
+                stroke="var(--color-ink)"
+                strokeWidth="1.25"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: reduced ? 0 : 0.35, ease: [0.2, 0.8, 0.2, 1] }}
+              />
+              <motion.circle
+                cx={active.x}
+                cy={active.y}
+                r="4"
+                fill="var(--color-primary)"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 520, damping: 18 }}
+              />
+            </motion.svg>
+          )}
+        </AnimatePresence>
+        <AnimatePresence mode="popLayout">
         {active && activeReview && (
-          <svg className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible" aria-hidden="true">
-            <line
-              x1={active.x}
-              y1={active.y}
-              x2={active.x > stageW / 2 ? cardLeft + cardW : cardLeft}
-              y2={cardTop + 36}
-              stroke="var(--color-ink)"
-              strokeWidth="1"
-              strokeDasharray="3 4"
-            />
-            <circle cx={active.x} cy={active.y} r="3.5" fill="var(--color-ink)" />
-          </svg>
-        )}
-        {active && activeReview && (
-          <div
+          <motion.div
+            key={`card-${active.index}`}
             data-review-card
-            className="pointer-events-auto absolute z-10 rounded-[10px] border border-ink/15 bg-surface p-5 shadow-[0_24px_60px_-28px_rgba(11,20,48,0.5)]"
-            style={{ left: cardLeft, top: cardTop, width: cardW }}
+            className="pointer-events-auto absolute z-10 rounded-[10px] border border-ink/15 bg-surface p-5 shadow-[0_28px_70px_-30px_rgba(13,27,42,0.55)]"
+            style={{ left: cardLeft, top: cardTop, width: cardW, transformOrigin: active.x > stageW / 2 ? "100% 30%" : "0% 30%" }}
             role="status"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.86, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 6, filter: "blur(4px)", transition: { duration: 0.14 } }}
+            transition={{ type: "spring", stiffness: 380, damping: 26, mass: 0.8 }}
           >
             <div className="flex items-center gap-3">
               <Avatar review={activeReview} size={52} />
@@ -282,13 +370,21 @@ export function ReviewsLoop() {
                   key={n}
                   size={15}
                   aria-hidden
-                  className={n <= activeReview.rating ? "fill-[var(--color-brass)] text-[var(--color-brass)]" : "text-line"}
+                  className={n <= activeReview.rating ? "fill-primary text-primary" : "text-line"}
                 />
               ))}
             </div>
-            <p className="mt-2.5 line-clamp-6 text-[15px] leading-relaxed text-ink">“{activeReview.text}”</p>
-          </div>
+            <motion.p
+              className="mt-2.5 line-clamp-6 text-[15px] leading-relaxed text-ink"
+              initial={reduced ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08, duration: 0.3 }}
+            >
+              “{activeReview.text}”
+            </motion.p>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {failed && (
           <p className="absolute inset-x-0 top-1/2 text-center text-[15px] text-slate">Reviews couldn’t load right now. Please try again later.</p>

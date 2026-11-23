@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { proxyApiRequest } from "@/lib/server/apiProxy";
 import { getDb } from "@/lib/server/mongodb";
 import { waitlistSchema } from "@/lib/validation";
+import { publicName, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Public waitlist info (same contract as the backend): `?email=` checks membership; otherwise
+ * only the total and a few recent "First L." names. Never names in full, photos, roles or companies.
+ */
 export async function GET(req: NextRequest) {
   if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
     return proxyApiRequest(req);
@@ -17,70 +22,32 @@ export async function GET(req: NextRequest) {
     const collection = db.collection("waitlist_entries");
 
     if (email) {
-      const normalizedEmail = email.toLowerCase().trim();
-      const entry = await collection.findOne({ email: normalizedEmail });
-
-      return NextResponse.json(
-        {
-          status: "success",
-          data: { joined: !!entry },
-        },
-        { headers: { "Cache-Control": "no-store" } }
-      );
+      const entry = await collection.findOne({ email: email.toLowerCase().trim() }, { projection: { _id: 1 } });
+      return NextResponse.json({ status: "success", data: { joined: !!entry } }, { headers: { "Cache-Control": "no-store" } });
     }
 
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-    const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get("pageSize") ?? "20", 10) || 20));
-    const skip = (page - 1) * pageSize;
-
-    const [entries, total] = await Promise.all([
-      collection
-        .find({})
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(pageSize)
-        .toArray(),
+    const limit = Math.min(PUBLIC_RECENT_LIMIT, Math.max(1, parseInt(searchParams.get("pageSize") ?? "", 10) || PUBLIC_RECENT_LIMIT));
+    const [recent, total] = await Promise.all([
+      collection.find({}, { projection: { name: 1, createdAt: 1 } }).sort({ createdAt: -1 }).limit(limit).toArray(),
       collection.countDocuments(),
     ]);
-
-    const formatted = entries.map((doc) => ({
-      id: doc._id.toString(),
-      name: doc.name ?? "",
-      role: doc.role || null,
-      organization: doc.organization || doc.company || null,
-      photoUrl: doc.photoUrl || null,
-      createdAt:
-        doc.createdAt instanceof Date
-          ? doc.createdAt.toISOString()
-          : typeof doc.createdAt === "string"
-          ? doc.createdAt
-          : new Date().toISOString(),
-      type: doc.type ?? "individual",
-      product: doc.product ?? "both",
-    }));
 
     return NextResponse.json(
       {
         status: "success",
-        data: formatted,
-        pagination: {
-          page,
-          pageSize,
-          total,
-          totalPages: Math.max(1, Math.ceil(total / pageSize)),
-        },
+        data: recent.map((doc) => ({
+          name: publicName(doc.name),
+          createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : typeof doc.createdAt === "string" ? doc.createdAt : null,
+        })),
+        pagination: { page: 1, pageSize: limit, total, totalPages: 1 },
       },
-      { headers: { "Cache-Control": "no-store" } }
+      { headers: { "Cache-Control": "no-store" } },
     );
   } catch (err) {
     console.error("Waitlist GET error:", err);
     return NextResponse.json(
-      {
-        status: "error",
-        code: "server_error",
-        message: "The waitlist is temporarily unavailable.",
-      },
-      { status: 503, headers: { "Cache-Control": "no-store" } }
+      { status: "error", code: "server_error", message: "The waitlist is temporarily unavailable." },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

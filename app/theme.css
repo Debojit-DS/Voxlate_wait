@@ -1,7 +1,5 @@
 /*
- * Homepage theme. Everything here is scoped to pages that render `.vx-home`, so the
- * other routes keep their current look until they are redesigned one by one.
- *
+ * Site theme: fonts and the shared vx-* pieces used across every page.
  * Fonts: Cabinet Grotesk + Switzer (Fontshare, ITF Free Font License), self-hosted in /public/fonts.
  */
 @font-face {
@@ -19,48 +17,10 @@
   font-display: swap;
 }
 
-/* Applied at :root (not on the wrapper) so portalled dialogs opened from the homepage match. */
-:root:has(.vx-home) {
-  --color-page: #f3f1ec; /* warm paper */
-  --color-surface: #fbfaf8;
-  --color-mist: #e7ebf6; /* cool tint of the primary */
-  --color-stone: #e4dfd4;
-  --color-primary: #2340d8; /* cobalt: 6.7:1 on paper, 7.5:1 under white text */
-  --color-primary-hover: #1b32b3;
-  --color-ink: #0b1430;
-  --color-slate: #4e566a;
-  --color-line: #dcd7cb;
-  --color-line-strong: #8b8677;
-  --color-brass: #b08a55; /* from the earpiece's touch pad and keys */
-
-  --font-sans: "Switzer", var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Cabinet Grotesk", "Switzer", ui-sans-serif, system-ui, sans-serif;
-}
-
-/* The footer stays exactly as it is on every other page for now. */
-.vx-legacy {
-  --color-page: #f7f8fa;
-  --color-surface: #ffffff;
-  --color-mist: #edf1f4;
-  --color-stone: #e8e5de;
-  --color-primary: #285a78;
-  --color-primary-hover: #204860;
-  --color-ink: #182b3a;
-  --color-slate: #5a6872;
-  --color-line: #ccd6de;
-  --color-line-strong: #7d8e99;
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  font-family: var(--font-sans);
-  color: var(--color-ink);
-}
-
-.vx-home {
-  font-family: var(--font-sans);
-  color: var(--color-ink);
+body {
   font-feature-settings: "ss01" 1;
 }
-.vx-home ::selection {
+::selection {
   background: var(--color-primary);
   color: #fff;
 }
@@ -83,8 +43,8 @@
 /* ───────────────────────── Story stage (hero + stations) ───────────────────────── */
 .vx-grid {
   background-image:
-    linear-gradient(to right, rgb(35 64 216 / 0.075) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(35 64 216 / 0.075) 1px, transparent 1px);
+    linear-gradient(to right, rgb(31 63 184 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(31 63 184 / 0.07) 1px, transparent 1px);
   background-size: 32px 32px;
   background-position: -1px -1px;
   mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 45%, transparent 100%);
@@ -187,10 +147,12 @@
   cursor: pointer;
 }
 .vx-chip:hover,
-.vx-chip[aria-pressed="true"] {
+.vx-chip[aria-pressed="true"],
+.vx-chip[aria-checked="true"] {
   border-color: var(--color-ink);
 }
-.vx-chip[aria-pressed="true"] {
+.vx-chip[aria-pressed="true"],
+.vx-chip[aria-checked="true"] {
   background: var(--color-ink);
   color: var(--color-page);
 }
@@ -324,9 +286,9 @@
   background: var(--plate-bg, var(--color-surface));
   color: var(--plate-fg, var(--color-ink));
   transition:
-    filter 300ms ease,
-    transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 300ms ease;
+    filter 380ms ease,
+    transform 460ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 380ms ease;
   filter: grayscale(1) contrast(0.92) brightness(1.02);
 }
 .vx-plate-face[data-back] {
@@ -337,7 +299,7 @@
   box-shadow: 0 18px 40px -18px rgb(11 20 48 / 0.55);
 }
 .vx-plate:is(:hover, :focus-visible, [data-active="true"]) .vx-plate-face:not([data-back]) {
-  transform: translateZ(18px) scale(1.06);
+  transform: translate3d(0, -14px, 34px) scale(1.14);
 }
 .vx-plate:focus-visible {
   outline: none;
@@ -408,7 +370,7 @@
 .vx-tape-track {
   display: flex;
   width: max-content;
-  animation: vx-tape-right 28s linear infinite;
+  animation: vx-tape-right 60s linear infinite;
 }
 .vx-tape-track[data-dir="left"] {
   animation-name: vx-tape-left;
@@ -431,4 +393,112 @@
   .vx-line::before {
     transition: none;
   }
+}
+
+/* ───────────────────────── Forms ───────────────────────── */
+.vx-field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.vx-field-label small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-slate);
+}
+.vx-field {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  font-size: 16px;
+  color: var(--color-ink);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+.vx-field::placeholder {
+  color: #9a978b;
+}
+.vx-field:hover {
+  border-color: var(--color-line-strong);
+}
+.vx-field:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(31 63 184 / 0.14);
+  background: #fff;
+}
+.vx-field[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+textarea.vx-field {
+  min-height: 140px;
+  resize: vertical;
+  line-height: 1.55;
+}
+select.vx-field {
+  appearance: none;
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%234B5567' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+.vx-field-error {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+/* Segmented choice (radio cards) */
+.vx-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+.vx-choice:hover {
+  border-color: var(--color-line-strong);
+}
+.vx-choice:has(input:checked) {
+  border-color: var(--color-ink);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+.vx-choice:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.vx-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Page heads: left-aligned, big, with an index line */
+.vx-page-head {
+  padding-top: clamp(48px, 9vh, 96px);
+  padding-bottom: clamp(32px, 6vh, 64px);
+}
+.vx-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.vx-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

@@ -4,6 +4,7 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { arcTable, clamp01, easeInOut, lerp } from "../lemniscate";
 import { drawWordAtlas, RIBBON_PAIRS, SLOT_ASPECT } from "./words";
+import { createEarpieceMaterials } from "./earpiece";
 
 /**
  * Hero + "stations" scene.
@@ -38,7 +39,7 @@ type Options = {
   onDeviceReady?: () => void;
 };
 
-const LOBE_B = 1.45;
+const LOBE_B = 1.15;
 const STRAND_DEPTH = 0.55;
 const RIBBON_Z = -2.15;
 const SEGMENTS = 1600;
@@ -47,9 +48,9 @@ const CAM_Z = 24;
 const FLOW_SPEED = 0.55;
 
 const COLORS = {
-  paper: "#fbfaf8",
-  cobalt: "#2340d8",
-  ink: "#0b1430",
+  paper: "#fbfbf9",
+  cobalt: "#1f3fb8",
+  ink: "#3a4456",
   white: "#ffffff",
 };
 
@@ -68,18 +69,18 @@ const atRibbonDepth = (v: number) => (v * (CAM_Z - RIBBON_Z)) / CAM_Z;
 
 function computeLayout(W: number, H: number, compact: boolean, unitLength: number) {
   if (!compact) {
-    const heroScale = Math.min(0.235 * W, 0.5 * H);
-    const stationScale = 1.05 * H;
+    const heroScale = Math.min(0.215 * W, 0.5 * H);
+    const stationScale = 1.15 * H;
     const arcX = (0.17 - 0.5) * W;
     return {
       compact,
       markerGap: 0.25 * H,
       heroRibbon: {
-        x: atRibbonDepth(0.255 * W),
+        x: atRibbonDepth(0.25 * W),
         y: atRibbonDepth(-0.03 * H),
         scale: atRibbonDepth(heroScale),
-        rotX: -0.16,
-        rotY: -0.22,
+        rotX: -0.12,
+        rotY: 0.12,
         width: 0.6,
         readX: 0.96,
         readY: 0.28,
@@ -94,7 +95,7 @@ function computeLayout(W: number, H: number, compact: boolean, unitLength: numbe
         readX: 0.2,
         readY: 0.98,
       } satisfies RibbonPose,
-      heroDevice: { x: 0.255 * W, y: -0.02 * H, h: 0.5 * H, yaw: -0.5, rotX: 0.06, rotZ: -0.1 } satisfies DevicePose,
+      heroDevice: { x: 0.25 * W, y: -0.02 * H, h: 0.46 * H, yaw: -0.5, rotX: 0.06, rotZ: -0.1 } satisfies DevicePose,
       stationDevices: [
         { x: 0.335 * W, y: 0, h: 0.56 * H, yaw: -1.0, rotX: 0.05, rotZ: -0.06 },
         { x: 0.42 * W, y: -1.0 * H, h: 0.4 * H, yaw: -0.6, rotX: 0.2, rotZ: 0.2 },
@@ -103,8 +104,8 @@ function computeLayout(W: number, H: number, compact: boolean, unitLength: numbe
       unitLength,
     };
   }
-  const heroScale = Math.min(0.44 * W, 0.26 * H);
-  const stationScale = 0.95 * H;
+  const heroScale = Math.min(0.47 * W, 0.3 * H);
+  const stationScale = 1.05 * H;
   const arcX = (0.12 - 0.5) * W;
   return {
     compact,
@@ -224,24 +225,32 @@ const fragmentShader = /* glsl */ `
 
     // Left lobe carries the original word, right lobe its English meaning.
     float slotSide = smoothstep(-0.05, 0.05, info.z);
-    vec4 g = texture2D(uAtlas, vec2((mod(k, uN) + tuv.x) / uN, tuv.y));
+    // The atlas coordinate jumps at every slot boundary (and flips for upside-down slots), which
+    // makes the GPU pick the blurriest mip there and draws hairlines. Take the sampling gradients
+    // from the continuous coordinate instead.
+    vec2 continuous = vec2(vS / (uSlot * uN), vV);
+    vec4 g = textureGrad(uAtlas, vec2((mod(k, uN) + tuv.x) / uN, tuv.y), dFdx(continuous), dFdy(continuous));
     float glyph = mix(g.r, g.g, slotSide) * vis;
 
+    // Left lobe: the words float free (no band), like speech in the air.
+    // Right lobe: a solid band carries the translated words.
     float side = smoothstep(-0.06, 0.06, vX);
-    vec3 band = mix(uPaper, uCobalt, side);
-    vec3 ink = mix(uInk, uWhite, slotSide);
+    if (!gl_FrontFacing && side < 0.5) discard;
 
     vec3 n = normalize(vN);
     if (!gl_FrontFacing) n = -n;
-    float lit = 0.8 + 0.2 * max(dot(n, normalize(vec3(-0.35, 0.55, 0.75))), 0.0);
-    float edge = smoothstep(0.0, 0.05, min(vV, 1.0 - vV));
-    vec3 col = band * mix(0.84, 1.0, edge);
-    if (gl_FrontFacing) {
-      col = mix(col, ink, glyph);
-    } else {
-      col *= 0.8;
-    }
-    gl_FragColor = vec4(col * lit, 1.0);
+    float lit = 0.86 + 0.14 * max(dot(n, normalize(vec3(-0.35, 0.55, 0.75))), 0.0);
+    float edge = smoothstep(0.0, 0.04, min(vV, 1.0 - vV));
+    vec3 band = uCobalt * mix(0.82, 1.0, edge) * lit;
+    if (!gl_FrontFacing) band *= 0.78;
+    vec3 ink = mix(uInk, uWhite, slotSide);
+
+    float front = gl_FrontFacing ? 1.0 : 0.0;
+    vec3 onBand = mix(band, ink, glyph * front);
+    vec3 col = mix(ink, onBand, side);
+    float alpha = mix(glyph, 1.0, side);
+    if (alpha < 0.01) discard;
+    gl_FragColor = vec4(col, alpha);
     #include <colorspace_fragment>
   }
 `;
@@ -261,7 +270,7 @@ function buildRibbonGeometry() {
     const s = (i / SEGMENTS) * L;
     const p = table.at(s);
     // In-plane perpendicular (tangent rotated +90°) twisted gently around the tangent.
-    const twist = 0.42 * Math.sin((s / L) * Math.PI * 2 * 3 + 0.6);
+    const twist = 0.14 * Math.sin((s / L) * Math.PI * 2 * 3 + 0.6);
     const wx = -p.ty * Math.cos(twist);
     const wy = p.tx * Math.cos(twist);
     const wz = Math.sin(twist);
@@ -368,6 +377,7 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
     vertexShader,
     fragmentShader,
     side: THREE.DoubleSide,
+    transparent: true,
     toneMapped: false,
   });
   const ribbonMesh = new THREE.Mesh(geometry, ribbonMaterial);
@@ -386,18 +396,7 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
   let deviceHeight = 5.78;
   const partMeshes = new Map<string, THREE.Mesh>();
   const partRest = new Map<string, THREE.Vector3>();
-  const materials = {
-    body_front: new THREE.MeshPhysicalMaterial({ color: "#ece9e2", roughness: 0.3, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.18 }),
-    body_back: new THREE.MeshPhysicalMaterial({ color: "#262a33", roughness: 0.48, metalness: 0.1, clearcoat: 0.35, clearcoatRoughness: 0.4 }),
-    ear_gel: new THREE.MeshPhysicalMaterial({ color: "#a9bacb", roughness: 0.55, metalness: 0 }),
-    touch_pad: new THREE.MeshPhysicalMaterial({ color: "#b08a55", roughness: 0.32, metalness: 0.85 }),
-    volume_buttons: new THREE.MeshPhysicalMaterial({ color: "#b08a55", roughness: 0.34, metalness: 0.85 }),
-  } as const;
-  // A highlighted part brightens in its own colour (no tint).
-  for (const m of Object.values(materials)) {
-    m.emissive = m.color.clone();
-    m.emissiveIntensity = 0;
-  }
+  const materials = createEarpieceMaterials();
 
   let disposed = false;
   let deviceAppear = 0;

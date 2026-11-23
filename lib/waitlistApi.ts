@@ -11,65 +11,6 @@ export type WaitlistCheckResponse =
   | { status: "success"; data: { joined: boolean } }
   | { status: "error"; code: "server_error"; message: string };
 
-export type PublicWaitlistEntry = {
-  id: string;
-  name: string;
-  role: string | null;
-  organization: string | null;
-  photoUrl: string | null;
-  createdAt: string;
-};
-
-export type PublicWaitlistResponse = {
-  status: "success";
-  /** Set when the request failed, so the page can tell an outage from an empty list. */
-  failed?: true;
-  data: PublicWaitlistEntry[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-};
-
-export async function getPublicWaitlist(page = 1, pageSize = 20): Promise<PublicWaitlistResponse> {
-  try {
-    const res = await apiRequest(`/api/waitlist?page=${page}&pageSize=${pageSize}`, {
-      method: "GET",
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    if (!res.ok) {
-      return {
-        status: "success",
-        data: [],
-        pagination: { page, pageSize, total: 0, totalPages: 0 },
-        failed: true,
-      };
-    }
-
-    const json = (await res.json()) as Partial<PublicWaitlistResponse>;
-    if (json.status !== "success" || !json.pagination || !Array.isArray(json.data)) {
-      return {
-        status: "success",
-        data: [],
-        pagination: { page, pageSize, total: 0, totalPages: 0 },
-        failed: true,
-      };
-    }
-
-    return json as PublicWaitlistResponse;
-  } catch {
-    return {
-      status: "success",
-      data: [],
-      pagination: { page, pageSize, total: 0, totalPages: 0 },
-      failed: true,
-    };
-  }
-}
-
 export async function submitToWaitlist(payload: WaitlistFormValues): Promise<WaitlistResponse> {
     try {
     const res = await apiRequest("/api/waitlist", {

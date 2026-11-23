@@ -5,59 +5,37 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { waitlistSchema } from "@/lib/validation";
 import { resend } from "@/lib/resend";
+import { publicName, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
 
+/**
+ * Public waitlist info. `?email=` answers "has this person joined?" (used by the demo gate);
+ * otherwise only the total and a few recent "First L." names are returned. The member list itself
+ * is private and only available to admins (GET /api/admin/waitlist).
+ */
 export async function GET(req: NextRequest) {
   try {
-  const { searchParams } = new URL(req.url);
-  const email = searchParams.get("email");
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get("email");
 
-  if (email) {
-    const normalizedEmail = email.toLowerCase().trim();
-    const entry = await prisma.waitlistEntry.findUnique({
-      where: { email: normalizedEmail },
-    });
+    if (email) {
+      const normalizedEmail = email.toLowerCase().trim();
+      const entry = await prisma.waitlistEntry.findUnique({ where: { email: normalizedEmail }, select: { id: true } });
+      const res = NextResponse.json({ status: "success", data: { joined: !!entry } });
+      return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
+    }
+
+    const limit = Math.min(PUBLIC_RECENT_LIMIT, Math.max(1, parseInt(searchParams.get("pageSize") ?? "", 10) || PUBLIC_RECENT_LIMIT));
+    const [recent, total] = await Promise.all([
+      prisma.waitlistEntry.findMany({ select: { name: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: limit }),
+      prisma.waitlistEntry.count(),
+    ]);
 
     const res = NextResponse.json({
       status: "success",
-      data: { joined: !!entry },
+      data: recent.map((entry) => ({ name: publicName(entry.name), createdAt: entry.createdAt })),
+      pagination: { page: 1, pageSize: limit, total, totalPages: 1 },
     });
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
-  }
-
-  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-  const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get("pageSize") ?? "20", 10) || 20));
-  const skip = (page - 1) * pageSize;
-
-  const [entries, total] = await Promise.all([
-    prisma.waitlistEntry.findMany({
-      select: {
-        id: true,
-        name: true,
-        role: true,
-        organization: true,
-        photoUrl: true,
-        createdAt: true,
-        type: true,
-        product: true,
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: pageSize,
-    }),
-    prisma.waitlistEntry.count(),
-  ]);
-
-  const res = NextResponse.json({
-    status: "success",
-    data: entries,
-    pagination: {
-      page,
-      pageSize,
-      total,
-      totalPages: Math.ceil(total / pageSize),
-    },
-  });
-  return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   } catch {
     return withSecurityHeaders(NextResponse.json({ status: "error", code: "server_error", message: "The waitlist is temporarily unavailable." }, { status: 503 }));
   }

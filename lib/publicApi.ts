@@ -5,6 +5,8 @@
  * backend (network error, 404 or 5xx) do we call the public API directly — so a POST
  * the backend actually received (2xx, 400, 429…) is never sent twice.
  */
+import { publicName, PUBLIC_RECENT_LIMIT } from "./publicName";
+
 const DIRECT_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "https://voxlate-wait.onrender.com").replace(/\/$/, "");
 
 function shouldFallBack(res: Response | null) {
@@ -60,19 +62,34 @@ export async function postReview(input: { text: string; rating: number; authorNa
   return data.review as PublicReview;
 }
 
-export type WaitlistPulse = { total: number; initials: string[] };
+export type WaitlistPulse = { total: number; recent: { name: string; createdAt: string | null }[]; initials: string[] };
 
-/** Live member count plus first-name initials of the latest sign-ups (no photos or names leave this function). */
+/**
+ * Waitlist size plus a few recent "First L." names (the server never sends more).
+ * The API sleeps when idle and can take ~30 s to wake, so this waits longer and retries once.
+ */
 export async function fetchWaitlistPulse(): Promise<WaitlistPulse> {
-  const res = await publicFetch("/waitlist?pageSize=5");
-  const data = await res.json().catch(() => null);
-  const total = Number(data?.pagination?.total);
-  if (!res.ok || !Number.isFinite(total)) throw new Error("Waitlist count unavailable.");
-  const initials = (Array.isArray(data.data) ? data.data : [])
-    .map((entry: { name?: unknown }) => (typeof entry?.name === "string" ? entry.name.match(/\p{L}/u)?.[0] : undefined))
-    .filter((letter: string | undefined): letter is string => Boolean(letter))
-    .map((letter: string) => letter.toLocaleUpperCase());
-  return { total, initials };
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await publicFetch("/waitlist?pageSize=8", {}, 45_000);
+      const data = await res.json().catch(() => null);
+      const total = Number(data?.pagination?.total);
+      if (!res.ok || !Number.isFinite(total)) throw new Error("Waitlist count unavailable.");
+      const recent = (Array.isArray(data.data) ? data.data : [])
+        .filter((e: { name?: unknown }) => typeof e?.name === "string")
+        .slice(0, PUBLIC_RECENT_LIMIT)
+        // The server already sends "First L."; trimming again keeps an older API from ever showing full names.
+        .map((e: { name: string; createdAt?: unknown }) => ({ name: publicName(e.name), createdAt: typeof e.createdAt === "string" ? e.createdAt : null }));
+      const initials = recent
+        .map((e: { name: string }) => e.name.match(/\p{L}/u)?.[0]?.toLocaleUpperCase())
+        .filter((l: string | undefined): l is string => Boolean(l));
+      return { total, recent, initials };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
 }
 
 export async function postQuestion(input: { name: string; email: string; question: string; website?: string }) {
@@ -86,5 +103,22 @@ export async function postQuestion(input: { name: string; email: string; questio
     throw new Error(
       data?.message || (res.status === 404 ? "Questions can't be received yet. Please try again soon." : "Your question couldn't be sent. Please try again."),
     );
+  }
+}
+
+export type ContactInput =
+  | { kind: "customer" | "freelancer"; name: string; email: string; company?: string; topic?: string; website?: string; message: string; fax?: string }
+  | { kind: "investor"; name: string; email: string; company?: string; stage?: string; website?: string; message: string; fax?: string };
+
+export async function postContact(input: ContactInput): Promise<void> {
+  const res = await publicFetch("/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || data?.status !== "success") {
+    const field = data?.errors ? Object.values(data.errors as Record<string, string>)[0] : null;
+    throw new Error(field || data?.message || (res.status === 404 ? "Messages can't be received yet. Please email support@voxlate.com." : "Your message couldn't be sent. Please try again."));
   }
 }

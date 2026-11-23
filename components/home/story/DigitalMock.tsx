@@ -13,10 +13,10 @@ export const PLATFORMS: Record<Platform, { label: string; title: string; accent:
 
 /** Each participant speaks their own language; the viewer hears English. Translations are accurate. */
 const PEOPLE = [
-  { name: "Ananya", lang: "Hindi", tone: "#2340d8", said: "नमस्ते, चलिए शुरू करते हैं।", heard: "Hello, let’s get started.", script: "hi" },
-  { name: "Arjun", lang: "Bengali", tone: "#b08a55", said: "আমি স্লাইডগুলো শেয়ার করছি।", heard: "I’m sharing the slides.", script: "bn" },
+  { name: "Ananya", lang: "Hindi", tone: "#1f3fb8", said: "नमस्ते, चलिए शुरू करते हैं।", heard: "Hello, let’s get started.", script: "hi" },
+  { name: "Arjun", lang: "Bengali", tone: "#4b5567", said: "আমি স্লাইডগুলো শেয়ার করছি।", heard: "I’m sharing the slides.", script: "bn" },
   { name: "Lucía", lang: "Spanish", tone: "#4e566a", said: "¿Me escuchan bien?", heard: "Can you all hear me?", script: "es" },
-  { name: "Meera", lang: "Tamil", tone: "#0b1430", said: "நன்றி, அடுத்த பக்கத்தைப் பார்க்கலாம்.", heard: "Thanks, let’s look at the next page.", script: "ta" },
+  { name: "Meera", lang: "Tamil", tone: "#0d1b2a", said: "நன்றி, அடுத்த பக்கத்தைப் பார்க்கலாம்.", heard: "Thanks, let’s look at the next page.", script: "ta" },
 ] as const;
 
 const BASE_W = 720;

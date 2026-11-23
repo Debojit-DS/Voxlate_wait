@@ -1,42 +1,83 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { LogoLockup } from "@/components/ui/Logo";
-import { Footer } from "@/components/layout/Footer";
+import { Logo, LogoLockup } from "@/components/ui/Logo";
 
-/** Quiet frame for login/signup: identity, a way back, and the form. */
+const WORDS = [
+  { text: "नमस्ते", lang: "hi" },
+  { text: "Hola", lang: "es" },
+  { text: "বন্ধু", lang: "bn" },
+  { text: "Merci", lang: "fr" },
+  { text: "நன்றி", lang: "ta" },
+  { text: "Danke", lang: "de" },
+];
+
+/**
+ * Login / sign-up frame: a quiet split screen with no site navigation or footer.
+ * Left: what you're signing in to. Right: the form.
+ */
 export function AuthShell({
   title,
   subtitle,
-  icon,
   children,
 }: {
   title?: string;
   subtitle?: string;
+  /** Accepted for compatibility; the redesigned frame shows no icon. */
   icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-page">
-      <header className="page-container flex items-center justify-between gap-4 py-5">
-        <LogoLockup />
-        <Link href="/" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-slate hover:text-ink transition-colors">
-          <ArrowLeft size={16} aria-hidden />
-          Back to Home
+    <div className="grid min-h-svh bg-page lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      {/* Brand panel */}
+      <aside className="relative hidden overflow-hidden bg-night p-12 text-page lg:flex lg:flex-col">
+        <Link href="/" className="flex w-fit items-center gap-3" aria-label="Voxlate home">
+          <span className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-page">
+            <Logo className="h-9 w-auto" />
+          </span>
+          <span className="text-[15px] font-semibold tracking-tight">Voxlate</span>
         </Link>
-      </header>
-      <main className="flex flex-1 items-start justify-center px-4 pb-20 pt-4 sm:pt-8 md:pt-10">
-        <div className="w-full max-w-[440px] rounded-[24px] border border-line bg-surface p-7 sm:p-9 shadow-[0_8px_30px_rgba(24,43,58,0.04)]">
-          {icon && <div className="mb-4 flex justify-center">{icon}</div>}
+
+        <div className="mt-auto">
+          <ul aria-hidden="true" className="mb-10 flex flex-wrap gap-x-4 gap-y-2 text-[18px] text-page/45" style={{ fontFamily: "var(--font-indic)" }}>
+            {WORDS.map((w, i) => (
+              <li key={w.text} lang={w.lang} className="flex items-center gap-4">
+                {i > 0 && <span className="h-1 w-1 rounded-full bg-page/30" />}
+                {w.text}
+              </li>
+            ))}
+          </ul>
+          <p className="vx-display max-w-[14ch] text-[clamp(2.4rem,3.6vw,3.6rem)]">
+            Speak in yours.
+            <br />
+            <span className="text-[#9fb2ff]">Be heard in theirs.</span>
+          </p>
+          <p className="mt-5 max-w-[40ch] text-[15px] leading-relaxed text-page/65">
+            One account for the waitlist, the web demo and your reviews.
+          </p>
+        </div>
+      </aside>
+
+      {/* Form */}
+      <main className="flex flex-col px-5 pb-16 pt-6 sm:px-10 lg:px-16 lg:pt-10">
+        <div className="flex items-center justify-between gap-4">
+          <span className="lg:invisible">
+            <LogoLockup />
+          </span>
+          <Link href="/" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-slate transition-colors hover:text-ink">
+            <ArrowLeft size={16} aria-hidden />
+            Back to home
+          </Link>
+        </div>
+        <div className="mx-auto my-auto w-full max-w-[420px] pt-10 lg:pt-0">
           {title && (
-            <div className={icon ? "text-center mb-6" : ""}>
-              <h1 className="font-display text-[30px] sm:text-[34px] font-semibold leading-tight text-ink">{title}</h1>
-              {subtitle && <p className="mt-1.5 text-[14px] sm:text-[15px] text-slate">{subtitle}</p>}
+            <div>
+              <h1 className="vx-display text-[clamp(2.2rem,5vw,3rem)] text-ink">{title}</h1>
+              {subtitle && <p className="mt-2 text-[15px] leading-relaxed text-slate">{subtitle}</p>}
             </div>
           )}
-          <div className={title && !icon ? "mt-8" : ""}>{children}</div>
+          <div className={title ? "mt-8" : ""}>{children}</div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

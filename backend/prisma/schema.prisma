@@ -80,6 +80,25 @@ model Question {
   @@map("questions")
 }
 
+/// Messages from the /contact page: customers, freelancers and investors.
+model ContactMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  kind      String   // "customer" | "freelancer" | "investor"
+  name      String
+  email     String
+  company   String?
+  topic     String?  // customers/freelancers: what it's about
+  stage     String?  // investors: kind of investment
+  website   String?
+  message   String
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([kind])
+  @@map("contact_messages")
+}
+
 model JobApplication {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   fullName         String

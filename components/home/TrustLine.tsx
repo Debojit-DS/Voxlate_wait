@@ -7,7 +7,7 @@ import { fetchWaitlistPulse } from "@/lib/publicApi";
 const TONES = [
   { bg: "var(--color-primary)", fg: "#fff" },
   { bg: "var(--color-ink)", fg: "#fff" },
-  { bg: "var(--color-brass)", fg: "#fff" },
+  { bg: "var(--color-slate)", fg: "#fff" },
   { bg: "var(--color-mist)", fg: "var(--color-ink)" },
   { bg: "var(--color-surface)", fg: "var(--color-primary)" },
 ];

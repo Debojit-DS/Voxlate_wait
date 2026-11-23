@@ -1,12 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { UnderlineLink } from "@/components/ui/UnderlineLink";
-import { JoinMyTeamButton } from "@/components/ui/JoinMyTeamButton";
 
 export const metadata = {
-  title: "About — Voxlate",
-  description: "Meet the team building Voxlate and read our mission.",
+  title: "About us — Voxlate",
+  description: "Why we are building natural, voice-preserving translation, and the team behind Voxlate.",
 };
 
 type TeamMember = {
@@ -160,44 +160,48 @@ const TEAM_GROUPS: TeamGroup[] = [
   },
 ];
 
-function Portrait({ member, size }: { member: TeamMember; size: number }) {
+const PRINCIPLES = [
+  {
+    title: "Your voice stays yours",
+    body: "Pitch, warmth and emotion carry into the other language, so people hear you, not a narrator reading a transcript.",
+  },
+  {
+    title: "Who said what stays clear",
+    body: "In a room or on a call, every speaker keeps a distinct voice, so a conversation still feels like several people talking.",
+  },
+  {
+    title: "Meaning over word-for-word",
+    body: "Intent, emphasis and direction are what get translated, so the result sounds like something a person would actually say.",
+  },
+];
+
+function Portrait({ member, className = "" }: { member: TeamMember; className?: string }) {
   return member.image ? (
     <Image
       src={member.image}
       alt={`Portrait of ${member.name}`}
-      width={size * 2}
-      height={size * 2}
-      sizes={`${size}px`}
-      className="shrink-0 rounded-full border border-line bg-mist object-cover"
-      style={{ width: size, height: size }}
+      width={480}
+      height={600}
+      sizes="(max-width: 640px) 50vw, 260px"
+      className={`aspect-[4/5] w-full object-cover grayscale transition-[filter,transform] duration-500 group-hover:scale-[1.03] group-hover:grayscale-0 ${className}`}
     />
   ) : (
-    <span
-      className="flex shrink-0 items-center justify-center rounded-full border border-line bg-mist font-display text-2xl text-slate"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-    >
-      {member.name.split(" ").map((n) => n[0]).join("")}
+    <span className={`flex aspect-[4/5] w-full items-center justify-center bg-mist text-[40px] font-bold text-slate ${className}`} aria-hidden="true">
+      {member.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")}
     </span>
   );
 }
 
-function ProfileLinks({ member }: { member: TeamMember }) {
-  const links = [
-    member.linkedin && { label: "LinkedIn", href: member.linkedin },
-    member.github && { label: "GitHub", href: member.github },
-    member.twitter && { label: "X", href: member.twitter },
-  ].filter(Boolean) as { label: string; href: string }[];
-  if (links.length === 0) return null;
+function LinkedIn({ member }: { member: TeamMember }) {
+  if (!member.linkedin) return null;
   return (
-    <p className="mt-3 flex gap-4 text-[14px]">
-      {links.map((l) => (
-        <UnderlineLink key={l.href} href={l.href} external variant="center">
-          {l.label}
-          <span className="sr-only"> profile of {member.name} (opens in a new tab)</span>
-        </UnderlineLink>
-      ))}
-    </p>
+    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="vx-link mt-3 text-[14px]">
+      LinkedIn <ArrowUpRight size={14} aria-hidden />
+      <span className="sr-only"> profile of {member.name} (opens in a new tab)</span>
+    </a>
   );
 }
 
@@ -205,84 +209,113 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="pb-20 md:pb-28">
-        <section className="page-container pb-12 pt-14 md:pt-20">
-          <h1 className="display-page">About Us</h1>
+      <main className="pb-24 lg:pb-32">
+        <section className="page-container vx-page-head">
+          <p className="vx-label">About us</p>
+          <h1 className="vx-display mt-4 max-w-[18ch] text-[clamp(2.8rem,6.6vw,5.5rem)] text-ink">
+            Translation that still sounds <span className="text-primary">like the person talking.</span>
+          </h1>
         </section>
 
-        <section id="mission" aria-labelledby="mission-title" className="border-y border-line bg-mist/60 py-16 md:py-24">
-          <div className="page-container grid gap-8 md:grid-cols-[1fr_1.6fr] md:gap-16">
-            <h2 id="mission-title" className="display-section">Our Mission</h2>
-            <div className="space-y-5 text-[17px] leading-relaxed text-slate">
+        <section id="mission" aria-labelledby="mission-title" className="border-y border-line bg-surface">
+          <div className="page-container grid gap-10 py-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-24">
+            <h2 id="mission-title" className="vx-display text-[clamp(2rem,3.6vw,3rem)] text-ink">
+              Our mission
+            </h2>
+            <div className="space-y-5 text-[17px] leading-relaxed text-slate lg:text-[18px]">
               <p className="text-ink">
-                At Voxlate, our mission is to eliminate language barriers and make communication seamless, accessible,
-                and inclusive for everyone.
+                Most translation gets the words across and loses the person. We’re building Voxlate so that a conversation in two
+                languages feels as natural as one in a single language.
               </p>
               <p>
-                We believe that language should never be a barrier to connecting with others. Whether you&apos;re a
-                business expanding globally, a student learning a new language, or a traveler exploring a new country,
-                Voxlate is here to help you communicate naturally and authentically.
-              </p>
-              <p>
-                Our AI-powered platform is being built to preserve not just words, but the speaker&apos;s natural voice,
-                tone, and emotion—making every conversation feel genuine and personal.
+                That means keeping the speaker’s tone and emotion, keeping it obvious who is talking, and carrying the intent of
+                what was said rather than a literal string of words. Whether you’re a team meeting clients abroad, a student in a
+                new city or a traveller at a market stall, you should be able to talk the way you normally talk.
               </p>
             </div>
+          </div>
+          <div className="page-container grid border-t border-line md:grid-cols-3">
+            {PRINCIPLES.map((p, i) => (
+              <div key={p.title} className={`py-10 md:pr-10 ${i > 0 ? "border-t border-line md:border-l md:border-t-0 md:pl-10" : ""}`}>
+                <p className="vx-label text-primary">0{i + 1}</p>
+                <h3 className="vx-display mt-3 text-[24px] text-ink">{p.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-slate">{p.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section aria-labelledby="team-title" className="page-container pt-16 md:pt-24">
-          <h2 id="team-title" className="display-section">Meet the Team</h2>
-          <p className="mt-5 max-w-[66ch] text-[17px] leading-relaxed text-slate">
-            We are a team of passionate students from Heritage Institute of Technology, united by a shared vision to
-            eliminate language barriers through AI-driven innovation. Combining expertise in software engineering,
-            artificial intelligence, marketing, and digital media, we are building Voxlate to make communication more
-            natural, accessible, and human.
-          </p>
-
-          <h3 className="mt-14 border-b border-line pb-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-slate">
-            Leadership
-          </h3>
-          <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-start">
-            <Portrait member={FOUNDER} size={120} />
-            <div>
-              <h4 className="font-display text-[30px] leading-tight text-ink">{FOUNDER.name}</h4>
-              <p className="mt-1 text-[15px] font-medium text-primary">{FOUNDER.role}</p>
-              <p className="mt-3 max-w-[62ch] text-[16px] leading-relaxed text-slate">{FOUNDER.bio}</p>
-              <ProfileLinks member={FOUNDER} />
-            </div>
+        <section id="team" aria-labelledby="team-title" className="page-container pt-20 lg:pt-28">
+          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+            <h2 id="team-title" className="vx-display text-[clamp(2.4rem,4.6vw,4rem)] text-ink">
+              Our team
+            </h2>
+            <p className="max-w-[60ch] text-[17px] leading-relaxed text-slate">
+              Students from Heritage Institute of Technology working across software, AI, hardware, design and growth, united by
+              one idea: language shouldn’t decide who you can talk to.
+            </p>
           </div>
+
+          <article className="group mt-14 grid gap-8 border-t border-line pt-10 md:grid-cols-[280px_1fr] md:gap-12">
+            <div className="overflow-hidden rounded-[10px]">
+              <Portrait member={FOUNDER} />
+            </div>
+            <div className="md:pt-2">
+              <p className="vx-label">Founder</p>
+              <h3 className="vx-display mt-3 text-[clamp(2rem,3.6vw,3rem)] text-ink">{FOUNDER.name}</h3>
+              <p className="mt-2 text-[16px] font-medium text-primary">{FOUNDER.role}</p>
+              <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-slate">{FOUNDER.bio}</p>
+              <LinkedIn member={FOUNDER} />
+            </div>
+          </article>
 
           {TEAM_GROUPS.map((group) => (
-            <section key={group.team} aria-labelledby={`team-${group.team}`} className="mt-16">
-              <h3 id={`team-${group.team}`} className="border-b border-line pb-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-slate">
-                {group.team}
+            <section
+              key={group.team}
+              aria-labelledby={`team-${group.team}`}
+              className="mt-16 grid gap-8 border-t border-line pt-10 lg:grid-cols-[200px_1fr] lg:gap-12"
+            >
+              <h3 id={`team-${group.team}`} className="vx-display text-[22px] text-ink">
+                {group.team.replace(" Team", "")}
+                <span className="vx-label mt-1 block">{group.members.length} people</span>
               </h3>
-              <ul className="mt-8 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4">
                 {group.members.map((member) => (
-                  <li key={member.name}>
-                    <Portrait member={member} size={88} />
-                    <h4 className="mt-4 text-[18px] font-semibold text-ink">{member.name}</h4>
-                    <p className="mt-0.5 text-[14px] font-medium text-primary">{member.role}</p>
-                    <p className="mt-3 text-[15px] leading-relaxed text-slate">{member.bio}</p>
-                    <ProfileLinks member={member} />
+                  <li key={member.name} className="group">
+                    <div className="overflow-hidden rounded-[10px]">
+                      <Portrait member={member} />
+                    </div>
+                    <h4 className="mt-4 text-[17px] font-semibold leading-snug text-ink">{member.name}</h4>
+                    <p className="mt-1 text-[14px] text-primary">{member.role}</p>
+                    <p className="mt-2 hidden text-[14px] leading-relaxed text-slate sm:block">{member.bio}</p>
+                    <LinkedIn member={member} />
                   </li>
                 ))}
               </ul>
             </section>
           ))}
+        </section>
 
-          <div id="join-team" className="mt-20 flex flex-col gap-6 border-t border-line pt-8 text-[16px] sm:flex-row sm:items-center sm:justify-between">
-            <div className="w-full sm:w-auto">
-              <p className="text-slate">Want to build this with us?</p>
-              <JoinMyTeamButton className="mt-4" />
+        <section id="join-team" className="page-container mt-24">
+          <div className="grid gap-8 rounded-[14px] bg-night p-8 text-page sm:p-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+            <div>
+              <p className="vx-display text-[clamp(2rem,4vw,3.25rem)]">Want to build this with us?</p>
+              <p className="mt-4 max-w-[48ch] text-[16px] leading-relaxed text-page/70">
+                We’re looking for people in software, AI, hardware, design and growth. If you’d rather back the idea, the founders
+                would like to hear from you too.
+              </p>
             </div>
-            <p className="text-slate">
-              Curious about the product?{" "}
-              <UnderlineLink href="/digital-version" variant="goes-out-comes-in" direction="right" className="font-medium">
-                See what we&apos;re building
-              </UnderlineLink>
-            </p>
+            <div className="flex flex-wrap items-center gap-x-7 gap-y-4 lg:justify-end">
+              <Link
+                href="/careers"
+                className="inline-flex h-[52px] items-center gap-2 rounded-[10px] bg-page px-6 font-semibold text-ink transition-colors hover:bg-white"
+              >
+                Join our team <ArrowRight size={17} aria-hidden />
+              </Link>
+              <Link href="/contact?for=investor" className="border-b border-page/40 pb-0.5 font-semibold transition-colors hover:border-page">
+                Talk to us as an investor
+              </Link>
+            </div>
           </div>
         </section>
       </main>

@@ -70,7 +70,7 @@ export function ReviewForm({ open, onClose, onPosted }: { open: boolean; onClose
                   onClick={() => setRating(n)}
                   className="flex h-10 w-10 items-center justify-center rounded-[8px] transition-colors hover:bg-mist"
                 >
-                  <Star size={22} className={n <= rating ? "fill-[var(--color-brass)] text-[var(--color-brass)]" : "text-line-strong"} aria-hidden />
+                  <Star size={22} className={n <= rating ? "fill-primary text-primary" : "text-line-strong"} aria-hidden />
                 </button>
               ))}
             </div>

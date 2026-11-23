@@ -1,131 +1,149 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
-import { useWaitlistModal } from "@/components/waitlist/WaitlistModalProvider";
-import { getPublicWaitlist, type PublicWaitlistEntry } from "@/lib/waitlistApi";
+import { WaitlistGift } from "@/components/home/WaitlistGift";
+import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
+import { fetchWaitlistPulse, type WaitlistPulse } from "@/lib/publicApi";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+const TONES = ["bg-primary text-white", "bg-ink text-white", "bg-slate text-white", "bg-mist text-ink", "bg-surface text-primary"];
+const SHOWN = 6;
+
+function ago(iso: string | null) {
+  if (!iso) return "";
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (Number.isNaN(days)) return "";
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  return new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 }
 
-const PAGE_SIZE = 20;
+/** Counts up to `to` once it has a value. */
+function useCountUp(to: number | null, reduced: boolean) {
+  const [value, setValue] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (to === null || started.current || reduced) return;
+    started.current = true;
+    const start = performance.now();
+    let frame = 0;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / 1400);
+      setValue(Math.round(to * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [to, reduced]);
+  return reduced ? (to ?? 0) : value;
+}
 
+/**
+ * Public waitlist page. Only the size of the list and a handful of recent first names are shown;
+ * the member list itself stays private (admins see it in the dashboard).
+ */
 export default function WaitlistPage() {
-  const { openModal } = useWaitlistModal();
-  const [entries, setEntries] = useState<PublicWaitlistEntry[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const goToPage = (next: number) => {
-    setLoading(true);
-    setPage(next);
-  };
+  const { openWaitlist } = useGatedWaitlist();
+  const reduced = useReducedMotion() ?? false;
+  const [pulse, setPulse] = useState<WaitlistPulse | null>(null);
+  const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
 
   useEffect(() => {
-    let cancelled = false;
-    getPublicWaitlist(page, PAGE_SIZE).then((res) => {
-      if (cancelled) return;
-      setEntries(res.data ?? []);
-      setTotalPages(res.pagination?.totalPages ?? 1);
-      setTotal(res.failed ? null : res.pagination?.total ?? 0);
-      setFailed(!!res.failed);
-      setLoading(false);
-    });
+    let alive = true;
+    fetchWaitlistPulse()
+      .then((data) => {
+        if (!alive) return;
+        setPulse(data);
+        setState("ready");
+      })
+      .catch(() => alive && setState("failed"));
     return () => {
-      cancelled = true;
+      alive = false;
     };
-  }, [page]);
+  }, []);
+
+  // Rounded down, so the claim stays true as people join.
+  const rounded = pulse ? (pulse.total >= 20 ? Math.floor(pulse.total / 10) * 10 : pulse.total) : null;
+  const counted = useCountUp(rounded, reduced);
+  const recent = pulse?.recent.slice(0, SHOWN) ?? [];
 
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="page-container pb-20 pt-12 md:pb-28 md:pt-16">
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+      <main>
+        <section className="page-container vx-page-head grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
           <div>
-            <p className="eyebrow">Our Community</p>
-            <h1 className="display-page mt-4">View Our Waitlisters</h1>
-            <p className="lead mt-4">
-              Join a growing community of individuals and organizations ready to experience Voxlate. Here&apos;s who&apos;s
-              already on the list.
+            <p className="vx-label">Waitlist</p>
+            <p className="vx-display mt-6 text-[clamp(5rem,16vw,11rem)] leading-[0.85] text-ink tabular-nums" aria-live="polite">
+              {state === "loading" ? (
+                <span className="inline-block h-[0.8em] w-[2.6em] animate-pulse rounded-[12px] bg-mist align-middle" aria-label="Loading" />
+              ) : state === "failed" ? (
+                <span className="text-line-strong">—</span>
+              ) : (
+                <>
+                  {counted.toLocaleString("en-IN")}
+                  <span className="text-primary">+</span>
+                </>
+              )}
             </p>
+            <h1 className="vx-display mt-6 max-w-[16ch] text-[clamp(2rem,4.4vw,3.5rem)] text-ink">
+              people are waiting to be heard <span className="text-primary">as themselves.</span>
+            </h1>
+            <p className="mt-6 max-w-[44ch] text-[17px] leading-relaxed text-slate">
+              Join for launch updates and early access. Joining also unlocks the web demo, so you can hear yourself in another
+              language today.
+            </p>
+            <button type="button" className="vx-btn mt-8" onClick={() => openWaitlist("waitlist-page")}>
+              Join the Waitlist <ArrowRight size={17} aria-hidden />
+            </button>
           </div>
-          {total !== null && (
-            <p className="shrink-0 border-l-2 border-primary pl-4">
-              <span className="block font-display text-[40px] leading-none text-ink">{total.toLocaleString()}</span>
-              <span className="mt-1 block text-[14px] text-slate">Total Waitlisters</span>
-            </p>
-          )}
-        </div>
 
-        <section aria-label="Waitlist members" className="mt-12 border-t border-line" aria-busy={loading}>
-          {loading ? (
-            <p className="py-12 text-[15px] text-slate" role="status">Loading the directory…</p>
-          ) : failed ? (
-            <p className="py-12 text-[15px] text-slate" role="alert">
-              The directory couldn&apos;t be loaded right now. Please try again later.
-            </p>
-          ) : entries.length === 0 ? (
-            <p className="py-12 text-[15px] text-slate">No one is listed yet.</p>
-          ) : (
-            <ul className="divide-y divide-line">
-              {entries.map((entry) => (
-                <li key={entry.id} className="flex items-center gap-4 py-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-mist">
-                    {entry.photoUrl ? (
-                      <img src={entry.photoUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <aside aria-label="Recently joined" className="lg:pt-6">
+            <p className="vx-label">Recently joined</p>
+            {state === "failed" ? (
+              <p className="mt-6 text-[15px] text-slate">The list is waking up. Refresh in a moment to see who joined recently.</p>
+            ) : (
+              <ul
+                className="mt-5"
+                style={{
+                  maskImage: "linear-gradient(to bottom, #000 35%, transparent 100%)",
+                  WebkitMaskImage: "linear-gradient(to bottom, #000 35%, transparent 100%)",
+                }}
+              >
+                {(state === "loading" ? Array.from({ length: SHOWN }, () => null) : recent).map((entry, i) => (
+                  <li key={i} className="flex items-center gap-4 border-b border-line py-4">
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-semibold ${entry ? TONES[i % TONES.length] : "bg-mist"}`}
+                      style={{ fontFamily: "var(--font-display)" }}
+                      aria-hidden="true"
+                    >
+                      {entry?.name.match(/\p{L}/u)?.[0]?.toLocaleUpperCase()}
+                    </span>
+                    {entry ? (
+                      <>
+                        <span className="flex-1 text-[17px] font-medium text-ink">{entry.name}</span>
+                        <span className="text-[14px] text-slate">{ago(entry.createdAt)}</span>
+                      </>
                     ) : (
-                      <User className="text-slate" size={18} aria-hidden />
+                      <span className="h-3 w-32 animate-pulse rounded bg-mist" />
                     )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[16px] font-medium text-ink">{entry.name}</p>
-                    {(entry.role || entry.organization) && (
-                      <p className="truncate text-[14px] text-slate">
-                        {[entry.role, entry.organization].filter(Boolean).join(" · ")}
-                      </p>
-                    )}
-                  </div>
-                  <p className="shrink-0 text-right text-[14px] text-slate">
-                    <span className="sr-only">Joined </span>
-                    <time dateTime={entry.createdAt}>{formatDate(entry.createdAt)}</time>
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {state === "ready" && rounded !== null && rounded > recent.length && (
+              <p className="mt-2 text-[15px] text-slate">
+                …and {(rounded - recent.length).toLocaleString("en-IN")}+ more. Everyone else stays private.
+              </p>
+            )}
+          </aside>
         </section>
 
-        {!failed && totalPages > 1 && (
-          <nav aria-label="Directory pages" className="mt-8 flex items-center justify-between gap-3 border-t border-line pt-6">
-            <Button variant="secondary" size="sm" onClick={() => goToPage(Math.max(1, page - 1))} disabled={page === 1 || loading}>
-              Previous
-            </Button>
-            <span className="text-[14px] text-slate" aria-live="polite">
-              Page {page} of {totalPages}
-            </span>
-            <Button variant="secondary" size="sm" onClick={() => goToPage(Math.min(totalPages, page + 1))} disabled={page >= totalPages || loading}>
-              Next
-            </Button>
-          </nav>
-        )}
-
-        <section aria-labelledby="next-title" className="mt-16 flex flex-col items-start gap-6 rounded-[8px] border border-line bg-surface p-6 sm:p-10 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 id="next-title" className="display-section">Be the next one!</h2>
-            <p className="mt-2 text-[17px] text-slate">Join the waitlist and get early access to Voxlate.</p>
-            <p className="mt-4 text-[13px] text-slate">We respect your privacy. Your information is safe with us.</p>
-          </div>
-          <Button onClick={() => openModal("waitlist-page")} wide>
-            Join Waitlist
-          </Button>
-        </section>
+        <WaitlistGift />
       </main>
       <Footer />
     </div>

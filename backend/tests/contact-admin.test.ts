@@ -96,12 +96,12 @@ test("admin login accepts only the configured username and password", async () =
   }
 });
 
-test("admin login refuses to work without a configured hash", async () => {
+test("without ADMIN_PASSWORD_HASH the built-in hash is used, so a wrong password is rejected (not a 503)", async () => {
   const saved = process.env.ADMIN_PASSWORD_HASH;
   delete process.env.ADMIN_PASSWORD_HASH;
   try {
-    const res = await adminLogin(post("/api/auth/admin-login", { username: "admin", password: "anything" }));
-    assert.equal(res.status, 503);
+    const res = await adminLogin(post("/api/auth/admin-login", { username: "admin", password: "definitely-not-the-password" }));
+    assert.equal(res.status, 401);
   } finally {
     process.env.ADMIN_PASSWORD_HASH = saved;
   }

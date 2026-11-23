@@ -22,14 +22,21 @@ Set these environment variables on the host (see `.env.local.example`):
 
 ## Backend (`backend/`, on Render)
 
-After pulling these changes:
+Deploying `main` is enough. The backend keeps using the `DATABASE_URL` and `JWT_SECRET` it
+already has; nothing new is required:
 
-1. Redeploy the backend.
-2. Run `npx prisma db push` once (adds the `questions` and `contact_messages` collections).
-3. Set the admin sign-in variables:
-   - `ADMIN_USERNAME` — `admin`
-   - `ADMIN_PASSWORD_HASH` — bcrypt hash of the admin password, raw or base64
-     (`node -e "console.log(Buffer.from(require('bcryptjs').hashSync(process.argv[1], 12)).toString('base64'))" "<password>"`)
-   - `ADMIN_EMAIL` — the email the admin account uses
-4. Optional email notifications: `QUESTIONS_NOTIFY_EMAIL`, `CONTACT_NOTIFY_EMAIL`, `INVESTOR_NOTIFY_EMAIL` (needs `RESEND_API_KEY`).
-5. Make sure `FRONTEND_URL` lists the website's URL so the browser can reach the API.
+- **Database:** the new `questions` / `contact_messages` data and the new question fields need no
+  migration on MongoDB (collections are created on first save). Running `npm run db:push` once
+  adds speed-up indexes; it is optional.
+- **Admin sign-in:** works out of the box: type `admin` in the email field on `/login` (or the
+  username on `/admin/login`) with the admin password. The code holds only a one-way bcrypt hash of
+  that password. To change it, set `ADMIN_PASSWORD_HASH` (raw or base64) on Render:
+  `node -e "console.log(Buffer.from(require('bcryptjs').hashSync(process.argv[1], 12)).toString('base64'))" "<new password>"`.
+  `ADMIN_USERNAME` and `ADMIN_EMAIL` are optional overrides too.
+
+Optional extras:
+
+- Email notifications: `QUESTIONS_NOTIFY_EMAIL`, `CONTACT_NOTIFY_EMAIL`, `INVESTOR_NOTIFY_EMAIL`,
+  and emailing answers to people who asked, all need `RESEND_API_KEY`.
+- `FRONTEND_URL` should list the website's URL (used only if the browser ever calls the API
+  directly; normal traffic goes through the website's own `/api` proxy).

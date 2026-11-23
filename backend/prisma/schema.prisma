@@ -66,6 +66,20 @@ model Review {
   @@map("reviews")
 }
 
+/// Questions asked from the homepage "Didn't find yours? Ask us." form.
+model Question {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  question  String
+  status    String   @default("new")
+  source    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("questions")
+}
+
 model JobApplication {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   fullName         String

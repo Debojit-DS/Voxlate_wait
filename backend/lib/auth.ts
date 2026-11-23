@@ -124,8 +124,6 @@ export function clearSessionCookie(res: NextResponse) {
 // Retire the old shared-domain cookie when moving to host-only sessions.
 function clearLegacyCookie(res: NextResponse) {
   if (process.env.NODE_ENV === "production" && !process.env.SESSION_COOKIE_DOMAIN) {
-    res.headers.append(
-      `${SESSION_COOKIE}=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=None`
-    );
+    res.headers.append("Set-Cookie", `${SESSION_COOKIE}=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=None`);
   }
 }

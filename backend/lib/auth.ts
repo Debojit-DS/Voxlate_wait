@@ -96,10 +96,11 @@ export async function attachSessionCookie(
   user: SessionUser
 ) {
   const token = await signSession(user);
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     path: "/",
     domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
     maxAge: SESSION_DURATION_SECONDS,
@@ -108,10 +109,11 @@ export async function attachSessionCookie(
 }
 
 export function clearSessionCookie(res: NextResponse) {
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     path: "/",
     domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
     maxAge: 0,
@@ -122,6 +124,6 @@ export function clearSessionCookie(res: NextResponse) {
 // Retire the old shared-domain cookie when moving to host-only sessions.
 function clearLegacyCookie(res: NextResponse) {
   if (process.env.NODE_ENV === "production" && !process.env.SESSION_COOKIE_DOMAIN) {
-    res.headers.append("Set-Cookie", `${SESSION_COOKIE}=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=Lax`);
+    res.headers.append("Set-Cookie", `${SESSION_COOKIE}=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=None`);
   }
 }

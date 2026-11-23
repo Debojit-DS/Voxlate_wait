@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   }
 
-  const [totalWaitlist, totalUsers, newLast7Days, totalApplications, byProduct, byType] = await Promise.all([
+  const [totalWaitlist, totalUsers, newLast7Days, totalApplications, byProduct, byType, openQuestions, totalQuestions, totalContacts, totalReviews] = await Promise.all([
     prisma.waitlistEntry.count(),
     prisma.user.count(),
     prisma.user.count({
@@ -29,6 +29,10 @@ export async function GET(req: NextRequest) {
       by: ["type"],
       _count: { type: true },
     }),
+    prisma.question.count({ where: { status: { not: "answered" } } }),
+    prisma.question.count(),
+    prisma.contactMessage.count(),
+    prisma.review.count(),
   ]);
 
   const res = NextResponse.json({
@@ -38,6 +42,10 @@ export async function GET(req: NextRequest) {
       totalUsers,
       newLast7Days,
       totalApplications,
+      openQuestions,
+      totalQuestions,
+      totalContacts,
+      totalReviews,
       byProduct: byProduct.map((item) => ({ product: item.product, count: item._count.product })),
       byType: byType.map((item) => ({ type: item.type, count: item._count.type })),
     },

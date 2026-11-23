@@ -21,6 +21,25 @@ function respond(req: NextRequest, body: unknown, status = 200) {
   );
 }
 
+/**
+ * Public: questions an admin has answered and chosen to publish, for the homepage FAQ.
+ * Only the question and the answer leave the server — never the asker's name or email.
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const rows = await prisma.question.findMany({
+      where: { published: true },
+      select: { id: true, question: true, answer: true, answeredAt: true },
+      orderBy: { answeredAt: "desc" },
+      take: 24,
+    });
+    const faqs = rows.filter((r) => r.answer).map((r) => ({ id: r.id, q: r.question, a: r.answer as string }));
+    return respond(req, { status: "success", faqs });
+  } catch {
+    return respond(req, { status: "error", code: "server_error", message: "Answers are temporarily unavailable." }, 503);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const parsed = questionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

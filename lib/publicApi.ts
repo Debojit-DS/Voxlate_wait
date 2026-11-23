@@ -122,3 +122,17 @@ export async function postContact(input: ContactInput): Promise<void> {
     throw new Error(field || data?.message || (res.status === 404 ? "Messages can't be received yet. Please email support@voxlate.com." : "Your message couldn't be sent. Please try again."));
   }
 }
+
+export type PublishedFaq = { id: string; q: string; a: string };
+
+/** Questions visitors asked that the team answered and published. Empty on any failure. */
+export async function fetchPublishedFaqs(): Promise<PublishedFaq[]> {
+  try {
+    const res = await publicFetch("/questions", {}, 45_000);
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.status !== "success" || !Array.isArray(data.faqs)) return [];
+    return (data.faqs as PublishedFaq[]).filter((f) => typeof f?.q === "string" && typeof f?.a === "string" && f.q.trim() && f.a.trim());
+  } catch {
+    return [];
+  }
+}

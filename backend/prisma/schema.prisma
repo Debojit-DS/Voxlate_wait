@@ -74,9 +74,14 @@ model Question {
   question  String
   status    String   @default("new")
   source    String?
+  /// Set by an admin. When `published` is true the pair appears in the homepage FAQ.
+  answer     String?
+  answeredAt DateTime?
+  published  Boolean   @default(false)
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@index([published])
   @@map("questions")
 }
 

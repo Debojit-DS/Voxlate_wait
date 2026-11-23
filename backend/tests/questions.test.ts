@@ -2,7 +2,30 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { NextRequest } from "next/server";
 import { prisma } from "../lib/db";
-import { POST as ask } from "../app/api/questions/route";
+import { GET as publishedFaqs, POST as ask } from "../app/api/questions/route";
+
+test("the public FAQ list only reads published answers and never the asker", async () => {
+  const original = prisma.question.findMany;
+  let args: { where?: unknown; select?: Record<string, boolean> } = {};
+  try {
+    prisma.question.findMany = (async (a: typeof args) => {
+      args = a;
+      return [
+        { id: "a", question: "Does it work offline?", answer: "Not yet.", answeredAt: new Date() },
+        { id: "b", question: "Half done", answer: null, answeredAt: null },
+      ];
+    }) as unknown as typeof original;
+    const res = await publishedFaqs(new NextRequest("http://api.example/api/questions"));
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.deepEqual(args.where, { published: true });
+    assert.equal(args.select?.email, undefined, "email is never selected");
+    assert.equal(args.select?.name, undefined, "name is never selected");
+    assert.deepEqual(body.faqs, [{ id: "a", q: "Does it work offline?", a: "Not yet." }]);
+  } finally {
+    prisma.question.findMany = original;
+  }
+});
 
 let ip = 0;
 function askRequest(body: unknown) {

@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { loginUser } from "@/lib/authApi";
-import { loginSchema, type LoginFormValues } from "@/lib/authValidation";
+import { ADMIN_LOGIN_NAME, loginSchema, type LoginFormValues } from "@/lib/authValidation";
 import { safeRedirect } from "@/lib/safeRedirect";
 import { Button } from "@/components/ui/Button";
 import { AuthFormError } from "@/components/auth/AuthFormError";
@@ -81,6 +81,27 @@ export default function LoginForm() {
   async function onSubmit(values: LoginFormValues) {
     setIsSubmitting(true);
     setFormError(null);
+
+    // "admin" instead of an email opens the admin portal.
+    if (values.email.trim().toLowerCase() === ADMIN_LOGIN_NAME) {
+      try {
+        const res = await fetch("/api/auth/admin-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: ADMIN_LOGIN_NAME, password: values.password }),
+        });
+        const json = await res.json().catch(() => null);
+        if (json?.status === "success") {
+          window.location.assign("/admin");
+          return;
+        }
+        setFormError(json?.message || "Wrong username or password.");
+      } catch {
+        setFormError("Something went wrong. Please try again.");
+      }
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       if (rememberMe) {

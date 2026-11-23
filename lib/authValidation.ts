@@ -1,7 +1,14 @@
 import { z } from "zod";
 
+/** The admin signs in from the normal login form by typing this instead of an email. */
+export const ADMIN_LOGIN_NAME = "admin";
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  email: z
+    .string()
+    .trim()
+    .refine((value) => value.toLowerCase() === ADMIN_LOGIN_NAME || EMAIL.test(value), "Enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
 export type LoginFormValues = z.infer<typeof loginSchema>;

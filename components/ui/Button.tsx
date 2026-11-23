@@ -29,7 +29,7 @@ const sizes = {
 
 const variants = {
   primary:
-    "bg-primary text-white hover:bg-primary-hover shadow-xs hover:shadow-sm active:translate-y-px disabled:opacity-60 aria-disabled:opacity-60",
+    "bg-ink text-white hover:bg-ink-hover shadow-xs hover:shadow-sm active:translate-y-px disabled:opacity-60 aria-disabled:opacity-60",
   secondary:
     "border border-line-strong bg-surface text-ink hover:bg-mist hover:border-primary disabled:opacity-60",
   quiet: "text-ink hover:bg-mist disabled:opacity-60",

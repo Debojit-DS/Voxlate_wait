@@ -177,7 +177,7 @@ body {
   height: 52px;
   padding: 0 26px;
   border-radius: 10px;
-  background: var(--color-primary);
+  background: var(--color-ink);
   color: #fff;
   font-weight: 600;
   font-size: 16px;
@@ -189,7 +189,7 @@ body {
     transform 160ms ease;
 }
 .vx-btn:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-ink-hover);
 }
 .vx-btn:active {
   transform: translateY(1px);
@@ -339,23 +339,23 @@ body {
   transform: scale(var(--lz, 1.4));
   clip-path: circle(calc(var(--lr, 90px) / var(--lz, 1.4)) at var(--lx, 50%) var(--ly, 50%));
 }
-.vx-faq-lens-layer .vx-faq-q {
-  font-weight: 800;
-}
+/*
+ * The lens is a scaled copy of the rows, so both copies must lay out identically: never change a
+ * width-affecting property (weight, letter-spacing, size) in only one of them, or the magnified
+ * words slide away from the real ones.
+ */
 .vx-faq-q {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: -0.02em;
   white-space: nowrap;
-  transition:
-    color 200ms ease,
-    font-weight 300ms ease;
+  transition: color 200ms ease;
 }
 .vx-faq-q:hover,
-.vx-faq-q[aria-expanded="true"] {
+.vx-faq-q[data-open] {
   color: var(--color-primary);
 }
-.vx-faq-q[aria-expanded="true"] {
+.vx-faq-q[data-open] {
   font-weight: 800;
 }
 
@@ -393,10 +393,88 @@ body {
   paint-order: stroke fill;
 }
 
+/* ───────────────────────── Waitlist wall (every name on crossing tapes) ───────────────────────── */
+@keyframes vx-wall {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes vx-wall-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.vx-wall {
+  --px: 0;
+  --py: 0;
+}
+/* Nearer tapes follow the pointer further (--shift is set per depth). */
+.vx-wall-shift {
+  transform: translate3d(calc(var(--px) * var(--shift)), calc(var(--py) * var(--shift)), 0);
+  transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vx-wall-tape {
+  clip-path: inset(0 100% 0 0);
+}
+/* Each tape unrolls across the screen the first time the wall is seen. */
+.vx-wall[data-shown] .vx-wall-tape {
+  animation: vx-wall-in 1300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 80ms);
+}
+.vx-wall-track {
+  animation: vx-wall 60s linear infinite;
+  will-change: transform;
+  transition: opacity 700ms ease;
+}
+.vx-wall[data-paused] .vx-wall-track {
+  animation-play-state: paused;
+}
+/* The wall sits on plain grid paper (no edge fade: the tapes run edge to edge). */
+.vx-wall-paper {
+  background-color: var(--color-page);
+  background-image:
+    linear-gradient(to right, rgb(31 63 184 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(31 63 184 / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+/* The thank-you plaque hung on the wall: solid paper with a double hairline frame. */
+.vx-plaque {
+  background: var(--color-page);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 1px var(--color-line),
+    inset 0 0 0 10px var(--color-page),
+    inset 0 0 0 11px var(--color-line),
+    0 34px 80px -34px rgb(13 27 42 / 0.55),
+    0 0 0 1px rgb(13 27 42 / 0.08);
+}
+/* Outline display type on paper: filled with paper so nothing behind shows through the letters. */
+.vx-outline-ink {
+  color: var(--color-page);
+  -webkit-text-stroke: 1.5px var(--color-ink);
+  paint-order: stroke fill;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vx-tape-track,
+  .vx-wall-track,
   .vx-bars i {
     animation: none;
+  }
+  .vx-wall-tape,
+  .vx-wall[data-shown] .vx-wall-tape {
+    animation: none;
+    clip-path: none;
+  }
+  .vx-wall-shift {
+    transition: none;
   }
   .vx-line,
   .vx-line::before {

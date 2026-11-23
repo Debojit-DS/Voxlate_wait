@@ -12,8 +12,9 @@
   --color-primary-hover: #172F8C;
   --color-night: #0D1B2A;
 
-  /* Text */
+  /* Text. Ink is also the colour of every button ("Join the Waitlist" navy, from the gift section). */
   --color-ink: #0D1B2A;
+  --color-ink-hover: #1C2F4A;
   --color-slate: #4B5567;
 
   /* Lines: `line` is decorative, `line-strong` meets 3:1 for control borders */

@@ -75,8 +75,10 @@ export function FaqLens() {
   const lensLayer = useRef<HTMLDivElement>(null);
   const ring = useRef<HTMLDivElement>(null);
   const offsets = useRef(Array.from({ length: ROW_COUNT }, () => 0));
+  // Client (viewport) coordinates of the mouse; turned into area coordinates every frame, so the
+  // lens stays under the cursor when the page scrolls without the mouse moving.
   const pointer = useRef<{ x: number; y: number } | null>(null);
-  const paused = useRef(false);
+  const focused = useRef(false);
 
   useEffect(() => {
     const area = areaRef.current;
@@ -94,10 +96,13 @@ export function FaqLens() {
       const w = area.clientWidth;
       const h = area.clientHeight;
       const r = w < 640 ? 58 : 92;
+      const rect = area.getBoundingClientRect();
+      const p = pointer.current;
+      const hover = p && p.x >= rect.left && p.x <= rect.right && p.y >= rect.top && p.y <= rect.bottom ? { x: p.x - rect.left, y: p.y - rect.top } : null;
 
       for (let i = 0; i < ROW_COUNT; i++) {
         const copyW = copyRefs.current[i]?.offsetWidth ?? 1;
-        if (!paused.current && !reduced) offsets.current[i] = (offsets.current[i] + SPEED[i] * dt + copyW) % copyW;
+        if (!hover && !focused.current && !reduced) offsets.current[i] = (offsets.current[i] + SPEED[i] * dt + copyW) % copyW;
         const x = `translate3d(${(-offsets.current[i]).toFixed(1)}px,0,0)`;
         const b = baseRows.current[i];
         const l = lensRows.current[i];
@@ -108,9 +113,9 @@ export function FaqLens() {
       // Lens: infinity path when idle, eased towards the cursor when hovering.
       if (!reduced) t += dt * 0.32;
       const [ix, iy] = lemniscate(t, 1.4);
-      const tx = pointer.current ? pointer.current.x : w / 2 + ix * (w / 2 - r * 1.2);
-      const ty = pointer.current ? pointer.current.y : h / 2 + iy * (h / 2 - r * 0.4);
-      const ease = first ? 1 : 1 - Math.exp(-dt * (pointer.current ? 14 : 6));
+      const tx = hover ? hover.x : w / 2 + ix * (w / 2 - r * 1.2);
+      const ty = hover ? hover.y : h / 2 + iy * (h / 2 - r * 0.4);
+      const ease = first ? 1 : 1 - Math.exp(-dt * (hover ? 18 : 6));
       first = false;
       lx += (tx - lx) * ease;
       ly += (ty - ly) * ease;
@@ -148,11 +153,11 @@ export function FaqLens() {
     copyRefs.current[row] = el;
   }, []);
   const focusItem = useCallback((row: number, el: HTMLElement) => {
-    paused.current = true;
+    focused.current = true;
     offsets.current[row] = Math.max(0, el.offsetLeft - 24);
   }, []);
   const blurItem = useCallback(() => {
-    paused.current = false;
+    focused.current = false;
   }, []);
   const rowProps = { rows, faqs, open, onOpen: setOpen, registerRow, registerCopy, focusItem, blurItem };
 
@@ -174,14 +179,10 @@ export function FaqLens() {
         ref={areaRef}
         className="relative mt-10 cursor-default overflow-hidden text-ink select-none lg:mt-14"
         onPointerMove={(e) => {
-          if (e.pointerType !== "mouse") return;
-          const r = e.currentTarget.getBoundingClientRect();
-          pointer.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+          if (e.pointerType === "mouse") pointer.current = { x: e.clientX, y: e.clientY };
         }}
-        onPointerEnter={(e) => e.pointerType === "mouse" && (paused.current = true)}
         onPointerLeave={() => {
           pointer.current = null;
-          paused.current = false;
         }}
       >
         <FaqRows lens={false} {...rowProps} />
@@ -243,6 +244,7 @@ function FaqRows({ lens, rows, faqs, open, onOpen, registerRow, registerCopy, fo
                     tabIndex={real ? 0 : -1}
                     aria-expanded={!lens ? open === id : undefined}
                     aria-controls={!lens ? "faq-answer" : undefined}
+                    data-open={open === id || undefined}
                     onClick={() => onOpen(id)}
                     onFocus={real ? (e) => focusItem(row, e.currentTarget.parentElement as HTMLElement) : undefined}
                     onBlur={real ? blurItem : undefined}

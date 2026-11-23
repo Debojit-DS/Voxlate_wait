@@ -92,6 +92,33 @@ export async function fetchWaitlistPulse(): Promise<WaitlistPulse> {
   throw lastError;
 }
 
+export type WaitlistNames = { total: number; names: string[] };
+
+/**
+ * Every waitlist member as "First L." (no dates), for the waitlist page. A server that predates
+ * `?names=all` only sends the recent few, so those are used until it is updated.
+ */
+export async function fetchWaitlistNames(): Promise<WaitlistNames> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await publicFetch(`/waitlist?names=all&pageSize=${PUBLIC_RECENT_LIMIT}`, {}, 45_000);
+      const data = await res.json().catch(() => null);
+      const total = Number(data?.pagination?.total);
+      if (!res.ok || !Number.isFinite(total)) throw new Error("Waitlist unavailable.");
+      const source: unknown[] = Array.isArray(data.names)
+        ? data.names
+        : (Array.isArray(data.data) ? data.data : []).map((e: { name?: unknown }) => e?.name);
+      // The server already sends "First L."; trimming again keeps an older API from ever showing full names.
+      const names = source.filter((n): n is string => typeof n === "string" && n.trim().length > 0).map((n) => publicName(n));
+      return { total, names };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
 export async function postQuestion(input: { name: string; email: string; question: string; website?: string }) {
   const res = await publicFetch("/questions", {
     method: "POST",

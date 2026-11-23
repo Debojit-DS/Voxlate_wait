@@ -268,7 +268,7 @@ export default function SignupForm() {
         <div className="pt-2">
           <Button
             type="submit"
-            className="w-full h-11 sm:h-12 rounded-[10px] bg-primary hover:bg-primary-hover text-white text-[15px] font-medium shadow-xs transition-all cursor-pointer flex items-center justify-center"
+            className="w-full h-11 sm:h-12 rounded-[10px] bg-ink hover:bg-ink-hover text-white text-[15px] font-medium shadow-xs transition-all cursor-pointer flex items-center justify-center"
             loading={isSubmitting}
             disabled={googleLoading}
           >

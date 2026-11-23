@@ -12,3 +12,6 @@ export function publicName(full: unknown): string {
 
 /** Public lists show at most this many recent names. */
 export const PUBLIC_RECENT_LIMIT = 8;
+
+/** The waitlist page lists every member (as "First L.", with no dates); this only guards the query size. */
+export const PUBLIC_NAMES_LIMIT = 5000;

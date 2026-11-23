@@ -5,12 +5,13 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { waitlistSchema } from "@/lib/validation";
 import { resend } from "@/lib/resend";
-import { publicName, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
+import { publicName, PUBLIC_NAMES_LIMIT, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
 
 /**
  * Public waitlist info. `?email=` answers "has this person joined?" (used by the demo gate);
- * otherwise only the total and a few recent "First L." names are returned. The member list itself
- * is private and only available to admins (GET /api/admin/waitlist).
+ * otherwise the total and a few recent "First L." names, plus `names` (every member as "First L.",
+ * no dates) with `?names=all` for the waitlist page. Emails, photos, roles and companies stay
+ * private and are only available to admins (GET /api/admin/waitlist).
  */
 export async function GET(req: NextRequest) {
   try {
@@ -25,15 +26,20 @@ export async function GET(req: NextRequest) {
     }
 
     const limit = Math.min(PUBLIC_RECENT_LIMIT, Math.max(1, parseInt(searchParams.get("pageSize") ?? "", 10) || PUBLIC_RECENT_LIMIT));
-    const [recent, total] = await Promise.all([
+    const everyone = searchParams.get("names") === "all";
+    const [recent, total, all] = await Promise.all([
       prisma.waitlistEntry.findMany({ select: { name: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: limit }),
       prisma.waitlistEntry.count(),
+      everyone
+        ? prisma.waitlistEntry.findMany({ select: { name: true }, orderBy: { createdAt: "desc" }, take: PUBLIC_NAMES_LIMIT })
+        : Promise.resolve(null),
     ]);
 
     const res = NextResponse.json({
       status: "success",
       data: recent.map((entry) => ({ name: publicName(entry.name), createdAt: entry.createdAt })),
       pagination: { page: 1, pageSize: limit, total, totalPages: 1 },
+      ...(all ? { names: all.map((entry) => publicName(entry.name)) } : {}),
     });
     return withCorrelationId(withSecurityHeaders(withCors(res)), generateCorrelationId());
   } catch {

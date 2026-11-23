@@ -285,7 +285,7 @@ export function DemoCard() {
               onClick={togglePlayback}
               disabled={micState !== "completed" || locked}
               aria-label={isPlaying ? "Pause" : "Play translation"}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover disabled:bg-line-strong"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-ink-hover disabled:bg-line-strong"
             >
               {isPlaying ? <Pause size={16} aria-hidden /> : <Play size={16} className="ml-0.5" aria-hidden />}
             </button>

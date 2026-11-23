@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { proxyApiRequest } from "@/lib/server/apiProxy";
 import { getDb } from "@/lib/server/mongodb";
 import { waitlistSchema } from "@/lib/validation";
-import { publicName, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
+import { publicName, PUBLIC_NAMES_LIMIT, PUBLIC_RECENT_LIMIT } from "@/lib/publicName";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Public waitlist info (same contract as the backend): `?email=` checks membership; otherwise
- * only the total and a few recent "First L." names. Never names in full, photos, roles or companies.
+ * the total and a few recent "First L." names, plus `names` (every member as "First L.", no dates)
+ * with `?names=all`. Never names in full, photos, roles or companies.
  */
 export async function GET(req: NextRequest) {
   if (!process.env.MONGODB_URI && !process.env.DATABASE_URL) {
@@ -27,9 +28,13 @@ export async function GET(req: NextRequest) {
     }
 
     const limit = Math.min(PUBLIC_RECENT_LIMIT, Math.max(1, parseInt(searchParams.get("pageSize") ?? "", 10) || PUBLIC_RECENT_LIMIT));
-    const [recent, total] = await Promise.all([
+    const everyone = searchParams.get("names") === "all";
+    const [recent, total, all] = await Promise.all([
       collection.find({}, { projection: { name: 1, createdAt: 1 } }).sort({ createdAt: -1 }).limit(limit).toArray(),
       collection.countDocuments(),
+      everyone
+        ? collection.find({}, { projection: { _id: 0, name: 1 } }).sort({ createdAt: -1 }).limit(PUBLIC_NAMES_LIMIT).toArray()
+        : Promise.resolve(null),
     ]);
 
     return NextResponse.json(
@@ -40,6 +45,7 @@ export async function GET(req: NextRequest) {
           createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : typeof doc.createdAt === "string" ? doc.createdAt : null,
         })),
         pagination: { page: 1, pageSize: limit, total, totalPages: 1 },
+        ...(all ? { names: all.map((doc) => publicName(doc.name)) } : {}),
       },
       { headers: { "Cache-Control": "no-store" } },
     );

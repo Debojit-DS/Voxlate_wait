@@ -12,11 +12,18 @@ import { logAuth } from "@/lib/logger";
 /**
  * Admin sign-in with a username instead of an email.
  *
- * Env:
+ * Works with no configuration. Optional env overrides:
  *   ADMIN_USERNAME        default "admin"
- *   ADMIN_PASSWORD_HASH   bcrypt hash of the admin password, raw or base64 (the plain password is never stored)
+ *   ADMIN_PASSWORD_HASH   bcrypt hash of the admin password, raw or base64. Defaults to the built-in
+ *                         hash below; set this to change the password without a code change.
  *   ADMIN_EMAIL           account the admin session belongs to (created/promoted on first sign-in)
  */
+
+/**
+ * bcrypt (cost 12) hash of the default admin password. A hash is one-way: the password itself
+ * is not in the code. Override with ADMIN_PASSWORD_HASH to rotate it.
+ */
+const DEFAULT_ADMIN_PASSWORD_HASH = "$2a$12$UuqvAytMsrFdWep.OrLi8Ofm2qFy6M4lYhLUEVbV2ekJTl.pGMgZK";
 const schema = z.object({
   username: z.string().trim().min(1).max(64),
   password: z.string().min(1).max(200),
@@ -39,9 +46,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Accept the bcrypt hash as-is ("$2…") or base64-encoded, which survives .env `$` expansion.
-  const raw = process.env.ADMIN_PASSWORD_HASH?.trim();
-  const hash = raw && !raw.startsWith("$2") ? Buffer.from(raw, "base64").toString("utf8") : raw;
-  if (!hash) return respond(req, { status: "error", code: "not_configured", message: "Admin sign-in isn't configured on the server yet." }, 503);
+  const raw = process.env.ADMIN_PASSWORD_HASH?.trim() || DEFAULT_ADMIN_PASSWORD_HASH;
+  const hash = raw.startsWith("$2") ? raw : Buffer.from(raw, "base64").toString("utf8");
 
   const expected = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
   const userOk = sameText(parsed.data.username.toLowerCase(), expected);

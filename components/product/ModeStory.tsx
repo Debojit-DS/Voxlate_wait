@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
@@ -272,9 +271,6 @@ export function ModeStory() {
                 <button type="button" className="vx-btn vx-btn-sm" onClick={() => openWaitlist("product-physical")}>
                   Join the Waitlist
                 </button>
-                <Link href="/demo" className="vx-link text-[15px]">
-                  Try the web demo <ArrowRight size={15} aria-hidden />
-                </Link>
               </div>
             ) : (
               <button type="button" className="vx-chip mt-5 w-fit lg:mt-7" onClick={() => scrollToStation(1)}>

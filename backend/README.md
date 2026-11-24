@@ -106,7 +106,7 @@ npm run dev
 ```
 
 - Public site: `http://localhost:3000`
-- Admin sign-in: `http://localhost:3000/admin/login`
+- Admin sign-in: on the website's `/login` page, type `admin` instead of an email (there is no separate admin page)
 
 ## Deploying to Vercel
 
@@ -130,8 +130,8 @@ npm run dev
   **httpOnly, sameSite=lax** cookie — not readable from client JS, which
   protects it from XSS token theft.
 - `middleware.ts` runs on the Edge runtime and checks that cookie before
-  allowing any request into `/admin/*` pages or `/api/admin/*` routes. It
-  redirects unauthenticated/non-admin users to `/admin/login`.
+  allowing any request into the `/api/admin/*` routes, and answers 403 to
+  anyone without an admin session.
 - Route handlers also re-check `requireAdmin()` server-side as defense in
   depth, in case middleware config ever changes.
 - Admin status is just a `role` field (`USER` / `ADMIN`) on the same `User`

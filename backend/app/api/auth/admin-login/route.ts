@@ -23,7 +23,8 @@ import { logAuth } from "@/lib/logger";
  * bcrypt (cost 12) hash of the default admin password. A hash is one-way: the password itself
  * is not in the code. Override with ADMIN_PASSWORD_HASH to rotate it.
  */
-const DEFAULT_ADMIN_PASSWORD_HASH = "$2a$12$UuqvAytMsrFdWep.OrLi8Ofm2qFy6M4lYhLUEVbV2ekJTl.pGMgZK";
+// Rotated 2026-11-25. The password itself is not stored anywhere in the repository.
+const DEFAULT_ADMIN_PASSWORD_HASH = "$2a$12$mXvPCBvWRrxCMDbv.TipOuTWsjwAdXENyEi6dMbjV.JJsGO/NXsdG";
 const schema = z.object({
   username: z.string().trim().min(1).max(64),
   password: z.string().min(1).max(200),

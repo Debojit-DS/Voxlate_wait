@@ -28,9 +28,10 @@ already has; nothing new is required:
 - **Database:** the new `questions` / `contact_messages` data and the new question fields need no
   migration on MongoDB (collections are created on first save). Running `npm run db:push` once
   adds speed-up indexes; it is optional.
-- **Admin sign-in:** works out of the box: type `admin` in the email field on `/login` (or the
-  username on `/admin/login`) with the admin password. The code holds only a one-way bcrypt hash of
-  that password. To change it, set `ADMIN_PASSWORD_HASH` (raw or base64) on Render:
+- **Admin sign-in:** the only way in is the normal `/login` page: type `admin` in the email field and
+  the admin password. There is no separate admin sign-in page, `/admin` shows "page not found" to
+  anyone who isn't a signed-in admin, and admins get a small shield icon in the navbar that opens the
+  dashboard. The code holds only a one-way bcrypt hash of the password. To change it, set `ADMIN_PASSWORD_HASH` (raw or base64) on Render:
   `node -e "console.log(Buffer.from(require('bcryptjs').hashSync(process.argv[1], 12)).toString('base64'))" "<new password>"`.
   `ADMIN_USERNAME` and `ADMIN_EMAIL` are optional overrides too.
 

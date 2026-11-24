@@ -32,6 +32,52 @@ test('proxy forwards JSON/query/session/IP and preserves multiple cookies', asyn
     assert.equal(response.status,201);assert.equal(response.headers.getSetCookie().length,2);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal((await response.json()).status,'success');
   });
 });
+// What the live backend sends on sign-in: the new session, then a clear of the legacy shared-domain one.
+const LIVE_SIGN_IN_COOKIES = [
+  'voxlate_session=signed.jwt.value; Path=/; Max-Age=604800; Secure; HttpOnly; SameSite=none',
+  'voxlate_session=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=None',
+];
+
+async function signInThrough(siteUrl) {
+  let cookies;
+  await upstream((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Set-Cookie': LIVE_SIGN_IN_COOKIES });
+    res.end('{"status":"success","data":{"role":"ADMIN"}}');
+  }, async base => {
+    const response = await proxyApiRequest(new Request(`${siteUrl}/api/auth/admin-login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }), env(base));
+    assert.equal(response.status, 200);
+    cookies = response.headers.getSetCookie();
+  });
+  return cookies;
+}
+
+test('admin session survives the proxy on the live https site', async () => {
+  const cookies = await signInThrough('https://www.voxlatesn.in');
+  // The session stays host-only and Secure; the legacy clear keeps its own domain, so it cannot delete it.
+  assert.deepEqual(cookies, [
+    'voxlate_session=signed.jwt.value; Path=/; Max-Age=604800; Secure; HttpOnly; SameSite=none',
+    'voxlate_session=; Path=/; Domain=.voxlatesn.in; Max-Age=0; HttpOnly; Secure; SameSite=None',
+  ]);
+});
+
+test('admin session survives the proxy on http localhost', async () => {
+  const cookies = await signInThrough('http://localhost:3002');
+  // Browsers reject SameSite=None without Secure, and a host-only copy of the legacy clear would wipe the session.
+  assert.deepEqual(cookies, ['voxlate_session=signed.jwt.value; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax']);
+});
+
+test('proxy keeps foreign-domain cookies host-only and logout still clears the session', async () => {
+  await upstream((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Set-Cookie': ['pref=1; Path=/; Domain=voxlate-wait.onrender.com', ...[
+      'voxlate_session=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=none',
+    ]] });
+    res.end('{"status":"success"}');
+  }, async base => {
+    const response = await proxyApiRequest(new Request('http://localhost:3002/api/auth/logout', { method: 'POST' }), env(base));
+    assert.deepEqual(response.headers.getSetCookie(), ['pref=1; Path=/', 'voxlate_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax']);
+  });
+});
+
 test('proxy preserves multipart resume body and backend validation JSON', async () => {
   await upstream(async (req,res) => {
     assert.match(req.headers['content-type'],/multipart\/form-data; boundary=/);

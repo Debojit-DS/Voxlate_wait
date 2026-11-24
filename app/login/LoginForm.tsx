@@ -82,7 +82,9 @@ export default function LoginForm() {
     setIsSubmitting(true);
     setFormError(null);
 
-    // "admin" instead of an email opens the admin portal.
+    // "admin" instead of an email opens the admin portal. This is the only way in: there is no separate
+    // admin sign-in page. A failed attempt reads exactly like a normal failed sign-in, so nothing
+    // here tells anyone an admin account exists.
     if (values.email.trim().toLowerCase() === ADMIN_LOGIN_NAME) {
       try {
         const res = await fetch("/api/auth/admin-login", {
@@ -95,7 +97,13 @@ export default function LoginForm() {
           window.location.assign("/admin");
           return;
         }
-        setFormError(json?.message || "Wrong username or password.");
+        setFormError(
+          res.status === 429
+            ? "Too many attempts. Please wait a few minutes and try again."
+            : res.status === 401 || res.status === 400
+              ? "That email or password doesn't look right. Please try again."
+              : "Something went wrong. Please try again.",
+        );
       } catch {
         setFormError("Something went wrong. Please try again.");
       }

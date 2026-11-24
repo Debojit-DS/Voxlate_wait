@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, ChevronDown, Menu, User, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Menu, ShieldCheck, User, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -206,6 +206,17 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto hidden items-center gap-5 min-[1120px]:flex">
+          {/* Only an admin who is signed in ever sees this; nobody else gets any hint of an admin area. */}
+          {isAuthenticated && user?.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              aria-label="Admin dashboard"
+              title="Admin dashboard"
+              className="-mr-2 flex h-10 w-10 items-center justify-center rounded-[10px] text-ink/70 transition-colors hover:bg-mist hover:text-ink"
+            >
+              <ShieldCheck size={19} aria-hidden />
+            </Link>
+          )}
           {isAuthenticated && user ? (
             <div ref={accountRef} className="relative">
               <button
@@ -271,17 +282,28 @@ export function Navbar() {
           </button>
         </div>
 
-        <button
-          ref={mobileButton}
-          type="button"
-          onClick={() => setMobileOpen((o) => !o)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-menu"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-ink transition-colors hover:bg-mist min-[1120px]:hidden"
-        >
-          {mobileOpen ? <X size={22} aria-hidden /> : <Menu size={22} aria-hidden />}
-        </button>
+        <div className="ml-auto flex items-center gap-1 min-[1120px]:hidden">
+          {isAuthenticated && user?.role === "ADMIN" && (
+            <Link
+              href="/admin"
+              aria-label="Admin dashboard"
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] text-ink/70 transition-colors hover:bg-mist hover:text-ink"
+            >
+              <ShieldCheck size={20} aria-hidden />
+            </Link>
+          )}
+          <button
+            ref={mobileButton}
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-ink transition-colors hover:bg-mist"
+          >
+            {mobileOpen ? <X size={22} aria-hidden /> : <Menu size={22} aria-hidden />}
+          </button>
+        </div>
 
         {mobileOpen && (
           <div id="mobile-menu" className="fixed inset-x-0 bottom-0 top-[72px] overflow-y-auto bg-page min-[1120px]:hidden">

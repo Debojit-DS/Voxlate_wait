@@ -135,6 +135,7 @@ All shared classes are in `app/theme.css`.
 - No hype words ("revolutionary", "seamless", "unleash", "cutting-edge"). No fake reviews, stock faces or AI-generated images; recreate visuals in code or use the real model.
 - Product facts: Digital = meeting software (Voxlate Microphone / Speaker in Zoom, Meet, Teams). Physical = wearable earpiece. **P2P = People to People**: any group of any size that doesn’t share a language (a chat in a mall, a market, a street) talking together like any group conversation, each in their own language, with no extra steps; every voice stays distinct, keeping its tone and sense of distance, so you know who is talking. **P2E = Person to Environment** (seminars, lectures, guided tours, markets).
 - Waitlist privacy: public pages show members only as first name and last initial ("Priya S."), each once, never with join dates, emails, photos, roles or companies.
+- Admin stays invisible to visitors: no admin links, pages, titles or wording anywhere they can see. The only way in is the normal `/login` page with `admin` typed instead of an email (a failed attempt reads like any failed sign-in). `/admin` is a plain 404 for anyone who isn't a signed-in admin; signed-in admins get a small shield icon in the navbar that opens the dashboard.
 
 ---
 

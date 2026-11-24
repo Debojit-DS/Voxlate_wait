@@ -173,9 +173,6 @@ export function Footer() {
             <Link href="/terms" className="transition-colors hover:text-page">
               Terms
             </Link>
-            <Link href="/admin" className="transition-colors hover:text-page">
-              Admin
-            </Link>
           </p>
         </div>
       </div>

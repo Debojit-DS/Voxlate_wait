@@ -101,9 +101,14 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const { stats, failed, refresh } = useStats();
 
+  useEffect(() => {
+    document.title = "Admin — Voxlate";
+  }, []);
+
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/admin/login");
+    // Back to the site; the admin sign-in lives on the normal login page.
+    router.push("/");
     router.refresh();
   }
 

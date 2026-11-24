@@ -6,7 +6,7 @@ import { ModeStory } from "@/components/product/ModeStory";
 export const metadata = {
   title: "Physical version — Voxlate",
   description:
-    "Voxlate Physical is a wearable translator in development with two modes: P2P for one-to-one conversations and P2E for lectures, tours and markets. Hear and speak in your own language, face to face.",
+    "Voxlate Physical is a wearable translator in development with two modes: P2P (People to People) for group conversations in any mix of languages, and P2E for lectures, tours and markets. Hear and speak in your own language, face to face.",
   openGraph: {
     title: "Physical version — Voxlate",
     description: "A wearable translator for natural, face-to-face conversations.",

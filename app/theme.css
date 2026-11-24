@@ -108,6 +108,43 @@ body {
   cursor: pointer;
   transition: box-shadow 200ms ease;
 }
+/* Invisible handle over the 3D earpiece: drag (or arrow keys) to turn it all the way round. */
+.vx-device-handle {
+  border-radius: 9999px;
+  will-change: transform;
+}
+.vx-device-handle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 6px;
+}
+.vx-device-hint {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: 10px;
+  transform: translate(-50%, -4px);
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--color-ink);
+  color: var(--color-page);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vx-device-handle:hover .vx-device-hint,
+.vx-device-handle:focus-visible .vx-device-hint {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.vx-device-handle:active .vx-device-hint {
+  opacity: 0;
+}
+
 .vx-marker:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 4px;

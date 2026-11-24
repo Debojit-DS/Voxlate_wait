@@ -121,8 +121,9 @@ All shared classes are in `app/theme.css`.
 ## 8. 3D (three.js)
 
 - Loaded lazily (`import("./scene")`) so three.js stays out of the first bundle; transparent canvas over the paper page; `NeutralToneMapping`, `RoomEnvironment` lighting.
-- Model: `public/models/voxlate-earpiece.glb`, built from `Voxlate_v8_Website/parts/*.stl` by `scripts/stl-to-glb.mjs` (separate meshes: shell_front, shell_back, touch_panel, led_strip, ear_gel, volume_buttons).
-- Materials (`components/home/story/earpiece.ts`): warm-white lacquered front shell, navy back, glossy dark-blue touch panel, LED strip drawn as light with a halo (`ledGlow.ts`) and spill on the front shell only.
+- Model (v9): `public/models/voxlate-earpiece.glb`, built from `Voxlate_v9_Website/parts/*.stl` by `scripts/stl-to-glb.mjs` (separate meshes: shell_front, shell_back, touch_panel, led_strip, ear_gel, volume_buttons, logo).
+- Materials (`components/home/story/earpiece.ts`): warm-white lacquered front shell, navy back, glossy dark-blue touch panel with the satin-silver logo set into it, LED strip drawn as light with a halo (`ledGlow.ts`) and spill on the front shell only.
+- The earpiece can always be turned by hand, all the way round: `DeviceHandle.tsx` lays an invisible handle over it (mouse drag spins and tips it, sideways swipes on touch, arrow keys). It coasts, then settles back to the story pose after a few seconds or when the page scrolls on.
 - LED colour: blue on the homepage; green for P2P and blue for P2E on the Physical page (the new colour fills the strip from the bottom of the stem up).
 - Never bake per-vertex effects onto the touch panel (its long CAD triangles band).
 
@@ -132,7 +133,7 @@ All shared classes are in `app/theme.css`.
 
 - Plain, specific, honest. Voxlate is in development: say "being built to", "designed to", "target specs". No launch dates or claims that are not true today.
 - No hype words ("revolutionary", "seamless", "unleash", "cutting-edge"). No fake reviews, stock faces or AI-generated images; recreate visuals in code or use the real model.
-- Product facts: Digital = meeting software (Voxlate Microphone / Speaker in Zoom, Meet, Teams). Physical = wearable earpiece. **P2P = Person to Person** (one-to-one conversation), **P2E = Person to Environment** (seminars, lectures, guided tours, markets).
+- Product facts: Digital = meeting software (Voxlate Microphone / Speaker in Zoom, Meet, Teams). Physical = wearable earpiece. **P2P = People to People**: any group of any size that doesn’t share a language (a chat in a mall, a market, a street) talking together like any group conversation, each in their own language, with no extra steps; every voice stays distinct, keeping its tone and sense of distance, so you know who is talking. **P2E = Person to Environment** (seminars, lectures, guided tours, markets).
 - Waitlist privacy: public pages show members only as first name and last initial ("Priya S."), each once, never with join dates, emails, photos, roles or companies.
 
 ---
@@ -178,7 +179,7 @@ restyling the Navbar or Footer without asking.
 | Gift CTA (closing section on every page) | `components/home/WaitlistGift.tsx` |
 | FAQ lens, reviews loop | `components/home/FaqLens.tsx`, `components/home/ReviewsLoop.tsx` |
 | Public name rule | `lib/publicName.ts`, `backend/lib/publicName.ts` |
-| Model pipeline | `scripts/stl-to-glb.mjs`, `Voxlate_v8_Website/` |
+| Model pipeline | `scripts/stl-to-glb.mjs`, `Voxlate_v9_Website/` |
 
 ---
 

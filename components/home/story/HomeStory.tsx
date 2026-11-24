@@ -11,6 +11,7 @@ import { clamp01, smoothstep } from "@/components/home/lemniscate";
 import { DigitalMock, PLATFORMS, type Platform } from "./DigitalMock";
 import { makeChoreography, StationIndex, StationPanel, useStationStyle } from "./Station";
 import type { DevicePart, MarkerPoint, StoryScene } from "./scene";
+import { DeviceHandle, useDeviceHandle } from "./DeviceHandle";
 
 /* Scroll choreography (fractions of the pinned scroll distance). */
 const SCROLL_VH = 420; // pinned distance, in svh
@@ -37,6 +38,7 @@ export function HomeStory() {
   const sceneRef = useRef<StoryScene | null>(null);
   const markerRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const markerLayer = useRef<HTMLDivElement>(null);
+  const { handleRef, placeHandle } = useDeviceHandle();
   const reduced = useReducedMotion() ?? false;
   const { openWaitlist } = useGatedWaitlist();
   const [platform, setPlatform] = useState<Platform>("zoom");
@@ -72,6 +74,7 @@ export function HomeStory() {
       el.style.setProperty("--marker-size", `${size.toFixed(1)}px`);
       el.style.setProperty("--marker-font", `${(compact ? 11 : 13) + act * (compact ? 4 : 6)}px`);
       el.tabIndex = intro > 0.6 ? 0 : -1;
+      el.style.pointerEvents = intro > 0.6 ? "auto" : "none";
     });
   }, []);
 
@@ -89,6 +92,7 @@ export function HomeStory() {
           reducedMotion: reduced,
           markerCount: MARKERS.length,
           onMarkers: placeMarkers,
+          onDevice: placeHandle,
         }),
       )
       .then((created) => {
@@ -105,7 +109,7 @@ export function HomeStory() {
       sceneRef.current = null;
       scene?.dispose();
     };
-  }, [placeMarkers, reduced, scrollYProgress]);
+  }, [placeMarkers, placeHandle, reduced, scrollYProgress]);
 
   // Only animate while the story is on screen.
   useEffect(() => {
@@ -202,7 +206,8 @@ export function HomeStory() {
         </motion.div>
 
         {/* ── Station markers riding the ribbon ── */}
-        <div ref={markerLayer} className="absolute inset-0" style={{ opacity: 0 }}>
+        {/* The layer lets clicks through to the hero; each circle takes clicks only once it is showing. */}
+        <div ref={markerLayer} className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
           {MARKERS.map((m, i) => (
             <button
               key={m.label}
@@ -301,6 +306,9 @@ export function HomeStory() {
           <p className="mt-4 hidden text-[14px] text-slate sm:block">Designed to auto-connect within 2 m, for groups of 2 to 200.</p>
           <StationActions href="/physical-version" onJoin={() => openWaitlist("product-physical")} />
         </StationPanel>
+
+        {/* Drag the earpiece to turn it all the way round. */}
+        <DeviceHandle handleRef={handleRef} sceneRef={sceneRef} />
       </div>
     </section>
   );

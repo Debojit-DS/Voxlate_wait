@@ -1,6 +1,7 @@
 /**
- * Rebuilds public/models/voxlate-earpiece.glb from the v8 CAD export
- * (Voxlate_v8_Website/parts: shell_front, shell_back, touch_panel, led_strip, ear_gel, volume_buttons .stl).
+ * Rebuilds public/models/voxlate-earpiece.glb from the v9 CAD export
+ * (Voxlate_v9_Website/parts: shell_front, shell_back, touch_panel, led_strip, ear_gel, volume_buttons,
+ * logo .stl). v9 = v8 plus the logo mark on the touch panel.
  *
  * The site ships this small GLB instead of the 10 MB STL set: each part is welded,
  * simplified, given crease-aware normals, quantized and meshopt-compressed.
@@ -26,6 +27,7 @@ const PARTS = [
   { file: 'led_strip', ratio: 0.45 },
   { file: 'ear_gel', ratio: 0.25 },
   { file: 'volume_buttons', ratio: 0.5 },
+  { file: 'logo', ratio: 1 }, // tiny (312 triangles): kept as modelled
 ];
 const CREASE = Math.cos((38 * Math.PI) / 180);
 

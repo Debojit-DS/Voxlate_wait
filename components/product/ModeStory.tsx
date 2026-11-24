@@ -9,6 +9,7 @@ import { clamp01, smoothstep } from "@/components/home/lemniscate";
 import { LED_COLORS } from "@/components/home/story/earpiece";
 import { makeChoreography, StationIndex, StationPanel, useStationStyle } from "@/components/home/story/Station";
 import type { MarkerPoint, StoryPalette, StoryScene } from "@/components/home/story/scene";
+import { DeviceHandle, useDeviceHandle } from "@/components/home/story/DeviceHandle";
 
 /*
  * Physical page story: the same infinity ribbon as the homepage. The earpiece floats down beside it,
@@ -34,11 +35,15 @@ const MODES = [
   {
     id: "p2p",
     code: "P2P",
-    name: "Person to Person",
+    name: "People to People",
     color: P2P_COLOR,
-    title: "Two people. Two languages. One conversation.",
-    body: "For a conversation between you and one other person. You speak in your language, they hear theirs, and their reply reaches you in yours, still in their voice.",
-    points: ["Face to face, one to one", "Designed to auto-connect within 2 m, no pairing", "Travel, shopping, offices, clinics and campuses"],
+    title: "Everyone talks. Everyone understands.",
+    body: "Any group, any size, with no shared language: friends in a mall, a market, a street. Each person speaks their own and hears everyone else in theirs, with no extra steps.",
+    points: [
+      "Any group size, any languages",
+      "Designed to link nearby wearers",
+      "Every voice keeps its tone and distance: you know who is talking",
+    ],
     light: "The light strip glows green while P2P is on.",
   },
   {
@@ -60,6 +65,7 @@ export function ModeStory() {
   const sceneRef = useRef<StoryScene | null>(null);
   const markerRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const markerLayer = useRef<HTMLDivElement>(null);
+  const { handleRef, placeHandle } = useDeviceHandle();
   const reduced = useReducedMotion() ?? false;
   const { openWaitlist } = useGatedWaitlist();
   const [sceneState, setSceneState] = useState<"loading" | "ready" | "fallback">("loading");
@@ -89,6 +95,7 @@ export function ModeStory() {
       el.style.setProperty("--marker-size", `${size.toFixed(1)}px`);
       el.style.setProperty("--marker-font", `${(compact ? 13 : 16) + act * (compact ? 5 : 8)}px`);
       el.tabIndex = intro > 0.6 ? 0 : -1;
+      el.style.pointerEvents = intro > 0.6 ? "auto" : "none";
     });
   }, []);
 
@@ -107,6 +114,7 @@ export function ModeStory() {
           variant: "modes",
           palette: PALETTE,
           onMarkers: placeMarkers,
+          onDevice: placeHandle,
         }),
       )
       .then((created) => {
@@ -123,7 +131,7 @@ export function ModeStory() {
       sceneRef.current = null;
       scene?.dispose();
     };
-  }, [placeMarkers, reduced, scrollYProgress]);
+  }, [placeMarkers, placeHandle, reduced, scrollYProgress]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -213,7 +221,8 @@ export function ModeStory() {
         </motion.div>
 
         {/* ── Mode circles riding the ribbon ── */}
-        <div ref={markerLayer} className="absolute inset-0" style={{ opacity: 0 }}>
+        {/* The layer lets clicks through to the hero; each circle takes clicks only once it is showing. */}
+        <div ref={markerLayer} className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
           {MODES.map((m, i) => (
             <button
               key={m.id}
@@ -277,12 +286,18 @@ export function ModeStory() {
                 </Link>
               </div>
             ) : (
-              <button type="button" className="vx-chip mt-5 w-fit lg:mt-7" onClick={() => scrollToStation(1)}>
-                Next: P2E <ArrowRight size={14} aria-hidden />
-              </button>
+              // On phones, scrolling on is the way to P2E (the button would not fit under the text).
+              <div className="mt-5 hidden sm:block lg:mt-7">
+                <button type="button" className="vx-chip w-fit" onClick={() => scrollToStation(1)}>
+                  Next: P2E <ArrowRight size={14} aria-hidden />
+                </button>
+              </div>
             )}
           </StationPanel>
         ))}
+
+        {/* Drag the earpiece to turn it all the way round. */}
+        <DeviceHandle handleRef={handleRef} sceneRef={sceneRef} />
       </div>
     </section>
   );

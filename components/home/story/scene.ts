@@ -34,8 +34,16 @@ export type StoryScene = {
   setPointer: (x: number, y: number) => void;
   setHighlight: (part: DevicePart | null) => void;
   setRunning: (running: boolean) => void;
+  /** Turn the device by hand, all the way round: start, move by screen pixels, end. */
+  dragStart: () => void;
+  dragBy: (dx: number, dy: number) => void;
+  /** `coast: false` stops dead (keyboard steps); otherwise a flick keeps it turning for a moment. */
+  dragEnd: (coast?: boolean) => void;
   dispose: () => void;
 };
+
+/** Where the device is on screen (CSS px), for the drag handle laid over it. */
+export type DeviceRect = { x: number; y: number; w: number; h: number };
 
 type Options = {
   canvas: HTMLCanvasElement;
@@ -47,6 +55,8 @@ type Options = {
   palette?: StoryPalette[];
   /** Called after every rendered frame with marker screen positions and the smoothed scroll state. */
   onMarkers: (points: MarkerPoint[], compact: boolean, station: number, intro: number) => void;
+  /** Called every frame with the device's screen box, or null while it is hidden or off screen. */
+  onDevice?: (rect: DeviceRect | null) => void;
   onDeviceReady?: () => void;
 };
 
@@ -75,6 +85,14 @@ const PART_NUDGE: Partial<Record<DevicePart, [number, number, number]>> = {
   volume_buttons: [0.18, 0, 0],
   ear_gel: [0, 0, -0.22],
 };
+/** Meshes that move together when a part is highlighted (the v9 logo sits on the touch panel). */
+const PART_MESHES: Partial<Record<DevicePart, string[]>> = { touch_panel: ["touch_panel", "logo"] };
+
+/** Hand-turning: radians per dragged pixel, and how far the device may tip towards or away from you. */
+const DRAG_RATE = 0.0105;
+const MAX_TILT = 1.35;
+/** After letting go, the device settles back to its pose after this long (or as soon as the page scrolls on). */
+const SETTLE_AFTER_MS = 6000;
 
 const DEFAULT_PALETTE: StoryPalette = { ribbon: COLORS.cobalt, led: LED_COLORS.blue };
 
@@ -521,6 +539,18 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
   let yaw = -0.42;
   let time = 0;
   let offset = 0;
+  // Hand-turning: the visitor's extra rotation on top of the scripted pose, and its momentum (rad/s).
+  let dragging = false;
+  let turnYaw = 0;
+  let turnTilt = 0;
+  let spinYaw = 0;
+  let spinTilt = 0;
+  let lastTouch = -Infinity;
+  let lastMove = 0;
+  let touchIntro = 0;
+  let touchStation = 0;
+  const clampTilt = (v: number) => Math.max(-MAX_TILT, Math.min(MAX_TILT, v));
+  const worldHeight = 2 * CAM_Z * Math.tan(THREE.MathUtils.degToRad(FOV / 2));
   const markers: MarkerPoint[] = Array.from({ length: opts.markerCount }, () => ({ x: 0, y: 0 }));
   const tmp = new THREE.Vector3();
 
@@ -576,16 +606,48 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
     let yawTarget = dp.yaw + px * 0.35 * (1 - t) + turntable * dp.swing * t;
     if (highlight && physical > 0.5) yawTarget = PART_YAW[highlight];
     yaw += (yawTarget - yaw) * (dt === 0 ? 1 : damp(4));
-    deviceSpin.rotation.set(dp.rotX + py * 0.12 * (1 - t), yaw, dp.rotZ);
+
+    // Turned by hand: it coasts to a stop, then settles back to its pose a few seconds after the
+    // visitor lets go, or as soon as they scroll on, so the story's angles return.
+    if (!dragging && dt > 0) {
+      if (!reducedMotion) {
+        turnYaw += spinYaw * dt;
+        turnTilt = clampTilt(turnTilt + spinTilt * dt);
+      }
+      spinYaw *= Math.exp(-dt * 3.5);
+      spinTilt *= Math.exp(-dt * 3.5);
+      const idle = performance.now() - lastTouch > SETTLE_AFTER_MS;
+      const scrolledOn = Math.abs(intro - touchIntro) + Math.abs(station - touchStation) > 0.12;
+      if (idle || scrolledOn) {
+        const home = Math.round(turnYaw / (Math.PI * 2)) * Math.PI * 2; // the nearest full turn: never unwind
+        turnYaw += (home - turnYaw) * damp(2.2);
+        turnTilt += (0 - turnTilt) * damp(2.2);
+        spinYaw = 0;
+        spinTilt = 0;
+      }
+    }
+    deviceSpin.rotation.set(dp.rotX + py * 0.12 * (1 - t) + turnTilt, yaw + turnYaw, dp.rotZ);
+
+    // The device's box on screen, for the drag handle over it.
+    if (opts.onDevice) {
+      const pxPerUnit = height / worldHeight;
+      const h = dp.h * (0.9 + 0.1 * appear) * pxPerUnit;
+      const x = width / 2 + deviceRig.position.x * pxPerUnit;
+      const y = height / 2 - deviceRig.position.y * pxPerUnit;
+      const onScreen = y + h / 2 > 0 && y - h / 2 < height && x > -h && x < width + h;
+      opts.onDevice(deviceRig.visible && appear > 0.6 && onScreen ? { x, y, w: h * 0.62, h: h * 1.04 } : null);
+    }
 
     for (const part of Object.keys(highlightAmount) as DevicePart[]) {
       const target = highlight === part && physical > 0.5 ? 1 : 0;
       highlightAmount[part] += (target - highlightAmount[part]) * (dt === 0 ? 1 : damp(6));
-      const mesh = partMeshes.get(part);
-      const rest = partRest.get(part);
       const nudge = PART_NUDGE[part];
-      if (mesh && rest && nudge) {
-        const a = highlightAmount[part];
+      if (!nudge) continue;
+      const a = highlightAmount[part];
+      for (const name of PART_MESHES[part] ?? [part]) {
+        const mesh = partMeshes.get(name);
+        const rest = partRest.get(name);
+        if (!mesh || !rest) continue;
         mesh.position.set(rest.x + nudge[0] * a, rest.y + nudge[1] * a, rest.z + nudge[2] * a);
         (mesh.material as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.3 * a;
       }
@@ -642,8 +704,33 @@ export async function createStoryScene(opts: Options): Promise<StoryScene> {
       if (!running) render(0);
     },
     setPointer(x, y) {
+      if (dragging) return; // the hero's look-at-the-pointer would fight the hand-turning
       pointerX = x;
       pointerY = y;
+    },
+    dragStart() {
+      dragging = true;
+      spinYaw = 0;
+      spinTilt = 0;
+      lastTouch = lastMove = performance.now();
+      touchIntro = intro;
+      touchStation = station;
+    },
+    dragBy(dx, dy) {
+      const now = performance.now();
+      const seconds = Math.max(0.016, (now - lastMove) / 1000);
+      lastMove = lastTouch = now;
+      turnYaw += dx * DRAG_RATE;
+      turnTilt = clampTilt(turnTilt + dy * DRAG_RATE);
+      spinYaw = Math.max(-8, Math.min(8, (dx * DRAG_RATE) / seconds));
+      spinTilt = Math.max(-8, Math.min(8, (dy * DRAG_RATE) / seconds));
+      if (!running) render(0);
+    },
+    dragEnd(coast = true) {
+      dragging = false;
+      lastTouch = performance.now();
+      // A pause before letting go means "stop here", not "keep spinning".
+      if (!coast || performance.now() - lastMove > 90) spinYaw = spinTilt = 0;
     },
     setHighlight(part) {
       highlight = part;

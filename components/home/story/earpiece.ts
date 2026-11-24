@@ -9,7 +9,7 @@ import * as THREE from "three";
  * fills it from the bottom of the stem up to `sweep`, so a mode change flows through the light.
  */
 
-export type EarpiecePart = "shell_front" | "shell_back" | "touch_panel" | "led_strip" | "ear_gel" | "volume_buttons";
+export type EarpiecePart = "shell_front" | "shell_back" | "touch_panel" | "led_strip" | "ear_gel" | "volume_buttons" | "logo";
 
 /** LED colours: bright enough to read as light on the paper background. */
 export const LED_COLORS = {
@@ -161,13 +161,23 @@ export function createEarpieceMaterials() {
     led_strip: createLedMaterial(led, false),
     ear_gel: new THREE.MeshPhysicalMaterial({ color: "#a3b2c4", roughness: 0.6, metalness: 0, sheen: 0.4, sheenRoughness: 0.6, sheenColor: "#dfe6f0" }),
     volume_buttons: new THREE.MeshPhysicalMaterial({ color: "#0d1a4d", roughness: 0.18, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 }),
+    // v9: the satin-silver mark set into the glass touch panel. Drawn slightly in front of the panel
+    // so the two never flicker where they meet.
+    logo: new THREE.MeshPhysicalMaterial({
+      color: "#e6ebf2",
+      roughness: 0.32,
+      metalness: 0.85,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    }),
   };
   // The touch panel stays pure glossy blue: its CAD surface is made of long edge-to-edge triangles that
   // can't carry a smooth light field, and the halo already lights its rim.
   addLedSpill(materials.shell_front, led, 0.5, 0.55);
 
   // A highlighted part brightens in its own colour (no tint).
-  const lit = [materials.shell_front, materials.shell_back, materials.touch_panel, materials.ear_gel, materials.volume_buttons];
+  const lit = [materials.shell_front, materials.shell_back, materials.touch_panel, materials.ear_gel, materials.volume_buttons, materials.logo];
   for (const m of lit) {
     m.emissive = m.color.clone();
     m.emissiveIntensity = 0;

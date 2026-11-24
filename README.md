@@ -42,7 +42,7 @@ Most conventional translation systems translate *words*, but fail to translate t
 - Planned Hindi ↔ English pilot expanding to 100+ global languages
 
 ### 🎧 Voxlate Physical (Wearable Hardware)
-- Person-to-Person (P2P) mode for bilateral cross-lingual conversations
+- People-to-People (P2P) mode for group conversations of any size in any mix of languages (a mall, a market, a street), where every voice stays distinct
 - Person-to-Environment (P2E) mode for seminars, lectures, guided tours, and local markets
 - Compact, all-day wearable form factor with charging case
 

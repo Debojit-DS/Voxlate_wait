@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voxlate Earpiece</title>
+<style>
+  html,body{margin:0;height:100%;background:radial-gradient(120% 90% at 50% 35%,#1d2b45 0%,#0c1322 55%,#060a12 100%);color:#e8eef6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;overflow:hidden}
+  canvas{display:block}
+  #ui{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;border-radius:999px;background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1)}
+  #ui button{all:unset;cursor:pointer;padding:9px 16px;border-radius:999px;font-size:13px;letter-spacing:.02em;color:#c9d7ea;display:flex;align-items:center;gap:8px}
+  #ui button:hover{background:rgba(255,255,255,.08)}
+  #ui button.on{background:#e8eef6;color:#0c1322}
+  .dot{width:8px;height:8px;border-radius:50%}
+  #title{position:fixed;top:26px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
+  #title h1{margin:0;font-weight:600;font-size:15px;letter-spacing:.32em;text-transform:uppercase}
+  #title p{margin:6px 0 0;font-size:12px;color:#8ea3c0;letter-spacing:.04em}
+  #load{position:fixed;inset:0;display:grid;place-items:center;font-size:13px;color:#8ea3c0;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div id="title"><h1>Voxlate</h1><p>Real-time translation earpiece</p></div>
+<div id="load">LOADING MODEL…</div>
+<div id="ui">
+  <button data-mode="blue" class="on"><span class="dot" style="background:#2f8cff"></span>Blue</button>
+  <button data-mode="red"><span class="dot" style="background:#ff2d3a"></span>Red</button>
+  <button data-mode="alt"><span class="dot" style="background:linear-gradient(90deg,#ff2d3a 50%,#2f8cff 50%)"></span>Red / Blue</button>
+  <button data-mode="off"><span class="dot" style="background:#3a4558"></span>Off</button>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 2000);
+camera.position.set(55, 18, 125);
+scene.add(new THREE.HemisphereLight(0xdfe9ff, 0x0b1020, 0.6));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(60, 90, 80); scene.add(key);
+const rim = new THREE.DirectionalLight(0x6fa8ff, 1.2); rim.position.set(-80, 30, -60); scene.add(rim);
+
+// ---- Materials: matte body, gloss glass touch panel, frosted LED diffuser
+const M = {
+  shell_front:    new THREE.MeshPhysicalMaterial({ color: 0xf3f5f8, roughness: 0.62, metalness: 0, sheen: 0.35, sheenRoughness: 0.8, sheenColor: 0xffffff }),
+  shell_back:     new THREE.MeshPhysicalMaterial({ color: 0xc9d7ea, roughness: 0.66, metalness: 0 }),
+  volume_buttons: new THREE.MeshPhysicalMaterial({ color: 0xc9d7ea, roughness: 0.5, metalness: 0.1 }),
+  touch_panel:    new THREE.MeshPhysicalMaterial({ color: 0x123f7a, roughness: 0.06, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.02 }),
+  led_strip:      new THREE.MeshStandardMaterial({ color: 0xe8eef6, roughness: 0.45, metalness: 0, emissive: 0x2f8cff, emissiveIntensity: 2.2 }),
+  ear_gel:        new THREE.MeshPhysicalMaterial({ color: 0xaebfcd, roughness: 0.55, metalness: 0, transparent: true, opacity: 0.92 }),
+  logo:           new THREE.MeshPhysicalMaterial({ color: 0xe6ebf2, roughness: 0.32, metalness: 0.85 })   // satin silver SN on gloss glass
+};
+
+const group = new THREE.Group(); scene.add(group);
+const loader = new STLLoader();
+const names = Object.keys(M);
+let loaded = 0;
+names.forEach(n => loader.load(`parts/${n}.stl`, g => {
+  g = toCreasedNormals(g, THREE.MathUtils.degToRad(40));
+  const mesh = new THREE.Mesh(g, M[n]); mesh.name = n; group.add(mesh);
+  if (++loaded === names.length) {
+    const box = new THREE.Box3().setFromObject(group);
+    group.position.sub(box.getCenter(new THREE.Vector3()));
+    document.getElementById('load').remove();
+  }
+}));
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.8;
+controls.minDistance = 60; controls.maxDistance = 260;
+controls.addEventListener('start', () => controls.autoRotate = false);
+
+// ---- LED modes
+const BLUE = new THREE.Color(0x2f8cff), RED = new THREE.Color(0xff2d3a);
+let mode = 'blue';
+document.querySelectorAll('#ui button').forEach(b => b.onclick = () => {
+  mode = b.dataset.mode;
+  document.querySelectorAll('#ui button').forEach(x => x.classList.toggle('on', x === b));
+});
+const clock = new THREE.Clock();
+function updateLED(t) {
+  const led = M.led_strip;
+  if (mode === 'off') { led.emissiveIntensity = 0; return; }
+  if (mode === 'blue') led.emissive.copy(BLUE);
+  if (mode === 'red') led.emissive.copy(RED);
+  if (mode === 'alt') { const k = 0.5 + 0.5 * Math.sin(t * 2.2); led.emissive.copy(RED).lerp(BLUE, k); }
+  led.emissiveIntensity = 1.8 + 0.6 * Math.sin(t * 3.0);   // gentle breathing
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => {
+  updateLED(clock.getElapsedTime());
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

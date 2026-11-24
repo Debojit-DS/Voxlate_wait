@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
 import { Logo } from "@/components/ui/Logo";
@@ -131,9 +129,6 @@ export function LaptopStory() {
             <button type="button" className="vx-btn" onClick={() => openWaitlist("digital-hero")}>
               Join the Waitlist
             </button>
-            <Link href="/demo" className="vx-link">
-              Try the web demo <ArrowRight size={16} aria-hidden />
-            </Link>
           </div>
         </motion.div>
 

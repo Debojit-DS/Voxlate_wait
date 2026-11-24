@@ -197,9 +197,6 @@ export function HomeStory() {
               <button type="button" className="vx-btn" onClick={() => openWaitlist("hero")}>
                 Join the Waitlist
               </button>
-              <Link href="/demo" className="vx-link">
-                Experience the demo <ArrowRight size={16} aria-hidden />
-              </Link>
             </div>
             <TrustLine className="mt-7 lg:mt-10" />
           </div>

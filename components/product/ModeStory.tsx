@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useGatedWaitlist } from "@/components/auth/useGatedWaitlist";
@@ -281,9 +280,6 @@ export function ModeStory() {
                 <button type="button" className="vx-btn vx-btn-sm" onClick={() => openWaitlist("product-physical")}>
                   Join the Waitlist
                 </button>
-                <Link href="/demo" className="vx-link text-[15px]">
-                  Try the web demo <ArrowRight size={15} aria-hidden />
-                </Link>
               </div>
             ) : (
               // On phones, scrolling on is the way to P2E (the button would not fit under the text).

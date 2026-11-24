@@ -59,7 +59,6 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
     links: [
       { label: "Digital version", href: "/digital-version" },
       { label: "Physical version", href: "/physical-version" },
-      { label: "Try the demo", href: "/demo" },
       { label: "Reviews", href: "/#testimonials" },
       { label: "FAQ", href: "/#faq" },
     ],

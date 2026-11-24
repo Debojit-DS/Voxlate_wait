@@ -45,8 +45,8 @@ export default function ContactPage() {
           </div>
           <p className="mt-10 text-[15px] text-slate">
             Prefer email?{" "}
-            <a href="mailto:support@voxlate.com" className="vx-link">
-              support@voxlate.com
+            <a href="mailto:voxlatesn@gmail.com" className="vx-link">
+              voxlatesn@gmail.com
             </a>
           </p>
         </div>

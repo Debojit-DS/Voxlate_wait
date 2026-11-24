@@ -79,7 +79,7 @@ const COLUMNS: { title: string; links: { label: string; href: string; external?:
       { label: "Waitlist", href: "/waitlist" },
       { label: "Telegram", href: "https://t.me/voxlate", external: true },
       { label: "WhatsApp", href: "https://chat.whatsapp.com", external: true },
-      { label: "Email us", href: "mailto:support@voxlate.com", external: true },
+      { label: "Email us", href: "mailto:voxlatesn@gmail.com", external: true },
     ],
   },
 ];

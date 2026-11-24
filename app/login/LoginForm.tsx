@@ -216,7 +216,7 @@ export default function LoginForm() {
             <span>Remember me</span>
           </label>
           <a
-            href="mailto:support@voxlate.com?subject=Password%20Reset%20Request"
+            href="mailto:voxlatesn@gmail.com?subject=Password%20Reset%20Request"
             className="font-medium text-primary hover:text-primary-hover transition-colors"
           >
             Forgot password?

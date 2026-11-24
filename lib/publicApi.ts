@@ -146,7 +146,7 @@ export async function postContact(input: ContactInput): Promise<void> {
   const data = await res.json().catch(() => null);
   if (!res.ok || data?.status !== "success") {
     const field = data?.errors ? Object.values(data.errors as Record<string, string>)[0] : null;
-    throw new Error(field || data?.message || (res.status === 404 ? "Messages can't be received yet. Please email support@voxlate.com." : "Your message couldn't be sent. Please try again."));
+    throw new Error(field || data?.message || (res.status === 404 ? "Messages can't be received yet. Please email voxlatesn@gmail.com." : "Your message couldn't be sent. Please try again."));
   }
 }
 

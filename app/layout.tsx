@@ -13,6 +13,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { AuthPromptProvider } from "@/components/auth/AuthPromptProvider";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
 import { NextAuthProvider } from "@/components/auth/NextAuthProvider";
+import { ClarityScript } from "@/components/clarity/ClarityScript";
 import { preload } from "react-dom";
 import "./globals.css";
 import "./theme.css";
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={fontVariables}>
       <body>
+        <ClarityScript />
         <NextAuthProvider>
           <AuthProvider>
             <AuthPromptProvider>

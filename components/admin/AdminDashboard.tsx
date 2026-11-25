@@ -433,10 +433,17 @@ function UsersTab() {
     const params = new URLSearchParams({ page: String(page), pageSize: "25" });
     if (search) params.set("search", search);
     fetch(`/api/admin/users?${params}`, { signal: controller.signal })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((json) => {
         setUsers(json.data ?? []);
         setTotalPages(json.pagination?.totalPages ?? 1);
+      })
+      .catch((err) => {
+        console.error("Users load error:", err);
+        setUsers([]);
       })
       .finally(() => setLoading(false));
   }, [page, search]);

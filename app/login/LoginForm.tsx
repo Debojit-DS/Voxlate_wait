@@ -87,11 +87,12 @@ export default function LoginForm() {
     // here tells anyone an admin account exists.
     if (values.email.trim().toLowerCase() === ADMIN_LOGIN_NAME) {
       try {
-        const res = await fetch("/api/auth/admin-login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: ADMIN_LOGIN_NAME, password: values.password }),
-        });
+      const res = await fetch("/api/auth/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: ADMIN_LOGIN_NAME, password: values.password }),
+        credentials: "include",
+      });
         const json = await res.json().catch(() => null);
         if (json?.status === "success") {
           window.location.assign("/admin");
